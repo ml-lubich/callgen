@@ -5,36 +5,50 @@ description: Author the figure set for a callgen artifact — 8 to 12 publicatio
 
 # Diagrams
 
-## The glyph-first rule
+## The node rule
 
-**The node shows the property. The label only names it.**
+**A node is an icon, a label, and a one-clause note. A node whose only content is words
+has failed the rule.**
 
-A box whose entire content is words is a list item wearing a border. What separates
-an amateur figure from a professional one is that in the professional one every node
-contains a miniature drawing of the thing being claimed, so the claim is visible
-before it is read. The same node, twice — label-only:
+Two things carry a node, and you need both. The **icon** carries the *category* — the thing
+it is, recognised before the label is read: a document, a database, a ticket, a server, a
+person. The **property-glyph** carries the *measurement* — the one number or contrast the
+argument turns on: bounded versus unbounded, empty versus filled, cheap versus costly. The
+label only names what the icon and glyph already show. The same node, twice — a bordered
+rectangle whose entire content is words:
 ```html
-<svg viewBox="0 0 180 60" role="img"><title>Label-only node</title>
-  <rect x="1" y="1" width="178" height="58" fill="var(--paper-2)" stroke="var(--pen-a)"/>
-  <text x="12" y="26" font-size="13" fill="var(--ink)">Lexical index</text>
-  <text x="12" y="44" font-size="10" fill="var(--ink-soft)">unbounded scores</text>
+<svg viewBox="0 0 200 60" role="img"><title>Label-only node</title>
+  <rect x="1" y="1" width="198" height="58" fill="var(--paper-2)" stroke="var(--pen-a)"/>
+  <text x="14" y="28" font-size="13" fill="var(--ink)">Salesforce docs</text>
+  <text x="14" y="46" font-size="10" fill="var(--ink-soft)">product documents</text>
 </svg>
 ```
-Glyph-first:
+Nothing there is seen before it is read; the border is decoration. The same claim as a real
+node — a document-stack icon that says "many documents" at a glance, the label, and one clause
+of note (assumes the sprite from `icons.svg` is inlined on the page):
 ```html
-<svg viewBox="0 0 180 60" role="img"><title>Glyph-first node</title>
-  <rect x="1" y="1" width="178" height="58" fill="var(--paper-2)" stroke="var(--pen-a)"/>
-  <text x="12" y="19" font-size="13" fill="var(--ink)">Lexical index</text>
-  <rect x="12" y="29" width="138" height="9" fill="var(--pen-b)"/>
-  <text x="154" y="38" font-size="12" fill="var(--pen-b)">≫</text>
-  <text x="12" y="52" font-size="10" fill="var(--ink-soft)">unbounded</text>
+<svg viewBox="0 0 200 60" role="img"><title>Node: icon, label, note</title>
+  <rect x="1" y="1" width="198" height="58" fill="var(--paper-2)" stroke="var(--pen-a)"/>
+  <svg x="12" y="16" width="30" height="30" viewBox="0 0 24 24" style="color:var(--pen-a)">
+    <use href="#icon-document-stack"/></svg>
+  <text x="52" y="28" font-size="13" fill="var(--ink)">Salesforce docs</text>
+  <text x="52" y="46" font-size="10" fill="var(--ink-soft)">a scraped corpus, audited by hand</text>
 </svg>
 ```
-Six more units of ink, and "unbounded" is now something the reader sees before reading
-it, and can compare at a glance against the bounded index above it. Before drawing any
-node, answer: **what property of this thing is the argument, and what is the smallest
-picture of that property?** If the answer is "none, it is just a stage in a sequence",
-the node is a plain box and the sequence is the glyph. Four plain boxes in a row is a list.
+The reader now recognises a stack of documents before reading a word, and the note earns its
+place by saying something the label cannot. Where the argument is a *measurement*, add the
+property-glyph too: the icon says which thing, the glyph says how much. Before drawing any
+node, answer both: **what is this thing (pick its icon from `icons.md`), and what property of
+it is the argument (pick or draw its glyph)?** If a node has no measurement — it is only a
+stage in a sequence — it still gets its icon and label; the sequence is the glyph. Four
+icon-and-label boxes in a row with no arrow of consequence between them is still a list.
+
+The icon set — 31 hand-drawn object icons on a 24×24 grid, tinted by `currentColor` so they
+take your pens — lives in `icons.svg` (the sprite) and `icons.md` (what each means and its
+failure mode). Inline the sprite once at the top of the fragment, then `<use href="#icon-…"/>`.
+Pick the icon that names the category exactly: `database` is not `vector-index`, `check` is
+not `shield`, `server` is not `building` — the shapes are kept distinct on purpose, and using
+the wrong one asserts the wrong category.
 
 ## What you are writing
 
@@ -443,8 +457,10 @@ tabular-nums`. Node labels are **five words or fewer**; the note under a node is
 words or fewer**. Nothing below 10px.
 
 **Line.** Strokes 1–1.5px for structure, 0.5px for hairline grid and axes. No shadows, no
-gradients, no `rx` above 2, no emoji, no icon fonts, no clip art. Fill boxes with
-`--paper-2` and stroke with a pen — never fill a box with a pen colour and set text on it.
+gradients, no `rx` above 2, no emoji, no icon fonts, no clip art. Category icons come only
+from the hand-drawn `icons.svg` sprite (`currentColor`, one depth layer at ~12%) — never a
+font, a raster, or a traced logo. Fill boxes with `--paper-2` and stroke with a pen — never
+fill a box with a pen colour and set text on it.
 
 **Marker ids are per-figure**, prefixed with the figure id: `mk-<figure-id>-a`. All figures
 land in one document, ids are global, and a collision silently repaints every arrowhead on
@@ -481,7 +497,8 @@ figures, a missing `role="img"`, `<title>`, `<desc>` or key, text below 10px, an
 cited timestamp resolving to a real turn. Then check by hand what a linter cannot:
 
 1. **Cover the labels.** Read each figure with every text element hidden. If you cannot
-   state its claim from the shapes alone, it is not glyph-first — go back.
+   state its claim from the icons and shapes alone, it is not glyph-first — go back. Every
+   node must carry a category icon from the sprite; a node that is only a labelled box fails.
 2. **Build and open the page.** External requests must be zero.
 3. **Toggle the theme.** A figure that vanishes in dark mode has a hard-coded
    colour the grep missed.
