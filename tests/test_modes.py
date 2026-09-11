@@ -860,3 +860,52 @@ def test_prose_fields_covers_the_verdict_and_the_landings():
     )
     assert any("verdict.position" in p and "28-word cap" in p for p in problems), problems
     assert any("lands[0]" in p and "28-word cap" in p for p in problems), problems
+
+
+# --- the insight card's headline and its basis are rendered prose ---------------
+# Insights.tsx renders `title` as the card headline in place of the claim, and
+# `basis` as a line beside the confidence mark. Neither was yielded by
+# _prose_fields, so a 60-word title passed every cap and every register rule. The
+# insights section was also missing from the page total, so in brief — where the
+# insights are the document — the page cap measured almost nothing.
+
+def test_insight_title_and_basis_are_capped(content):
+    insights = [{
+        "claim": "short",
+        "title": " ".join(["word"] * 60),
+        "basis": " ".join(["word"] * 60),
+        "implication": "the so-what",
+        "confidence": "high",
+        "supports": [{"observation": "seen on screen", "ts": "00:00:01", "s": 1}],
+    }]
+    bad = prose_violations({**content, "insights": insights}, "professional")
+    assert any(v.startswith("insights[0].title:") for v in bad), bad
+    assert any(v.startswith("insights[0].basis:") for v in bad), bad
+
+
+def test_insight_title_and_basis_obey_the_register_rules(content):
+    insights = [{
+        "claim": "short", "implication": "the so-what", "confidence": "high",
+        "title": "The roadmap is like a ladder.",
+        "basis": "He essentially said it twice.",
+        "supports": [],
+    }]
+    bad = register_violations({**content, "insights": insights}, "professional")
+    assert any("insights[0].title" in v and "analogy" in v for v in bad), bad
+    assert any("insights[0].basis" in v and "essentially" in v for v in bad), bad
+
+
+def test_insight_prose_counts_toward_the_page_total():
+    base = {"abstract": " ".join(["w"] * 800), "acts": []}
+    assert not any(p.startswith("page:") for p in prose_violations(base, "professional"))
+    # 120 more words of insight prose, every field inside its own cap
+    withins = {**base, "insights": [{
+        "title": " ".join(["w"] * 10),
+        "claim": " ".join(["w"] * 20),
+        "implication": " ".join(["w"] * 40),
+        "basis": " ".join(["w"] * 25),
+        "confidence": "high",
+        "supports": [{"observation": " ".join(["w"] * 25), "ts": "00:00:01", "s": 1}],
+    }]}
+    page_lines = [p for p in prose_violations(withins, "professional") if p.startswith("page:")]
+    assert page_lines and page_lines[0].startswith("page: 920 words"), page_lines

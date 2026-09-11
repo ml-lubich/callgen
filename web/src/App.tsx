@@ -357,19 +357,19 @@ function Snapshot({ deck }: { deck: Deck }) {
     ] as [string, string | number][]
   ).filter(([, v]) => v !== 0 && v !== "0" && v !== "" && v != null);
   // The plate's metastrip already carries whatever the pipeline wrote into meta. A tile
-  // repeating a cell from 300px up the page is the noise this block exists to cut, so the
-  // snapshot claims the numbers the header has no room for — and takes the plain call
-  // stats back only when that would leave it with too few to be a row at all.
+  // repeating a cell from 300px up the page is the noise this block exists to cut — so a
+  // stat is "already on the plate" when its value matches one shown there, whatever label
+  // the plate used (Attendees vs. Speakers is the same count read twice). Fewer than three
+  // survivors is worse than none: a two-tile row still reads like it forgot the plate, so
+  // the verdict and insights carry the snapshot alone instead.
+  const fmt = (v: string | number) => (typeof v === "number" ? num(v) : v);
   const onPlate = new Set(
-    [
-      meta.duration_label && "Duration",
-      meta.turns != null && "Turns",
-      meta.words != null && "Words",
-      ...(meta.extra ?? []).map(([k]) => k),
-    ].filter(Boolean) as string[],
+    [meta.duration_label, meta.turns, meta.words, ...(meta.extra ?? []).map(([, v]) => v)]
+      .filter((v): v is string | number => v !== "" && v != null)
+      .map(fmt),
   );
-  const fresh = stats.filter(([label]) => !onPlate.has(label));
-  const tiles = (fresh.length >= 3 ? fresh : stats).slice(0, 5);
+  const fresh = stats.filter(([, value]) => !onPlate.has(fmt(value)));
+  const tiles = fresh.length >= 3 ? fresh.slice(0, 5) : [];
   const top = (c.insights ?? []).slice(0, 2);
 
   return (

@@ -578,7 +578,9 @@ PROSE_CAPS = {
     "paragraph": 70, "act_summary": 60, "thread_what": 55, "list_item": 30,
     # An insight's claim is a headline — one sentence a slide could carry. Its
     # implication is the so-what. Its supports are list items, capped as such.
-    "insight_claim": 26, "insight_implication": 45,
+    # A title, when the analysis writes one, replaces the claim as the card's
+    # headline, so it is a noun phrase and held tighter than the claim it displaces.
+    "insight_claim": 26, "insight_implication": 45, "insight_title": 12,
 }
 _CAP_SCALE = {"summarized": 0.6, "compact": 0.6, "concise": 0.75, "creative": 1.3}
 
@@ -611,7 +613,10 @@ _LIST_FIELDS = (
 )
 
 # Sections that render as running prose. Three in a row is a wall of text.
-_PROSE_SECTIONS = ("abstract", "acts", "threads", "quotes", "fit")
+# `insights` belongs here even though its supports are list rows: the cards are the
+# main read on every page and the whole document in brief, so a page total blind to
+# them measures almost nothing.
+_PROSE_SECTIONS = ("abstract", "acts", "threads", "quotes", "fit", "insights")
 
 
 def caps(mode: str, root=None) -> dict[str, int]:
@@ -636,7 +641,9 @@ def _prose_fields(content: dict):
         yield f"threads[{i}].what", t.get("what", ""), "thread_what"
         yield f"threads[{i}].why_it_matters", t.get("why_it_matters", ""), "thread_what"
     for i, ins in enumerate(content.get("insights") or []):
+        yield f"insights[{i}].title", ins.get("title", ""), "insight_title"
         yield f"insights[{i}].claim", ins.get("claim", ""), "insight_claim"
+        yield f"insights[{i}].basis", ins.get("basis", ""), "list_item"
         yield f"insights[{i}].implication", ins.get("implication", ""), "insight_implication"
         for j, sup in enumerate(ins.get("supports") or []):
             yield (f"insights[{i}].supports[{j}].observation",

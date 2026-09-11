@@ -191,7 +191,7 @@ describe("the snapshot at the top of the overview", () => {
     expect(lines).toEqual(["Title 0", "Title 1"]);
   });
 
-  it("takes the plain call stats back when the header leaves it too few tiles", () => {
+  it("carries the plain call stats when the plate has not claimed them", () => {
     // no meta turns or words on the plate, so the snapshot is free to carry them
     page(
       { ...CONTENT, meta: { ...CONTENT.meta, turns: undefined, words: undefined } },
@@ -200,6 +200,64 @@ describe("the snapshot at the top of the overview", () => {
     const tiles = [...document.querySelectorAll(".snap-tile dt")].map((t) => t.textContent);
     expect(tiles).toContain("Turns");
     expect(tiles.length).toBeGreaterThanOrEqual(3);
+  });
+
+  it("drops a tile whose number already appears on the plate under a different label", () => {
+    // the plate carries the same head count as "Attendees"; the snapshot must not
+    // restate it as "Speakers" just because the label text doesn't match
+    const content: Content = {
+      ...CONTENT,
+      meta: {
+        ...CONTENT.meta,
+        turns: undefined,
+        words: undefined,
+        extra: [["Attendees", 2]],
+      },
+      next_steps: [{ ts: "00:00:40", s: 40, commitment: "send notes" }],
+      insights: [INSIGHTS[0]],
+    };
+    page(content, { sections: ["abstract"], transcript: "omit" });
+    const tiles = [...document.querySelectorAll(".snap-tile dt")].map((t) => t.textContent);
+    expect(tiles).not.toContain("Speakers");
+    expect(tiles).toContain("Next steps");
+    expect(tiles).toContain("Claims");
+  });
+
+  it("renders no tile row at all when fewer than three tiles would be genuinely new, but keeps the verdict", () => {
+    // duration, turns, words and the speaker count are all already on the plate; a
+    // fallback that restates them would be worse than showing no tiles
+    const content: Content = {
+      ...CONTENT,
+      meta: {
+        ...CONTENT.meta,
+        duration_label: "2 min",
+        turns: 3,
+        words: 40,
+        extra: [["Attendees", 2]],
+      },
+      verdict: { position: "Verdict stands alone.", for: ["a"], against: ["b"], decides_it: "c" },
+    };
+    page(content, { sections: ["abstract"], transcript: "omit" });
+    const snap = document.querySelector(".snapshot")!;
+    expect(snap.querySelector(".snap-position")!.textContent).toBe("Verdict stands alone.");
+    expect(snap.querySelectorAll(".snap-tile").length).toBe(0);
+  });
+
+  it("in a fully-populated build, still shows whatever tiles are genuinely new", () => {
+    const content: Content = {
+      ...FULL,
+      meta: {
+        ...FULL.meta,
+        duration_label: "2 min",
+        turns: 5,
+        words: 40,
+        extra: [["Attendees", 2]],
+      },
+      threads: [{ name: "x", what: "y", why_it_matters: "z" }],
+    };
+    page(content, { sections: ["abstract", "insights"], transcript: "omit" });
+    const tiles = [...document.querySelectorAll(".snap-tile dt")].map((t) => t.textContent);
+    expect(tiles).toEqual(["Next steps", "Claims", "Threads"]);
   });
 
   it("stands the abstract's first sentence in when the analysis reached no verdict", () => {
