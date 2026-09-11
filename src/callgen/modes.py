@@ -29,6 +29,7 @@ TRANSCRIPT = ("open", "collapsed", "omit")
 SECTIONS: dict[str, tuple[str, ...]] = {
     "strip": (),
     "abstract": ("abstract", "verdict"),
+    "insights": ("insights",),
     "highlights": ("highlights",),
     "figures": (),
     "acts": ("acts", "lands"),
@@ -49,6 +50,7 @@ ALL = tuple(SECTIONS)
 # Words. A budget is a ceiling handed to the writer, not a knife held to the page.
 BUDGETS = {
     "abstract": 120,
+    "insights": 110,
     "highlights": 25,
     "figures": 40,
     "acts": 60,
@@ -88,6 +90,11 @@ class Mode:
     # content.json untouched; only the default visibility changes. A 26-row table next
     # to the figure that plots the same 26 rows is a wall of text, so the table folds.
     collapsed: tuple[str, ...] = ()
+    # Sections that fall behind the appendix boundary: the page renders them after a
+    # divider, folded, once the main read is done. The record is complete, but the four
+    # to six pages a reader will actually read come first. Every appendix section is
+    # also collapsed; listing it here only adds the divider and the ordering promise.
+    appendix: tuple[str, ...] = ()
 
 
 def _halved(budgets: dict[str, int]) -> dict[str, int]:
@@ -122,6 +129,36 @@ _BUILT_INS = (
         transcript="open",
         summary="the default — neutral register, every section, 8-12 figures",
         collapsed=("evidence", "signals", "numbers", "tech", "friction"),
+    ),
+    Mode(
+        name="brief",
+        register=(
+            "The professional register, cut to what a reader acts on. The verdict opens the "
+            "document. The insights are the argument; write each as one claim a reader could "
+            "not have guessed from the job title, then its supports and its so-what. An act is "
+            "one line, not a paragraph. Say the thing and stop."
+        ),
+        sections=(
+            "strip", "abstract", "insights", "figures", "acts", "threads",
+            "evidence", "signals", "numbers", "tech", "friction", "fit", "next",
+            "transcript",
+        ),
+        budgets={**_halved(BUDGETS), "abstract": 80, "insights": 100},
+        figures=4,
+        emphasis=(
+            "Insights lead, right after the verdict: what happened, what it means, what to do, "
+            "in that order and fast. Figures are the few that carry an insight. The acts and "
+            "threads are compressed to a line each. Everything a reader can check later — the "
+            "evidence table, the signals, the numbers, the transcript — falls behind the "
+            "appendix boundary, folded, losing no fact and none of the reader's first six pages."
+        ),
+        transcript="collapsed",
+        summary=(
+            "verdict, insights and the figures that carry them; the record folds into an appendix"
+        ),
+        appendix=(
+            "evidence", "signals", "numbers", "tech", "friction", "fit", "next", "transcript",
+        ),
     ),
     Mode(
         name="concise",
@@ -302,6 +339,12 @@ def _normalise(m: Mode, where: str) -> Mode:
         raise ModeError(
             f"{where}: transcript {m.transcript!r} is not one of {', '.join(TRANSCRIPT)}"
         )
+    bad_appendix = [s for s in m.appendix if s not in SECTIONS]
+    if bad_appendix:
+        raise ModeError(
+            f"{where}: unknown appendix section {', '.join(repr(s) for s in bad_appendix)} — "
+            f"the section ids are {', '.join(ALL)}"
+        )
     sections = tuple(s for s in m.sections if s != "transcript")
     if m.transcript != "omit":
         sections += ("transcript",)
@@ -325,6 +368,7 @@ def _from_dict(name: str, spec, where: str) -> Mode:
         register=str(spec.get("register", base.register)),
         sections=tuple(spec.get("sections", base.sections)),
         collapsed=tuple(spec.get("collapsed", base.collapsed)),
+        appendix=tuple(spec.get("appendix", base.appendix)),
         budgets=dict(spec.get("budgets", base.budgets)),
         figures=spec.get("figures", base.figures),
         emphasis=str(spec.get("emphasis", base.emphasis)),
@@ -405,24 +449,46 @@ def apply(content: dict, mode: str, root=None) -> dict:
     out = {k: v for k, v in content.items() if k not in owned or k in keep}
     if "highlights" in m.sections:
         out["highlights"] = _highlights(content)
+    appendix = [sec for sec in m.appendix if sec in m.sections]
+    # Every appendix section renders folded; the transcript folds through its own flag,
+    # so it is never double-wrapped in a collapse here.
+    collapsed = list(m.collapsed)
+    for sec in appendix:
+        if sec != "transcript" and sec not in collapsed:
+            collapsed.append(sec)
     out["_mode"] = {
         "name": m.name,
         "sections": list(m.sections),
         "budgets": dict(m.budgets),
         "figures": m.figures,
         "transcript": m.transcript,
-        "collapsed": [sec for sec in m.collapsed if sec in m.sections],
+        "collapsed": [sec for sec in collapsed if sec in m.sections],
+        "appendix": appendix,
     }
     return out
 
 
+APPENDIX_DIVIDER = (
+    '<div class="appendix-divider" role="separator"><span>Appendix</span>'
+    "<p>The full record — every claim, signal, number and the transcript, kept out of the "
+    "main read.</p></div>\n"
+)
+
+
 def shape_template(template: str, block: dict) -> str:
-    """Keep, reorder and mark the ``<section data-sec=…>`` blocks the mode asked for."""
+    """Keep, reorder and mark the ``<section data-sec=…>`` blocks the mode asked for.
+
+    Sections named in the mode's ``appendix`` are pushed behind a one-line divider so the
+    main read ends and the record begins at a clear boundary. A collapsed transcript keeps
+    its ``data-collapsed`` mark; appendix sections are otherwise left as-is here — the page
+    itself folds them once it knows the ``_mode`` block.
+    """
     found = list(_SECTION.finditer(template))
     if not found:
         return template
     wanted = list(block.get("sections") or ALL)
-    keep: list[tuple[tuple[int, int], str]] = []
+    appendix = set(block.get("appendix") or ())
+    keep: list[tuple[tuple[int, int], str, bool]] = []
     for i, match in enumerate(found):
         ids = match.group(1).split()
         ranks = [wanted.index(s) for s in ids if s in wanted]
@@ -431,9 +497,16 @@ def shape_template(template: str, block: dict) -> str:
         html = match.group(0)
         if "transcript" in ids and block.get("transcript") == "collapsed":
             html = html.replace("<section", "<section data-collapsed", 1)
-        keep.append(((min(ranks), i), html))
-    keep.sort(key=lambda pair: pair[0])
-    return template[: found[0].start()] + "".join(h for _, h in keep) + template[found[-1].end() :]
+        keep.append(((min(ranks), i), html, bool(appendix.intersection(ids))))
+    keep.sort(key=lambda t: t[0])
+    out: list[str] = []
+    divided = False
+    for _, html, is_appendix in keep:
+        if is_appendix and not divided:
+            out.append(APPENDIX_DIVIDER)
+            divided = True
+        out.append(html)
+    return template[: found[0].start()] + "".join(out) + template[found[-1].end() :]
 
 
 REGISTER_RULES = """Register rules, in every mode:
@@ -448,8 +521,26 @@ REGISTER_RULES = """Register rules, in every mode:
 
 # Hard caps in words, enforced at build time. These are the professional defaults;
 # each mode scales them. The abstract's cap is the mode's own abstract budget.
-PROSE_CAPS = {"paragraph": 70, "act_summary": 60, "thread_what": 55, "list_item": 30}
+PROSE_CAPS = {
+    "paragraph": 70, "act_summary": 60, "thread_what": 55, "list_item": 30,
+    # An insight's claim is a headline — one sentence a slide could carry. Its
+    # implication is the so-what. Its supports are list items, capped as such.
+    "insight_claim": 26, "insight_implication": 45,
+}
 _CAP_SCALE = {"summarized": 0.6, "compact": 0.6, "concise": 0.75, "creative": 1.3}
+
+# A mode can hold individual kinds tighter than a uniform scale would. `brief` cuts the
+# narrative — an act to a line, an insight claim to a headline — while leaving the list
+# item at the professional cap, because the appendix rows it governs carry full detail.
+_CAP_OVERRIDE: dict[str, dict[str, int]] = {
+    "brief": {
+        "act_summary": 22,
+        "thread_what": 30,
+        "paragraph": 45,
+        "insight_claim": 24,
+        "insight_implication": 36,
+    },
+}
 
 # The whole page's prose, summed across every capped field. Scaled like the rest.
 PAGE_PROSE_CAP = 900
@@ -475,6 +566,7 @@ def caps(mode: str, root=None) -> dict[str, int]:
     m = get(mode, root)
     scale = _CAP_SCALE.get(m.name, 1.0)
     out = {kind: max(5, round(cap * scale)) for kind, cap in PROSE_CAPS.items()}
+    out.update(_CAP_OVERRIDE.get(m.name, {}))
     out["abstract"] = m.budgets.get("abstract", BUDGETS["abstract"])
     out["page"] = max(5, round(PAGE_PROSE_CAP * scale))
     return out
@@ -490,6 +582,12 @@ def _prose_fields(content: dict):
     for i, t in enumerate(content.get("threads") or []):
         yield f"threads[{i}].what", t.get("what", ""), "thread_what"
         yield f"threads[{i}].why_it_matters", t.get("why_it_matters", ""), "thread_what"
+    for i, ins in enumerate(content.get("insights") or []):
+        yield f"insights[{i}].claim", ins.get("claim", ""), "insight_claim"
+        yield f"insights[{i}].implication", ins.get("implication", ""), "insight_implication"
+        for j, sup in enumerate(ins.get("supports") or []):
+            yield (f"insights[{i}].supports[{j}].observation",
+                   sup.get("observation", ""), "list_item")
     for section, field in _LIST_FIELDS:
         for i, row in enumerate(content.get(section) or []):
             yield f"{section}[{i}].{field}", row.get(field, ""), "list_item"

@@ -15,6 +15,7 @@ export type { ModeBlock };
 export const DEFAULT_SECTIONS = [
   "strip",
   "abstract",
+  "insights",
   "highlights",
   "figures",
   "acts",
@@ -48,6 +49,8 @@ export interface Shape {
   figures?: number;
   /** Section ids the page renders collapsed by default. */
   collapsed: string[];
+  /** Section ids rendered after the appendix divider — the record, folded out of the read. */
+  appendix: string[];
 }
 
 /**
@@ -69,12 +72,19 @@ export function shapeOf(content: Pick<Content, "_mode">): Shape {
   const collapsed = Array.isArray(block.collapsed)
     ? block.collapsed.filter((s) => known.has(s))
     : [];
+  // The appendix is only meaningful for sections the page is actually rendering; a mode
+  // that names an appendix section it dropped does not get a divider to nowhere.
+  const inOrder = new Set(sections);
+  const appendix = Array.isArray(block.appendix)
+    ? block.appendix.filter((s) => known.has(s) && inOrder.has(s))
+    : [];
 
   return {
     name: block.name || buildMode() || "professional",
     sections,
     transcript,
     collapsed,
+    appendix,
     figures: typeof block.figures === "number" && block.figures >= 0 ? block.figures : undefined,
   };
 }

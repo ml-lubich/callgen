@@ -72,3 +72,58 @@ describe("the mode decides the page's shape", () => {
     await waitFor(() => expect(document.querySelector(".twoup")).not.toBeNull());
   });
 });
+
+const INSIGHT = {
+  claim: "The screen would have rejected the strongest candidate signal.",
+  implication: "Hire on the delivery axis the requisition was not written for.",
+  confidence: "high" as const,
+  supports: [{ ts: "00:00:40", s: 40, observation: "he said so on the call" }],
+};
+
+describe("insights and the appendix", () => {
+  function renderWith(mode: Content["_mode"], extra: Partial<Content> = {}) {
+    render(<App deck={deck({ ...FULL, ...extra, _mode: mode }, TURNS, METRICS, "")} />);
+    return [...document.querySelectorAll("main > section")].map((s) => s.id);
+  }
+
+  it("gives insights their own section, where the mode places them", () => {
+    const ids = renderWith(
+      { sections: ["abstract", "insights", "signals"], transcript: "omit" },
+      { insights: [INSIGHT] },
+    );
+    expect(ids).toEqual(["sec-abstract", "sec-insights", "sec-signals"]);
+  });
+
+  it("renders the claim, a timestamped support and the so-what", async () => {
+    renderWith({ sections: ["insights"], transcript: "omit" }, { insights: [INSIGHT] });
+    expect(await screen.findByText(INSIGHT.claim)).toBeInTheDocument();
+    expect(screen.getByText(INSIGHT.supports[0].observation)).toBeInTheDocument();
+    expect(screen.getByText(INSIGHT.implication)).toBeInTheDocument();
+    expect(screen.getByText(/high confidence/i)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "00:00:40" })).toBeInTheDocument();
+  });
+
+  it("drops the appendix section when the analysis had no insights", () => {
+    const ids = renderWith({ sections: ["abstract", "insights"], transcript: "omit" });
+    expect(ids).toEqual(["sec-abstract"]);
+  });
+
+  it("marks the appendix boundary with a divider and folds what follows it", async () => {
+    renderWith({
+      sections: ["abstract", "signals"],
+      appendix: ["signals"],
+      collapsed: ["signals"],
+      transcript: "omit",
+    });
+    expect(await screen.findByRole("button", { name: /show signals/i })).toBeInTheDocument();
+    const divider = document.querySelector(".appendix-divider")!;
+    expect(divider).not.toBeNull();
+    const signals = document.getElementById("sec-signals")!;
+    expect(divider.compareDocumentPosition(signals) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it("has no divider when the mode names no appendix", () => {
+    renderWith({ sections: ["abstract", "signals"], transcript: "omit" }, { insights: [INSIGHT] });
+    expect(document.querySelector(".appendix-divider")).toBeNull();
+  });
+});

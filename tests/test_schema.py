@@ -121,3 +121,51 @@ def test_participants_need_key_and_name(content):
 def test_content_must_be_an_object(content):
     with pytest.raises(SchemaError):
         validate([1, 2, 3])
+
+
+def _insight(**over):
+    ins = {
+        "claim": "The screen would have rejected the strongest candidate signal.",
+        "implication": "Hire on the delivery axis the requisition was not written for.",
+        "confidence": "high",
+        "supports": [{"observation": "shown on screen", "ts": "00:00:01", "s": 1}],
+    }
+    ins.update(over)
+    return ins
+
+
+def test_valid_insights_pass(content):
+    c = copy.deepcopy(content)
+    c["insights"] = [_insight()]
+    validate(c)
+
+
+def test_insight_missing_claim_is_reported(content):
+    def m(c):
+        c["insights"] = [_insight(claim="")]
+
+    assert "insights[0].claim" in bad(content, m)
+
+
+def test_insight_bad_confidence_is_reported(content):
+    def m(c):
+        c["insights"] = [_insight(confidence="pretty sure")]
+
+    msg = bad(content, m)
+    assert "insights[0].confidence" in msg
+    assert "high" in msg
+
+
+def test_insight_without_support_is_reported(content):
+    def m(c):
+        c["insights"] = [_insight(supports=[])]
+
+    assert "insights[0].supports" in bad(content, m)
+
+
+def test_insight_support_stamp_must_agree(content):
+    def m(c):
+        c["insights"] = [_insight(supports=[{"observation": "o", "ts": "00:00:01", "s": 99}])]
+
+    msg = bad(content, m)
+    assert "insights[0].supports[0]" in msg

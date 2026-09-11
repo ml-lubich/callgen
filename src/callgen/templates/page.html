@@ -155,6 +155,38 @@ a.ts:hover{color:var(--ink);border-bottom-color:currentColor}
 .bar:hover{opacity:.6}
 .stats{margin-top:14px;font-size:15px;color:var(--ink-soft);font-variant-numeric:tabular-nums}
 
+/* ---------- verdict ---------- */
+.verdict{border:1px solid var(--ink-soft);border-radius:var(--radius);background:var(--paper-2);padding:24px 26px 20px;margin-bottom:22px}
+.verdict-position{margin:0;font-size:21px;line-height:1.4;font-weight:600;color:var(--ink)}
+.verdict-cols{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:20px}
+@media (max-width:700px){.verdict-cols{grid-template-columns:1fr;gap:16px}}
+.verdict-cols h4{font:400 13px/1 var(--cond);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);margin:0 0 10px}
+.verdict-cols ul{margin:0;padding:0;list-style:none}
+.verdict-cols li{font-size:15px;line-height:1.45;padding:7px 0 7px 12px;border-bottom:1px solid var(--grid);border-left:2px solid currentColor;color:var(--ink)}
+.verdict-for{color:var(--pen-b)}
+.verdict-against{color:var(--pen-a)}
+.verdict-decides{margin-top:18px;padding-top:15px;border-top:1px solid var(--grid);font-size:15px;max-width:66ch}
+.verdict-decides b{display:block;font:400 13px/1 var(--cond);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:6px}
+
+/* ---------- insights ---------- */
+.insights{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:26px}
+.insight{border-left:2px solid var(--ink-soft);padding:2px 0 4px 20px}
+.insight-claim{margin:0;font-size:22px;line-height:1.33;font-weight:600;letter-spacing:-.01em;color:var(--ink);max-width:60ch}
+.insight-supports{list-style:none;margin:14px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}
+.insight-supports li{display:flex;gap:12px;align-items:baseline;font-size:15px;line-height:1.45;color:var(--ink)}
+.insight-implication{margin:14px 0 0;font-size:16px;line-height:1.5;max-width:66ch}
+.insight-implication b{display:block;font:400 13px/1 var(--cond);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:5px}
+.insight-confidence{margin:12px 0 0;font:400 13px/1 var(--cond);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);display:flex;align-items:center;gap:8px}
+.insight-confidence .conf-dot{width:8px;height:8px;border-radius:50%;background:var(--ink-soft);flex:0 0 auto}
+.conf-high .conf-dot{background:var(--pen-b)}
+.conf-low .conf-dot{background:var(--pen-a)}
+.conf-basis{text-transform:none;letter-spacing:0}
+
+/* ---------- appendix divider ---------- */
+.appendix-divider{border-top:2px solid var(--ink-soft);max-width:1180px;margin:0 auto;padding:26px 24px 2px}
+.appendix-divider span{display:block;font:400 14px/1 var(--cond);letter-spacing:.16em;text-transform:uppercase;color:var(--ink)}
+.appendix-divider p{margin:8px 0 0;font-size:15px;line-height:1.5;color:var(--ink-soft);max-width:60ch}
+
 /* ---------- abstract ---------- */
 .abstract p{font-size:19px;line-height:1.62}
 
@@ -626,10 +658,37 @@ sink("legend").innerHTML = KEYS.map(function(k, i){
     (METRICS.estimated_timing ? " &nbsp;·&nbsp; timing estimated from word counts" : "");
 })();
 
-/* ---- 3. abstract ---- */
+/* ---- 3. verdict + abstract + insights ---- */
+if (CONTENT.verdict) {
+  const v = CONTENT.verdict;
+  function col(cls, head, items){
+    return '<div class="verdict-' + cls + '"><h4>' + head + "</h4><ul>" +
+      (items || []).map(function(x){ return "<li>" + esc(x) + "</li>"; }).join("") + "</ul></div>";
+  }
+  const el = sink("verdict");
+  el.hidden = false;
+  el.innerHTML =
+    '<p class="verdict-position">' + esc(v.position) + "</p>" +
+    '<div class="verdict-cols">' + col("for", "For", v.for) + col("against", "Against", v.against) +
+    "</div>" +
+    (v.decides_it ? '<p class="verdict-decides"><b>What would settle it</b>' +
+      esc(v.decides_it) + "</p>" : "");
+}
 if (CONTENT.abstract) sink("abstract").innerHTML =
   String(CONTENT.abstract).split(/\n\s*\n/).filter(function(p){ return p.trim(); })
     .map(function(p){ return "<p>" + esc(p.trim()) + "</p>"; }).join("");
+sink("insights").innerHTML = (CONTENT.insights || []).map(function(ins){
+  const supports = (ins.supports || []).map(function(s){
+    return "<li>" + tsLink(s.ts, s.s) + "<span>" + esc(s.observation) + "</span></li>";
+  }).join("");
+  const conf = '<p class="insight-confidence conf-' + esc(ins.confidence) +
+    '"><span class="conf-dot"></span>' + esc(ins.confidence) + " confidence" +
+    (ins.basis ? '<span class="conf-basis"> · ' + esc(ins.basis) + "</span>" : "") + "</p>";
+  return '<li class="insight"><p class="insight-claim">' + esc(ins.claim) + "</p>" +
+    '<ul class="insight-supports">' + supports + "</ul>" +
+    '<p class="insight-implication"><b>So what</b>' + esc(ins.implication) + "</p>" +
+    conf + "</li>";
+}).join("");
 sink("highlights").innerHTML = (CONTENT.highlights || []).map(function(h){ return "<li>" + esc(h) + "</li>"; }).join("");
 
 /* ---- 4. acts ---- */
@@ -648,7 +707,8 @@ sink("actlist").innerHTML = acts.map(function(a){
       tsLink(a.turning_point.ts, a.turning_point.s != null ? a.turning_point.s : a.start_s) + "</div>" : "") +
     "</div></article>";
 }).join("");
-document.getElementById("actbar").addEventListener("click", function(e){
+const actbarEl = document.getElementById("actbar");
+if (actbarEl) actbarEl.addEventListener("click", function(e){
   const b = e.target.closest("[data-act]");
   if (!b) return;
   const el = document.getElementById("act-" + b.dataset.act);
@@ -690,7 +750,10 @@ function drawEvidence(){
   sink("evsort").innerHTML =
     'Strength <span class="arrow">' + (evDir === 0 ? "" : evDir > 0 ? "↑" : "↓") + "</span>";
 }
-document.getElementById("evsort").addEventListener("click", function(){
+/* the evidence section is absent in modes that drop or appendix-omit it; the sort
+   handler must not throw and halt the rest of the script when its header is gone */
+const evsortBtn = document.getElementById("evsort");
+if (evsortBtn) evsortBtn.addEventListener("click", function(){
   evDir = evDir >= 0 ? -1 : 1;
   evRows.sort(function(a,b){
     return evDir * ((RANK[a.strength] || 0) - (RANK[b.strength] || 0));
@@ -730,7 +793,7 @@ sink("quotes").innerHTML = (CONTENT.quotes || []).map(function(q){
 const tech = (CONTENT.tech || []).slice().sort(function(x,y){
   return x.toLowerCase().localeCompare(y.toLowerCase());
 });
-document.getElementById("technote").textContent =
+sink("technote").textContent =
   tech.length + " named by one or more speakers. What was said, not what was endorsed.";
 sink("tech").innerHTML =
   tech.map(function(t){ return "<li>" + esc(t) + "</li>"; }).join("");
@@ -760,6 +823,9 @@ sink("tlist").innerHTML = TURNS.map(function(t){
     "<p>" + esc(t.t) + "</p></article>";
 }).join("");
 
+/* the transcript and its tools are absent in modes that omit or appendix-drop it;
+   its search/filter wiring must not throw and halt the script when it is gone */
+if (document.getElementById("tlist")) {
 const nodes = Array.prototype.slice.call(document.querySelectorAll("#tlist .turn"));
 const paras = nodes.map(function(n){ return n.querySelector("p"); });
 const searchBox = document.getElementById("search");
@@ -818,6 +884,7 @@ document.getElementById("filters").addEventListener("click", function(e){
   applyFilter();
 });
 applyFilter();
+}
 
 /* a mode may cap the figure set; the sections it drops are gone before the page ships */
 const MODE = CONTENT._mode || {};
@@ -833,6 +900,13 @@ Array.prototype.forEach.call(document.querySelectorAll("[data-needs]"), function
     return n && n.children.length;
   });
   if (!filled) el.hidden = true;
+});
+
+/* an appendix divider with no visible section left after it is a header to nothing */
+Array.prototype.forEach.call(document.querySelectorAll(".appendix-divider"), function(div){
+  let n = div.nextElementSibling, any = false;
+  while (n){ if (n.tagName === "SECTION" && !n.hidden){ any = true; break; } n = n.nextElementSibling; }
+  if (!any) div.hidden = true;
 });
 
 reveal();
@@ -880,10 +954,18 @@ if (/^#t-\d+$/.test(location.hash)) setTimeout(function(){ jump(+location.hash.s
   </div>
 </section>
 
-<section data-sec="abstract" data-needs="abstract">
+<section data-sec="abstract" data-needs="verdict abstract">
   <div class="wrap">
     <h2 class="sec">Abstract</h2>
+    <div class="verdict" id="verdict" hidden></div>
     <div class="narrow abstract" id="abstract"></div>
+  </div>
+</section>
+
+<section data-sec="insights" data-needs="insights">
+  <div class="wrap">
+    <h2 class="sec">Insights</h2>
+    <ol class="insights" id="insights"></ol>
   </div>
 </section>
 

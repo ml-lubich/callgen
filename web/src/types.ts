@@ -40,6 +40,22 @@ export interface Thread {
 
 export type Strength = "strong" | "medium" | "weak";
 
+export type Confidence = "high" | "medium" | "low";
+
+/**
+ * A claim the call earns only once its observations are read together: what happened,
+ * what it means, and how far to trust it. Each support carries the timestamp it came
+ * from, so the reader can check the claim against the tape.
+ */
+export interface Insight {
+  claim: string;
+  supports: (Stamp & { observation: string })[];
+  implication: string;
+  confidence: Confidence;
+  /** Optional one line on what the confidence rests on — shown on screen vs asserted. */
+  basis?: string;
+}
+
 /** The output mode, as `src/callgen/modes.py` wrote it into content.json. See lib/mode.ts. */
 export interface ModeBlock {
   name?: string;
@@ -48,6 +64,8 @@ export interface ModeBlock {
   transcript?: "open" | "collapsed" | "omit";
   /** Sections rendered folded behind a one-line header; facts untouched. */
   collapsed?: string[];
+  /** Sections rendered after the appendix divider, folded; the record, kept out of the read. */
+  appendix?: string[];
 }
 
 export interface Content {
@@ -56,6 +74,8 @@ export interface Content {
   _mode?: ModeBlock;
   /** `summarized` mode folds threads, signals and tensions into this one short list. */
   highlights?: string[];
+  /** The claims synthesised from the observations, put first in the reading order. */
+  insights?: Insight[];
   abstract?: string;
   /** Optional one-line finding, rendered above the abstract when the analysis supplies one. */
   /** The stance the analysis commits to, with the case each way and the one open question. */

@@ -7,48 +7,60 @@ description: Author the figure set for a callgen artifact — 8 to 12 publicatio
 
 ## The node rule
 
-**A node is an icon, a label, and a one-clause note. A node whose only content is words
-has failed the rule.**
+**A node is a drawn object, a label, and a one-clause note. The object's form is the
+illustration; the label only names it. A node whose form could be swapped for any other
+object's without changing its claim has failed the rule — and so has a node whose only
+content is words.**
 
-Two things carry a node, and you need both. The **icon** carries the *category* — the thing
-it is, recognised before the label is read: a document, a database, a ticket, a server, a
-person. The **property-glyph** carries the *measurement* — the one number or contrast the
-argument turns on: bounded versus unbounded, empty versus filled, cheap versus costly. The
-label only names what the icon and glyph already show. The same node, twice — a bordered
-rectangle whose entire content is words:
+Two things carry a node. The **object** carries the *category* — recognised before the label
+is read — but only if it is *drawn*, a small isometric picture of the thing itself, at a scale
+where its construction is visible. A 20px glyph tucked beside a 14px label is a bullet point,
+not an illustration; the reader still reads the words first, and the same rounded rectangle
+ends up standing for "document", "server" and "ticket" alike. The **property-glyph** carries
+the *measurement* — the one number or contrast the argument turns on (bounded vs unbounded,
+empty vs filled, cheap vs costly), drawn flat at true proportion. The same node, three ways —
+first the failure the whole set is moving away from, a bordered box with a stock icon dropped
+beside a label:
 ```html
-<svg viewBox="0 0 200 60" role="img"><title>Label-only node</title>
-  <rect x="1" y="1" width="198" height="58" fill="var(--paper-2)" stroke="var(--pen-a)"/>
-  <text x="14" y="28" font-size="13" fill="var(--ink)">Salesforce docs</text>
-  <text x="14" y="46" font-size="10" fill="var(--ink-soft)">product documents</text>
-</svg>
-```
-Nothing there is seen before it is read; the border is decoration. The same claim as a real
-node — a document-stack icon that says "many documents" at a glance, the label, and one clause
-of note (assumes the sprite from `icons.svg` is inlined on the page):
-```html
-<svg viewBox="0 0 200 60" role="img"><title>Node: icon, label, note</title>
-  <rect x="1" y="1" width="198" height="58" fill="var(--paper-2)" stroke="var(--pen-a)"/>
-  <svg x="12" y="16" width="30" height="30" viewBox="0 0 24 24" style="color:var(--pen-a)">
+<!-- FAILS: a decorative 22px glyph beside words; the border does the framing, not the form -->
+<svg viewBox="0 0 200 64" role="img"><title>Stock-icon node</title>
+  <rect x="1" y="1" width="198" height="62" fill="var(--paper-2)" stroke="var(--pen-a)"/>
+  <svg x="12" y="20" width="22" height="22" viewBox="0 0 48 48" style="color:var(--pen-a)">
     <use href="#icon-document-stack"/></svg>
-  <text x="52" y="28" font-size="13" fill="var(--ink)">Salesforce docs</text>
-  <text x="52" y="46" font-size="10" fill="var(--ink-soft)">a scraped corpus, audited by hand</text>
+  <text x="44" y="30" font-size="13" fill="var(--ink)">Salesforce docs</text>
+  <text x="44" y="48" font-size="10" fill="var(--ink-soft)">product documents</text>
 </svg>
 ```
-The reader now recognises a stack of documents before reading a word, and the note earns its
+That icon could be `#icon-server` or `#icon-ticket` and the node would read the same — it is
+decoration. Now the node where the **form carries the meaning**: the corpus is *drawn*, at
+scale, the box dissolved so the object itself is the node (assumes `icons.svg` is inlined):
+```html
+<!-- PASSES: the object leads at 56px, the box is gone, the note says what the label cannot -->
+<svg viewBox="0 0 220 68" role="img"><title>Node: object, label, note</title>
+  <use href="#icon-document-stack" x="4" y="6" width="56" height="56" style="color:var(--pen-a)"/>
+  <text x="68" y="30" font-size="13" fill="var(--ink)">Salesforce docs</text>
+  <text x="68" y="48" font-size="10" fill="var(--ink-soft)">a scraped corpus, audited by hand</text>
+</svg>
+```
+The reader recognises a real stack of documents before reading a word, and the note earns its
 place by saying something the label cannot. Where the argument is a *measurement*, add the
-property-glyph too: the icon says which thing, the glyph says how much. Before drawing any
-node, answer both: **what is this thing (pick its icon from `icons.md`), and what property of
-it is the argument (pick or draw its glyph)?** If a node has no measurement — it is only a
-stage in a sequence — it still gets its icon and label; the sequence is the glyph. Four
-icon-and-label boxes in a row with no arrow of consequence between them is still a list.
+property-glyph too — flat, never foreshortened: **objects are drawn in projection, data is
+drawn flat.** Before drawing any node, answer both: **what is this thing (draw its object in the
+hand of `icons.md`), and what property of it is the argument (pick or draw its flat glyph)?** If
+a node has no measurement — only a stage in a sequence — it still gets its object and label; the
+sequence is the glyph. Four object-and-label boxes in a row with no arrow of consequence between
+them is still a list.
 
-The icon set — 31 hand-drawn object icons on a 24×24 grid, tinted by `currentColor` so they
-take your pens — lives in `icons.svg` (the sprite) and `icons.md` (what each means and its
-failure mode). Inline the sprite once at the top of the fragment, then `<use href="#icon-…"/>`.
-Pick the icon that names the category exactly: `database` is not `vector-index`, `check` is
-not `shield`, `server` is not `building` — the shapes are kept distinct on purpose, and using
-the wrong one asserts the wrong category.
+The object kit — hand-drawn constructed objects on a 48-grid in one **2:1 dimetric** projection,
+one top-left light source, a three-weight line hierarchy, and flat `currentColor` face-tone for
+depth (no gradient) — lives in `icons.svg` (the sprite) and `icons.md` (the construction law,
+what each object means and its failure mode, and **how to draw a new object in the same hand**).
+Inline the sprite once, then `<use href="#icon-…"/>` at 40–96px for a hero node, 22–30px only for
+a small repeated mark or a timeline/row label. Lead the node with the object and dissolve the
+bordered box wherever the form can stand on its own. Pick the object that names the category
+exactly: `database` is not `vector-index`, `check` is not `shield`, `server` is not `building` —
+the shapes are kept distinct on purpose, and using the wrong one asserts the wrong category. The
+"absent / unbuilt" node is the same object as a dashed 1px wireframe, no tone.
 
 ## What you are writing
 
@@ -456,11 +468,13 @@ not for identifiers. Timestamps use the condensed face with `font-variant-numeri
 tabular-nums`. Node labels are **five words or fewer**; the note under a node is **twelve
 words or fewer**. Nothing below 10px.
 
-**Line.** Strokes 1–1.5px for structure, 0.5px for hairline grid and axes. No shadows, no
-gradients, no `rx` above 2, no emoji, no icon fonts, no clip art. Category icons come only
-from the hand-drawn `icons.svg` sprite (`currentColor`, one depth layer at ~12%) — never a
-font, a raster, or a traced logo. Fill boxes with `--paper-2` and stroke with a pen — never
-fill a box with a pen colour and set text on it.
+**Line.** Structure strokes 1–1.6px, 0.5px for hairline grid, axes and hatch. No shadows, no
+gradients, no bevels, no `rx` above 2, no emoji, no icon fonts, no clip art. Category objects
+come only from the hand-drawn `icons.svg` kit (2:1 dimetric, `currentColor`, flat face-tone for
+depth) — never a font, a raster, or a traced logo. Objects are drawn in projection; quantitative
+data (bars, distributions, timelines) is drawn flat at true proportion — never foreshortened.
+Fill boxes with `--paper-2` and stroke with a pen — never fill a box with a pen colour and set
+text on it.
 
 **Marker ids are per-figure**, prefixed with the figure id: `mk-<figure-id>-a`. All figures
 land in one document, ids are global, and a collision silently repaints every arrowhead on

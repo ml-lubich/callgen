@@ -68,8 +68,11 @@ Full prompt bodies for both roles: **`skills/prompts.md`**.
 A mode is a preset over register, shape and emphasis: how the prose is written,
 which sections render in what order under what word and figure budgets, and what
 the verdict optimises for. It never changes a fact. `professional` is the
-default and the right answer unless you have a reason. `callgen modes` lists
-the nine; **`skills/modes/SKILL.md`** defines each and says who each is for.
+complete record; **`brief`** is the one someone actually reads — verdict,
+insights and the figures that carry them, with the evidence, signals, numbers
+and transcript folded into an appendix. Reach for `brief` for a readout, and
+`professional` when the full record is the point. `callgen modes` lists them
+all; **`skills/modes/SKILL.md`** defines each and says who each is for.
 
 Put the register into the synthesizer prompt in step 5, and name the same mode
 again in step 7:
@@ -83,6 +86,41 @@ python -c "from callgen.modes import prompt_guidance; print(prompt_guidance('con
 One agent, strongest model, reads every `analysis-N.json` and `arc.json` and
 writes `work/content.json`. Tiling, dedup, timestamp and word-cap rules:
 **`skills/prompts.md`**. Validate before continuing — see **Required gates**.
+
+## 5b. Derive the insights — synthesis, not extraction
+
+The analysts extract **observations**: "AgentForce costs $2 per case", "there is
+no dev/stage/prod". The page is not a pile of observations. Before you build,
+one agent (strongest model) reads the whole `content.json` and writes the
+`insights` array: the **5–8 claims the call earns only when its observations are
+read together**. Put it first in the reading order, right after the verdict.
+
+Each insight is one object:
+
+```json
+{
+  "claim": "one sentence a slide could headline",
+  "supports": [{"ts": "00:33:02", "s": 1982, "observation": "what was seen or said"}],
+  "implication": "the so-what — what a reader would now do differently",
+  "confidence": "high | medium | low",
+  "basis": "one line: shown on screen, or merely asserted"
+}
+```
+
+Rules, non-negotiable:
+
+- **Invent nothing.** Every support must already exist in `content.json` (an
+  evidence row, a signal, a quote, a number) and be checkable against
+  `work/turns.json` at its timestamp. Two to four supports each.
+- **The reader-already-knows test.** If a reader who knew the job title and that
+  the candidate is competent would already know the claim, cut it. An insight is
+  non-obvious, combines observations, and changes what the reader does. Five
+  sharp insights beat eight padded ones.
+- **Confidence is earned by the tape.** `high` only when the supports were shown
+  on screen or said outright; `medium`/`low` when the support is asserted.
+- Prose caps apply (`insight_claim`, `insight_implication`); `lint-prose` names
+  any field over budget. No fact from the observations is lost — an insight
+  reframes them, it does not replace them.
 
 ## 6. Draw — the main event
 

@@ -115,6 +115,7 @@ def cmd_build(a) -> int:
         diagrams,
         mode=a.mode,
         theme=a.theme,
+        appendix=a.appendix,
     )
     out = Path(a.out)
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -351,6 +352,8 @@ def build_parser() -> argparse.ArgumentParser:
                    help="output mode; see `callgen modes`")
     b.add_argument("--theme", choices=("auto", "light", "dark"), default="auto",
                    help="pin the rendered theme; auto follows the visitor's system preference")
+    b.add_argument("--no-appendix", dest="appendix", action="store_false",
+                   help="drop the mode's appendix sections; render the main read alone")
     b.add_argument("-o", "--out", default="out/index.html")
     b.set_defaults(fn=cmd_build)
 

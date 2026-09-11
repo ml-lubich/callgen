@@ -137,12 +137,24 @@ def build(
     mode: str = "professional",
     theme: str = "auto",
     root=None,
+    appendix: bool = True,
 ) -> str:
-    """Return the finished page. Raises if the template is not shaped as expected."""
+    """Return the finished page. Raises if the template is not shaped as expected.
+
+    ``appendix=False`` drops the mode's appendix sections from what is rendered — the
+    main read alone, for a print where the record is not wanted. No fact is edited; the
+    data stays in content.json, it simply is not drawn.
+    """
     validate(content)
     content = _modes.apply(content, mode, root)
     content["_theme"] = theme
     _modes.enforce(content, mode, root)
+    if not appendix:
+        m = content["_mode"]
+        dropped = set(m.get("appendix") or ())
+        m["sections"] = [s for s in m["sections"] if s not in dropped]
+        m["collapsed"] = [s for s in m["collapsed"] if s not in dropped]
+        m["appendix"] = []
     page = _modes.shape_template(template, content["_mode"])
     for marker, payload in (
         (CONTENT_MARKER, content),

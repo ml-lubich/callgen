@@ -32,6 +32,17 @@ evidence is ranked by strength rather than by order of appearance, and the
 figures cover the whole call rather than its most quotable minute. This is the
 mode to reach for when you do not have a reason to reach for another.
 
+**`brief`** — the mode for a readout someone will actually read. The verdict
+opens the document, the **insights** follow it, and the figures that carry them
+come next; the acts and threads are compressed to a line each. Everything a
+reader checks rather than reads — the evidence table, the signals, the numbers,
+the named tech, the friction, the fit and the transcript — falls behind an
+**appendix** divider, folded, losing no fact and none of the reader's first four
+to six pages. Quotes stop being their own section; the strongest live inside the
+insight they support. The narrative caps are genuinely tight (an act is a line),
+while the appendix rows keep the full-detail list-item cap. Reach for `brief`
+for a briefing; leave `professional` for the complete record.
+
 **`concise`** — the professional register with every sentence paid for: one
 clause where two were used, every prose budget halved. Threads and signals stop
 being their own sections and fold into the abstract, a sentence each. The figure
@@ -90,7 +101,10 @@ Budgets are not advice. `callgen build` refuses a `content.json` whose prose
 runs over, or that breaks a register rule (below), or that stacks a wall of
 prose sections, and names every field and rule it fails. Per mode, scaled from
 the professional defaults — `summarized` and `compact` at 0.6, `concise` at
-0.75, `creative` at 1.3:
+0.75, `creative` at 1.3. `brief` instead overrides the narrative kinds directly
+(act summary 22, thread 30, paragraph 45, insight claim 24, insight implication
+36) while leaving the list item at 30, because the appendix rows it governs carry
+full detail:
 
 | Cap | Professional | Applies to |
 |---|---|---|
@@ -98,8 +112,10 @@ the professional defaults — `summarized` and `compact` at 0.6, `concise` at
 | paragraph | 70 | every paragraph of every prose field, including a field with only one |
 | act summary | 60 | `acts[].summary` |
 | thread | 55 | `threads[].what`, `threads[].why_it_matters` |
-| list item | 30 | signals, tensions, numbers, diarization, next steps, evidence claims, fit items, turning points |
-| page | 900 | every capped field, summed |
+| insight claim | 26 | `insights[].claim` — a slide headline |
+| insight implication | 45 | `insights[].implication` — the so-what |
+| list item | 30 | signals, tensions, numbers, diarization, next steps, evidence claims, fit items, turning points, insight supports |
+| page | 900 | every running-prose field, summed |
 
 The paragraph cap applies even to a field with a single paragraph — the abstract's
 own budget can run higher than 70, so a one-paragraph abstract is still checked
@@ -150,7 +166,8 @@ satisfy a register rule.
 
 | The reader | The mode |
 |---|---|
-| Was not on the call and will act on it | `professional` |
+| Wants the finding fast — what happened, what it means, what to do | `brief` |
+| Was not on the call and needs the complete record | `professional` |
 | Has five minutes and one decision to make | `concise` |
 | Is a board, a regulator, or a case file | `formal` |
 | Was on the call and wants the feel of it back | `casual` |

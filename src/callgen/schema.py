@@ -9,6 +9,7 @@ from __future__ import annotations
 from .parse import seconds_to_ts
 
 STRENGTHS = ("strong", "medium", "weak")
+CONFIDENCE = ("high", "medium", "low")
 
 # section -> (required keys, optional keys). Every row may also carry ts/s.
 ROWS = {
@@ -39,6 +40,7 @@ def validate(content) -> None:
 
     keys = _check_meta(content.get("meta"), bad)
     _check_acts(content.get("acts"), bad)
+    _check_insights(content.get("insights"), bad)
 
     for section, (required, _) in ROWS.items():
         rows = content.get(section)
@@ -135,6 +137,41 @@ def _check_acts(acts, bad: list[str]) -> None:
             if not str(a["turning_point"].get("text", "")).strip():
                 bad.append(f"{where}.turning_point.text: required field is missing or empty")
         prev = end
+
+
+def _check_insights(insights, bad: list[str]) -> None:
+    """An insight is a claim, the observations that carry it (each timestamped), the
+    so-what, and a confidence grounded in whether the support was shown or asserted."""
+    if insights is None:
+        return
+    if not isinstance(insights, list):
+        bad.append("insights: must be a list")
+        return
+    for i, ins in enumerate(insights):
+        where = f"insights[{i}]"
+        if not isinstance(ins, dict):
+            bad.append(f"{where}: must be an object")
+            continue
+        for f in ("claim", "implication"):
+            if not str(ins.get(f, "")).strip():
+                bad.append(f"{where}.{f}: required field is missing or empty")
+        if ins.get("confidence") not in CONFIDENCE:
+            bad.append(
+                f"{where}.confidence: {ins.get('confidence')!r} is not one of "
+                + ", ".join(CONFIDENCE)
+            )
+        supports = ins.get("supports")
+        if not isinstance(supports, list) or not supports:
+            bad.append(f"{where}.supports: an insight needs at least one timestamped support")
+            continue
+        for j, sup in enumerate(supports):
+            at = f"{where}.supports[{j}]"
+            if not isinstance(sup, dict):
+                bad.append(f"{at}: must be an object")
+                continue
+            if not str(sup.get("observation", "")).strip():
+                bad.append(f"{at}.observation: required field is missing or empty")
+            _check_stamp(at, sup, bad)
 
 
 def _check_stamp(where: str, row, bad: list[str]) -> None:

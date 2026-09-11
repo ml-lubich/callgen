@@ -1,4 +1,4 @@
-import { Suspense, lazy, useMemo, useRef, type ReactNode } from "react";
+import { Fragment, Suspense, lazy, useMemo, useRef, type ReactNode } from "react";
 import { useOnceInView } from "./lib/inview";
 import { Reveal, STAGGER } from "./components/Reveal";
 import { Skeleton, SkeletonLines } from "./components/Skeleton";
@@ -10,6 +10,7 @@ import { Evidence, EvidenceSkeleton } from "./sections/Evidence";
 import { Figures, FiguresSkeleton } from "./sections/Figures";
 import { Fit } from "./sections/Fit";
 import { Friction } from "./sections/Friction";
+import { Insights, InsightsSkeleton } from "./sections/Insights";
 import { Lands } from "./sections/Lands";
 import { Named, NamedSkeleton } from "./sections/Named";
 import { Next } from "./sections/Next";
@@ -90,6 +91,12 @@ function blocks(deck: Deck, figureCap?: number): Record<string, Block> {
           {c.abstract && <Abstract text={c.abstract} />}
         </>
       ),
+    },
+    insights: {
+      title: "Insights",
+      when: (c.insights ?? []).length > 0,
+      skeleton: <InsightsSkeleton />,
+      body: <Insights insights={c.insights!} turns={turns} />,
     },
     highlights: {
       title: "Highlights",
@@ -234,49 +241,71 @@ export function App({ deck }: { deck: Deck }) {
 
   const rows = pairUp(shape.sections.filter((id) => all[id]?.when));
 
+  // The divider falls before the first row that belongs to the appendix, so the main
+  // read ends and the record begins at one clear line rather than trailing off.
+  const appendix = new Set(shape.appendix);
+  const firstAppendix = rows.findIndex((row) => row.some((id) => appendix.has(id)));
+
   return (
     <main>
       <Plate deck={deck} />
       {rows.map((row, order) => {
+        const divider =
+          order === firstAppendix ? (
+            <div className="appendix-divider" role="separator" key="appendix">
+              <span>Appendix</span>
+              <p>The full record — every claim, signal, number and the transcript. Folded by
+                default; open what you want to check.</p>
+            </div>
+          ) : null;
         if (row.length === 2) {
           const [a, b] = row.map((id) => all[id]);
           return (
-            <Sec
-              key={row.join("-")}
-              order={order + 1}
-              title="Signals & numbers"
-              skeleton={<RowsSkeleton n={4} />}
-            >
-              {fold(
-                row.every((id) => shape.collapsed.includes(id)),
-                "Signals and numbers",
-                (a.count ?? 0) + (b.count ?? 0),
-                <div className="twoup">
-                  <div>
-                    <h3 className="subhead">{a.title}</h3>
-                    {a.body}
-                  </div>
-                  <div>
-                    <h3 className="subhead">{b.title}</h3>
-                    {b.body}
-                  </div>
-                </div>,
-              )}
-            </Sec>
+            <Fragment key={row.join("-")}>
+              {divider}
+              <Sec
+                order={order + 1}
+                title="Signals & numbers"
+                skeleton={<RowsSkeleton n={4} />}
+              >
+                {fold(
+                  row.every((id) => shape.collapsed.includes(id)),
+                  "Signals and numbers",
+                  (a.count ?? 0) + (b.count ?? 0),
+                  <div className="twoup">
+                    <div>
+                      <h3 className="subhead">{a.title}</h3>
+                      {a.body}
+                    </div>
+                    <div>
+                      <h3 className="subhead">{b.title}</h3>
+                      {b.body}
+                    </div>
+                  </div>,
+                )}
+              </Sec>
+            </Fragment>
           );
         }
         const block = all[row[0]];
         return (
-          <Sec
-            key={row[0]}
-            id={`sec-${row[0]}`}
-            order={order + 1}
-            title={block.title}
-            className={block.className}
-            skeleton={block.skeleton}
-          >
-            {fold(shape.collapsed.includes(row[0]), block.title ?? row[0], block.count, block.body)}
-          </Sec>
+          <Fragment key={row[0]}>
+            {divider}
+            <Sec
+              id={`sec-${row[0]}`}
+              order={order + 1}
+              title={block.title}
+              className={block.className}
+              skeleton={block.skeleton}
+            >
+              {fold(
+                shape.collapsed.includes(row[0]),
+                block.title ?? row[0],
+                block.count,
+                block.body,
+              )}
+            </Sec>
+          </Fragment>
         );
       })}
       <p className="colophon">

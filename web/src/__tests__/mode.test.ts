@@ -90,3 +90,26 @@ describe("collapsed sections", () => {
     expect(shapeOf({} as never).collapsed).toEqual([]);
   });
 });
+
+describe("the appendix boundary", () => {
+  it("reads _mode.appendix, keeping only sections the page renders", () => {
+    const shape = shapeOf({
+      _mode: {
+        sections: ["abstract", "evidence"],
+        transcript: "omit",
+        appendix: ["evidence", "signals", "not-a-section"],
+      },
+    } as never);
+    // signals is named but not rendered, so it earns no divider
+    expect(shape.appendix).toEqual(["evidence"]);
+  });
+
+  it("has no appendix when the mode names none", () => {
+    expect(shapeOf({} as never).appendix).toEqual([]);
+  });
+
+  it("puts insights into the default reading order, right after the abstract", () => {
+    const s = shapeOf({});
+    expect(s.sections.indexOf("insights")).toBe(s.sections.indexOf("abstract") + 1);
+  });
+});

@@ -29,8 +29,9 @@ from callgen.parse import metrics, parse_transcript
 
 from .conftest import FIXTURES, embedded, html_errors
 
-NINE = [
+BUILTINS = [
     "professional",
+    "brief",
     "concise",
     "formal",
     "casual",
@@ -82,11 +83,11 @@ def page(content, mode: str) -> str:
     )
 
 
-def test_the_nine_modes_ship():
-    assert list(MODES) == NINE
+def test_the_builtin_modes_ship():
+    assert list(MODES) == BUILTINS
 
 
-@pytest.mark.parametrize("name", NINE)
+@pytest.mark.parametrize("name", BUILTINS)
 def test_every_builtin_mode_has_a_valid_shape(name):
     m = get(name)
     assert m.name == name
@@ -103,7 +104,7 @@ def test_every_builtin_mode_has_a_valid_shape(name):
     assert m.register.strip() and m.emphasis.strip() and m.summary.strip()
 
 
-@pytest.mark.parametrize("name", NINE)
+@pytest.mark.parametrize("name", BUILTINS)
 def test_apply_removes_exactly_the_sections_the_mode_drops(content, name):
     out = apply(content, name)
     dropped = owned_keys() - kept_keys(name)
@@ -113,7 +114,7 @@ def test_apply_removes_exactly_the_sections_the_mode_drops(content, name):
         assert key in out
 
 
-@pytest.mark.parametrize("name", NINE)
+@pytest.mark.parametrize("name", BUILTINS)
 def test_apply_never_alters_a_fact(content, name):
     out = apply(content, name)
     for key, value in out.items():
@@ -122,17 +123,23 @@ def test_apply_never_alters_a_fact(content, name):
         assert value == content[key], f"{name} changed {key}"
 
 
-@pytest.mark.parametrize("name", NINE)
+@pytest.mark.parametrize("name", BUILTINS)
 def test_apply_carries_the_mode_block(content, name):
     block = apply(content, name)["_mode"]
     m = get(name)
+    appendix = [sec for sec in m.appendix if sec in m.sections]
+    collapsed = list(m.collapsed)
+    for sec in appendix:
+        if sec != "transcript" and sec not in collapsed:
+            collapsed.append(sec)
     assert block == {
         "name": name,
         "sections": list(m.sections),
         "budgets": dict(m.budgets),
         "figures": m.figures,
         "transcript": m.transcript,
-            "collapsed": [sec for sec in MODES[name].collapsed if sec in MODES[name].sections],
+        "collapsed": [sec for sec in collapsed if sec in m.sections],
+        "appendix": appendix,
     }
 
 
@@ -170,7 +177,7 @@ def test_unknown_mode_names_the_valid_ones():
     with pytest.raises(ModeError) as e:
         apply({}, "punchy")
     assert "punchy" in str(e.value)
-    for name in NINE:
+    for name in BUILTINS:
         assert name in str(e.value)
 
 
@@ -273,10 +280,10 @@ def test_professional_is_the_default_and_keeps_every_section(content):
         assert f'id="{anchor}"' in default
 
 
-def test_cli_modes_lists_all_nine(capsys):
+def test_cli_modes_lists_all_builtins(capsys):
     assert main(["modes"]) == 0
     printed = capsys.readouterr().out
-    for name in NINE:
+    for name in BUILTINS:
         assert name in printed
         assert get(name).summary in printed
 
@@ -322,7 +329,7 @@ def over(content, **fields):
 
 
 def test_an_in_budget_content_passes_every_mode(content):
-    for name in NINE:
+    for name in BUILTINS:
         enforce(within_budget(content, name), name)
 
 
@@ -359,7 +366,7 @@ def test_a_quote_is_never_capped(content):
     assert prose_violations(over(content, quotes=quotes), "professional") == []
 
 
-@pytest.mark.parametrize("name", NINE)
+@pytest.mark.parametrize("name", BUILTINS)
 def test_every_mode_carries_its_own_caps(name):
     cap = caps(name)
     assert cap["abstract"] == get(name).budgets.get("abstract", 120)
@@ -406,7 +413,7 @@ def test_the_build_refuses_an_over_budget_page(content):
 # --- register rules and wall-of-text ---------------------------------------
 
 
-@pytest.mark.parametrize("name", NINE)
+@pytest.mark.parametrize("name", BUILTINS)
 def test_every_mode_states_the_register_rules(name):
     text = prompt_guidance(name)
     assert REGISTER_RULES in text
@@ -414,7 +421,7 @@ def test_every_mode_states_the_register_rules(name):
         assert rule in text
 
 
-@pytest.mark.parametrize("name", NINE)
+@pytest.mark.parametrize("name", BUILTINS)
 def test_no_builtin_mode_stacks_three_prose_sections(content, name):
     assert layout_violations(content, name) == []
 
@@ -629,3 +636,97 @@ def test_page_total_counts_running_prose_not_table_cells():
     # and a genuinely long running-prose body must still trip it
     heavy = {"abstract": " ".join(["w"] * 950), "acts": []}
     assert any(p.startswith("page:") for p in prose_violations(heavy, "professional"))
+
+
+# --- brief: verdict and insights lead, the record folds into an appendix --------
+
+
+def test_brief_leads_with_verdict_then_insights_then_the_figures():
+    order = section_order("brief")
+    assert order.index("abstract") < order.index("insights") < order.index("figures")
+    assert order.index("insights") < order.index("acts"), "insights come before the acts"
+    assert "quotes" not in order, "brief lifts the best quotes into the insight they support"
+
+
+def test_brief_folds_the_record_behind_an_appendix_boundary():
+    block = apply({"meta": {}, "abstract": "x", "acts": []}, "brief")["_mode"]
+    assert block["appendix"] == [
+        "evidence", "signals", "numbers", "tech", "friction", "fit", "next", "transcript",
+    ]
+    # every appendix section renders folded, except the transcript, which folds through
+    # its own flag and must never be double-wrapped
+    for sec in block["appendix"]:
+        if sec != "transcript":
+            assert sec in block["collapsed"], f"{sec} should render folded in the appendix"
+    assert "transcript" not in block["collapsed"]
+
+
+def test_appendix_is_a_subset_of_the_modes_sections():
+    for m in MODES.values():
+        assert set(m.appendix) <= set(m.sections), m.name
+
+
+def test_brief_caps_narrative_tight_but_keeps_the_appendix_row_cap():
+    brief_caps, pro = caps("brief"), caps("professional")
+    assert brief_caps["act_summary"] < pro["act_summary"], "an act is a line in brief"
+    assert brief_caps["insight_claim"] < pro["insight_claim"]
+    assert brief_caps["list_item"] == pro["list_item"], "appendix rows keep full detail"
+
+
+def test_insight_fields_are_capped(content):
+    insights = [{
+        "claim": " ".join(["word"] * 40),
+        "implication": "the so-what",
+        "confidence": "high",
+        "supports": [{"observation": "seen on screen", "ts": "00:00:01", "s": 1}],
+    }]
+    bad = prose_violations({**content, "insights": insights}, "professional")
+    assert any("insights[0].claim" in v for v in bad)
+
+
+# --- the vanilla template renders the insight layer and the appendix boundary ---
+
+
+def _with_insight_layer(content):
+    c = dict(content)
+    c["verdict"] = {
+        "position": "Hire, on the delivery axis.",
+        "for": ["release mechanics shown live"],
+        "against": ["one thin place"],
+        "decides_it": "how many hours it takes",
+    }
+    c["insights"] = [{
+        "claim": "The screen would have rejected the strongest signal.",
+        "implication": "Hire on the axis the requisition was not written for.",
+        "confidence": "high",
+        "supports": [{"observation": "he said so on the call", "ts": "00:00:01", "s": 1}],
+    }]
+    return c
+
+
+def test_brief_page_leads_with_verdict_and_insights_then_an_appendix_divider(content):
+    out = page(_with_insight_layer(content), "brief")
+    assert 'id="verdict"' in out and 'id="insights"' in out
+    assert '<div class="appendix-divider"' in out
+    divider = out.index('<div class="appendix-divider"')
+    assert out.index('id="insights"') < out.index('id="evbody"'), "insights lead the evidence"
+    assert out.index('id="actlist"') < divider, "acts are in the main read"
+    assert divider < out.index('id="evbody"'), "the record is the appendix"
+    assert html_errors(out) == []
+
+
+def test_no_appendix_drops_the_record_but_keeps_the_read(content):
+    t = parse_transcript((FIXTURES / "bracket_hms.txt").read_text())
+    out = build(
+        template_path().read_text(),
+        within_budget(_with_insight_layer(content), "brief"),
+        t.turns,
+        metrics(t),
+        diagrams=(FIXTURES / "diagrams.html").read_text(),
+        mode="brief",
+        appendix=False,
+    )
+    assert 'id="insights"' in out, "the main read stays"
+    assert '<div class="appendix-divider"' not in out, "the boundary is gone"
+    assert 'id="evbody"' not in out and 'id="tlist"' not in out, "the record is gone"
+    assert html_errors(out) == []
