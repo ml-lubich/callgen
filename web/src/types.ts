@@ -48,12 +48,25 @@ export type Confidence = "high" | "medium" | "low";
  * from, so the reader can check the claim against the tape.
  */
 export interface Insight {
+  /** Short noun phrase, used as the heading; older content.json files have none. */
+  title?: string;
   claim: string;
   supports: (Stamp & { observation: string })[];
   implication: string;
   confidence: Confidence;
   /** Optional one line on what the confidence rests on — shown on screen vs asserted. */
   basis?: string;
+}
+
+/** The five tiers the page reads in, in order. See lib/mode.ts. */
+export type TierId = "overview" | "concepts" | "discussion" | "actions" | "record";
+
+/** One tier: a band of the page, the sections it opens, and the line that introduces them. */
+export interface Tier {
+  id: TierId;
+  label: string;
+  lede: string;
+  sections: string[];
 }
 
 /** The output mode, as `src/callgen/modes.py` wrote it into content.json. See lib/mode.ts. */
@@ -66,6 +79,8 @@ export interface ModeBlock {
   collapsed?: string[];
   /** Sections rendered after the appendix divider, folded; the record, kept out of the read. */
   appendix?: string[];
+  /** The reading tiers, in order, each listing the sections it opens. */
+  tiers?: Tier[];
 }
 
 export interface Content {

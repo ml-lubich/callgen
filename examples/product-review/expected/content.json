@@ -8,14 +8,148 @@
     "duration_s": 3385,
     "turns": 52,
     "words": 1466,
-    "extra": [["Format", "Internal design review"], ["Attendees", "3"]],
+    "extra": [
+      [
+        "Format",
+        "Internal design review"
+      ],
+      [
+        "Attendees",
+        "3"
+      ]
+    ],
     "participants": [
-      {"key": "P", "name": "Priya Raghavan", "role": "Design lead"},
-      {"key": "T", "name": "Tomas Halvorsen", "role": "Engineer"},
-      {"key": "W", "name": "Wren Okafor", "role": "Support lead"}
+      {
+        "key": "P",
+        "name": "Priya Raghavan",
+        "role": "Design lead"
+      },
+      {
+        "key": "T",
+        "name": "Tomas Halvorsen",
+        "role": "Engineer"
+      },
+      {
+        "key": "W",
+        "name": "Wren Okafor",
+        "role": "Support lead"
+      }
     ]
   },
   "abstract": "Three people review why a bulk shift-import flow silently drops bad rows without telling anyone. They agree to reject an entire uploaded file the moment one row fails validation instead. That plan holds until Wren's own ticket data shows most failures are a single bad row in an otherwise clean file.\n\nIt cracks further once Tomas remembers an enterprise account already piloting nightly imports whose export mixes three regional systems that will never agree on formatting. Priya reverses the decision: good rows post, bad rows are quarantined, and a per-row report explains what happened and why. The call ends assigning a stakeholder write-up, a rewritten support macro, and a revised engineering timeline.",
+  "verdict": {
+    "position": "The importer will post a file's good rows and quarantine the bad ones with a per-row report, reversing the whole-file rejection agreed earlier in the call.",
+    "for": [
+      "00:51:30 — The piloting account's export is fed by three regional systems that disagree on formatting, so whole-file rejection would fail it nightly and indefinitely.",
+      "00:33:45 — Wren's ticket estimate puts nine in ten import failures at a single bad row inside an otherwise valid file.",
+      "00:38:20 — Tomas says partial import reuses the same validator; the only new work is writing good rows and collecting bad ones into a report.",
+      "00:37:10 — Support already performs partial import by hand, fixing the bad row and loading the rest, at about forty minutes per incident."
+    ],
+    "against": [
+      "00:10:45 — Tomas argued a half-loaded schedule is worse than no schedule, because nobody knows which half posted.",
+      "00:11:40 — Wren said a rejection is one sentence for support, while explaining a partial load is a whole conversation.",
+      "00:28:05 — Reject-the-file would at least have made last quarter's failure loud immediately instead of dropping rows silently."
+    ],
+    "decides_it": "Wren was asked at 00:48:50 to check that account's export quality, and Tomas owes a revised timeline at 00:56:25; both are needed before the scope is firm."
+  },
+  "insights": [
+    {
+      "title": "A permanently unclean export",
+      "claim": "One live account's export can never be clean, so whole-file rejection would have failed it every night forever.",
+      "supports": [
+        {
+          "ts": "00:46:55",
+          "s": 2815,
+          "observation": "Wren stops the just-locked spec to raise an account already a month into nightly imports."
+        },
+        {
+          "ts": "00:50:20",
+          "s": 3020,
+          "observation": "The account's own IT team says three regional systems feed the export and disagree on formatting."
+        },
+        {
+          "ts": "00:51:30",
+          "s": 3090,
+          "observation": "Tomas calls it a permanent property of the export, not a rollout problem they grow out of."
+        }
+      ],
+      "implication": "Any import design must assume one integration will always send bad rows, so the system needs a path that works when the file is imperfect.",
+      "confidence": "high",
+      "basis": "The account's own IT team is quoted directly at 00:50:20."
+    },
+    {
+      "title": "The single-bad-row majority",
+      "claim": "Most import failures are one bad row in a good file, which makes discarding the file the expensive choice.",
+      "supports": [
+        {
+          "ts": "00:33:45",
+          "s": 2025,
+          "observation": "Wren estimates nine in ten import tickets are a single bad row in an otherwise fine file."
+        },
+        {
+          "ts": "00:34:45",
+          "s": 2085,
+          "observation": "Tomas concedes on the spot that the estimate changes the math on the decision."
+        },
+        {
+          "ts": "00:37:10",
+          "s": 2230,
+          "observation": "Support already fixes the one bad row by hand and loads the rest, forty minutes at a time."
+        }
+      ],
+      "implication": "The failure distribution, not the design preference, decides which behaviour costs less; whole-file rejection charges the common case for the rare one.",
+      "confidence": "medium",
+      "basis": "Wren gives the ratio from memory at 00:33:45 rather than from a pulled report."
+    },
+    {
+      "title": "Support's unmeasured manual cost",
+      "claim": "Support already performs partial import by hand, so the cost of rejecting a file is paid today and never counted.",
+      "supports": [
+        {
+          "ts": "00:30:10",
+          "s": 1810,
+          "observation": "Wren puts the manual fix and re-upload of a failed file at forty minutes minimum."
+        },
+        {
+          "ts": "00:37:10",
+          "s": 2230,
+          "observation": "She describes that manual work as the partial version of the feature, done without tooling."
+        },
+        {
+          "ts": "00:27:05",
+          "s": 1625,
+          "observation": "A comma in an address field blocked 420 rows last quarter, unnoticed until the morning shift."
+        }
+      ],
+      "implication": "Comparing the two designs by build cost understates the difference; the rejection path moves work onto support and the customer instead of removing it.",
+      "confidence": "medium",
+      "basis": "The forty-minute figure is Wren's own estimate at 00:30:10, not a measured average."
+    },
+    {
+      "title": "One validator, two endings",
+      "claim": "Both designs need the same full-file validator, so the argument was never about engineering cost.",
+      "supports": [
+        {
+          "ts": "00:07:30",
+          "s": 450,
+          "observation": "Tomas describes a dry pass that validates every row before anything commits."
+        },
+        {
+          "ts": "00:38:20",
+          "s": 2300,
+          "observation": "He notes the only new work in partial import is writing good rows and reporting bad ones."
+        },
+        {
+          "ts": "00:41:40",
+          "s": 2500,
+          "observation": "He offers to build the validator either way, since both paths need it."
+        }
+      ],
+      "implication": "A scope argument that assumed two features was arguing about a report and a write path, which changes how the first release should be sized.",
+      "confidence": "medium",
+      "basis": "Asserted by the engineer who would build it, restated at 00:38:20, and never costed."
+    }
+  ],
   "acts": [
     {
       "n": 1,
@@ -24,7 +158,11 @@
       "start_s": 0,
       "end_s": 1215,
       "summary": "Tomas describes an importer that silently drops bad rows; Wren says that's what fills her queue. The three settle on rejecting an entire file if any row fails validation, and sketch the required columns.",
-      "turning_point": {"ts": "00:19:25", "s": 1165, "text": "reject the whole file if anything fails validation"}
+      "turning_point": {
+        "ts": "00:19:25",
+        "s": 1165,
+        "text": "reject the whole file if anything fails validation"
+      }
     },
     {
       "n": 2,
@@ -33,7 +171,11 @@
       "start_s": 1215,
       "end_s": 2750,
       "summary": "The enterprise nightly-import case makes reject-the-file look like a recurring outage. Wren's ticket data shows most failures are a single bad row, yet the group locks the reject-the-file spec anyway.",
-      "turning_point": {"ts": "00:33:45", "s": 2025, "text": "nine out of ten tickets are a single bad row"}
+      "turning_point": {
+        "ts": "00:33:45",
+        "s": 2025,
+        "text": "nine out of ten tickets are a single bad row"
+      }
     },
     {
       "n": 3,
@@ -42,7 +184,11 @@
       "start_s": 2750,
       "end_s": 3385,
       "summary": "Wren raises an account already piloting nightly imports whose export will never be fully clean. Priya reverses the decision to partial import with quarantine and a per-row report, and the call ends on next steps.",
-      "turning_point": {"ts": "00:52:45", "s": 3165, "text": "i'm reversing us. we do partial import."}
+      "turning_point": {
+        "ts": "00:52:45",
+        "s": 3165,
+        "text": "i'm reversing us. we do partial import."
+      }
     }
   ],
   "threads": [
@@ -51,10 +197,22 @@
       "what": "Whether one bad row in an uploaded file should sink the whole file or just that row.",
       "why_it_matters": "The choice decides whether a mostly-valid file becomes entirely unusable or partly usable, for every customer who uploads one.",
       "marks": [
-        {"ts": "00:06:10", "s": 370},
-        {"ts": "00:19:25", "s": 1165},
-        {"ts": "00:33:45", "s": 2025},
-        {"ts": "00:52:45", "s": 3165}
+        {
+          "ts": "00:06:10",
+          "s": 370
+        },
+        {
+          "ts": "00:19:25",
+          "s": 1165
+        },
+        {
+          "ts": "00:33:45",
+          "s": 2025
+        },
+        {
+          "ts": "00:52:45",
+          "s": 3165
+        }
       ]
     },
     {
@@ -62,9 +220,18 @@
       "what": "An account already live on nightly imports has an export fed by three regional systems that disagree on formatting.",
       "why_it_matters": "It turns reject-the-file from a design preference into an outage the account would hit every single night.",
       "marks": [
-        {"ts": "00:46:55", "s": 2815},
-        {"ts": "00:50:20", "s": 3020},
-        {"ts": "00:51:30", "s": 3090}
+        {
+          "ts": "00:46:55",
+          "s": 2815
+        },
+        {
+          "ts": "00:50:20",
+          "s": 3020
+        },
+        {
+          "ts": "00:51:30",
+          "s": 3090
+        }
       ]
     },
     {
@@ -72,55 +239,132 @@
       "what": "Support's current manual workaround for a bad row is already the partial-import behavior, done without tooling.",
       "why_it_matters": "The cost of reject-the-file already exists today as unmeasured support labor, which undercuts the case for building it as the permanent answer.",
       "marks": [
-        {"ts": "00:30:10", "s": 1810},
-        {"ts": "00:37:10", "s": 2230}
+        {
+          "ts": "00:30:10",
+          "s": 1810
+        },
+        {
+          "ts": "00:37:10",
+          "s": 2230
+        }
       ]
     }
   ],
   "evidence": [
     {
-      "ts": "00:50:20", "s": 3020,
+      "ts": "00:50:20",
+      "s": 3020,
       "claim": "The piloting enterprise account's export will never be fully clean.",
       "evidence": "Wren quotes the account's own IT team describing three regional systems that disagree on formatting.",
       "strength": "strong"
     },
     {
-      "ts": "00:33:45", "s": 2025,
+      "ts": "00:33:45",
+      "s": 2025,
       "claim": "Most import tickets are a single bad row inside an otherwise valid file.",
       "evidence": "Wren estimates nine in ten tickets fit that pattern, from memory rather than a pulled report.",
       "strength": "medium"
     },
     {
-      "ts": "00:30:10", "s": 1810,
+      "ts": "00:30:10",
+      "s": 1810,
       "claim": "Manually fixing and re-uploading a failed nightly file costs about forty minutes of support time.",
       "evidence": "Wren describes her team's current manual workaround for a bad row.",
       "strength": "medium"
     }
   ],
   "signals": [
-    {"ts": "00:34:45", "s": 2085, "signal": "Tomas immediately concedes the ticket numbers 'change the math', the first sign the reject-the-file decision is shaky."},
-    {"ts": "00:46:55", "s": 2815, "signal": "Wren interrupts the just-locked spec discussion to raise the pilot account, reopening a decision the group had treated as settled."}
+    {
+      "ts": "00:34:45",
+      "s": 2085,
+      "signal": "Tomas immediately concedes the ticket numbers 'change the math', the first sign the reject-the-file decision is shaky."
+    },
+    {
+      "ts": "00:46:55",
+      "s": 2815,
+      "signal": "Wren interrupts the just-locked spec discussion to raise the pilot account, reopening a decision the group had treated as settled."
+    }
   ],
   "numbers": [
-    {"ts": "00:33:45", "s": 2025, "value": "9 in 10", "means": "Wren's estimate of the share of import tickets caused by a single bad row rather than a wholly broken file."},
-    {"ts": "00:30:10", "s": 1810, "value": "40 min", "means": "Support's estimated manual cost each time a nightly import fails and has to be fixed and re-uploaded by hand."},
-    {"ts": "00:27:05", "s": 1625, "value": "420 rows", "means": "Size of a nightly file that failed to load at all after a comma broke the parse; Wren first misremembers it as four hundred."}
+    {
+      "ts": "00:33:45",
+      "s": 2025,
+      "value": "9 in 10",
+      "means": "Wren's estimate of the share of import tickets caused by a single bad row rather than a wholly broken file."
+    },
+    {
+      "ts": "00:30:10",
+      "s": 1810,
+      "value": "40 min",
+      "means": "Support's estimated manual cost each time a nightly import fails and has to be fixed and re-uploaded by hand."
+    },
+    {
+      "ts": "00:27:05",
+      "s": 1625,
+      "value": "420 rows",
+      "means": "Size of a nightly file that failed to load at all after a comma broke the parse; Wren first misremembers it as four hundred."
+    }
   ],
   "quotes": [
-    {"ts": "00:19:25", "s": 1165, "speaker": "P", "text": "reject the whole file if anything fails validation"},
-    {"ts": "00:33:45", "s": 2025, "speaker": "W", "text": "nine out of ten tickets are a single bad row"},
-    {"ts": "00:50:20", "s": 3020, "speaker": "W", "text": "our export is never going to be fully clean, we have three regional systems feeding it and they don't agree on formatting."},
-    {"ts": "00:52:45", "s": 3165, "speaker": "P", "text": "i'm reversing us. we do partial import."}
+    {
+      "ts": "00:19:25",
+      "s": 1165,
+      "speaker": "P",
+      "text": "reject the whole file if anything fails validation"
+    },
+    {
+      "ts": "00:33:45",
+      "s": 2025,
+      "speaker": "W",
+      "text": "nine out of ten tickets are a single bad row"
+    },
+    {
+      "ts": "00:50:20",
+      "s": 3020,
+      "speaker": "W",
+      "text": "our export is never going to be fully clean, we have three regional systems feeding it and they don't agree on formatting."
+    },
+    {
+      "ts": "00:52:45",
+      "s": 3165,
+      "speaker": "P",
+      "text": "i'm reversing us. we do partial import."
+    }
   ],
-  "tech": ["CSV bulk importer", "Nightly API import job", "Row validator", "Quarantine table"],
+  "tech": [
+    "CSV bulk importer",
+    "Nightly API import job",
+    "Row validator",
+    "Quarantine table"
+  ],
   "tensions": [
-    {"ts": "00:29:00", "s": 1740, "note": "Reject-the-file would make the enterprise account's nightly failures loud and repeated rather than a one-time validation error."},
-    {"ts": "00:52:45", "s": 3165, "note": "The decision reached at 00:19:25 is reversed here: partial import replaces reject-the-file once the pilot account's export is shown to be permanently unclean."}
+    {
+      "ts": "00:29:00",
+      "s": 1740,
+      "note": "Reject-the-file would make the enterprise account's nightly failures loud and repeated rather than a one-time validation error."
+    },
+    {
+      "ts": "00:52:45",
+      "s": 3165,
+      "note": "The decision reached at 00:19:25 is reversed here: partial import replaces reject-the-file once the pilot account's export is shown to be permanently unclean."
+    }
   ],
   "next_steps": [
-    {"ts": "00:55:00", "s": 3300, "commitment": "Tomas will build validation that writes good rows and quarantines bad ones, with a per-row error report and a skipped-row banner."},
-    {"ts": "00:56:25", "s": 3385, "commitment": "Priya will write up the reject-vs-partial comparison for stakeholders."},
-    {"ts": "00:56:25", "s": 3385, "commitment": "Wren will rewrite the support macro for partial-import results instead of file rejections."}
+    {
+      "ts": "00:55:00",
+      "s": 3300,
+      "commitment": "Tomas will build validation that writes good rows and quarantines bad ones, with a per-row error report and a skipped-row banner."
+    },
+    {
+      "ts": "00:56:25",
+      "s": 3385,
+      "commitment": "Priya will write up the reject-vs-partial comparison for stakeholders."
+    },
+    {
+      "ts": "00:56:25",
+      "s": 3385,
+      "commitment": "Wren will rewrite the support macro for partial-import results instead of file rejections."
+    }
   ],
   "fit": {
     "aligned_on": [
@@ -132,8 +376,14 @@
       "How other enterprise accounts with unknown export quality will be assessed before rollout."
     ],
     "risks": [
-      {"who": "Tomas Halvorsen", "note": "He quoted a two-week timeline for the reject-only validator before partial import added quarantine and reporting work."},
-      {"who": "Wren Okafor", "note": "She had already promised a rejection-focused support macro that now needs to be rewritten for partial results."}
+      {
+        "who": "Tomas Halvorsen",
+        "note": "He quoted a two-week timeline for the reject-only validator before partial import added quarantine and reporting work."
+      },
+      {
+        "who": "Wren Okafor",
+        "note": "She had already promised a rejection-focused support macro that now needs to be rewritten for partial results."
+      }
     ]
   }
 }

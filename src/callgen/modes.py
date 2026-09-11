@@ -1,11 +1,15 @@
 """Output modes — the same call, rendered in a different register and shape.
 
 A mode decides three things and nothing else: the **register** the synthesizer
-writes in, the **shape** of the page (which sections appear, in what order, and
-how long each may run), and what the verdict, the evidence and the figures
-**emphasise**. It never decides what is true. Dropping a section removes it from
-the document; it does not remove it from the transcript, and no fact is edited,
-softened or invented on the way through.
+writes in, the **shape** of the page (which sections appear and how long each may
+run), and what the verdict, the evidence and the figures **emphasise**. It does
+not decide the order: sections belong to five tiers of rising depth — overview,
+the ideas, the discussion, the actions, the record — and a mode picks sections,
+never tiers. A mode that keeps no section from a tier simply has no such tier.
+
+It never decides what is true. Dropping a section removes it from the document;
+it does not remove it from the transcript, and no fact is edited, softened or
+invented on the way through.
 
 The prose budgets are not enforced here. Truncating a paragraph to a word count
 produces a mutilated paragraph, so the budgets travel to the synthesizer as
@@ -25,15 +29,17 @@ TRANSCRIPT = ("open", "collapsed", "omit")
 
 # section id -> the content keys it renders. A section with no keys is drawn from
 # something other than content.json: the metrics (the strip chart), the injected
-# figure fragment, or turns.json (the transcript).
+# figure fragment, or turns.json (the transcript). The order here is tier order:
+# the answer first, the record last.
 SECTIONS: dict[str, tuple[str, ...]] = {
     "strip": (),
     "abstract": ("abstract", "verdict"),
-    "insights": ("insights",),
     "highlights": ("highlights",),
+    "insights": ("insights",),
     "figures": (),
     "acts": ("acts", "lands"),
     "threads": ("threads",),
+    "next": ("next_steps",),
     "evidence": ("evidence",),
     "signals": ("signals",),
     "numbers": ("numbers",),
@@ -41,20 +47,43 @@ SECTIONS: dict[str, tuple[str, ...]] = {
     "friction": ("tensions", "diarization"),
     "quotes": ("quotes",),
     "fit": ("fit",),
-    "next": ("next_steps",),
     "transcript": (),
 }
 
-ALL = tuple(SECTIONS)
+# The page is five tiers of rising depth, not one flat run of sections: a reader
+# gets the answer first and the record last, and can stop at any boundary. Tier id
+# -> (the label the page prints, the one line under it).
+TIERS: dict[str, tuple[str, str]] = {
+    "overview": ("Overview", "What the call decided and how it ran."),
+    "concepts": ("The main ideas", "The concepts the call turned on, drawn."),
+    "discussion": ("What was discussed", "How the conversation actually moved."),
+    "actions": ("What happens next", "The commitments, with owners and times."),
+    "record": ("The record", "Every claim, signal, number and the transcript."),
+}
+
+# Every section belongs to exactly one tier. A mode picks sections; the tiers fall out.
+TIER_OF: dict[str, str] = {
+    "strip": "overview", "abstract": "overview", "highlights": "overview",
+    "insights": "concepts", "figures": "concepts",
+    "acts": "discussion", "threads": "discussion",
+    "next": "actions",
+    "evidence": "record", "signals": "record", "numbers": "record", "tech": "record",
+    "friction": "record", "quotes": "record", "fit": "record", "transcript": "record",
+}
+
+_TIER_RANK = {tier: i for i, tier in enumerate(TIERS)}
+
+ALL = tuple(sorted(SECTIONS, key=lambda s: _TIER_RANK[TIER_OF[s]]))
 
 # Words. A budget is a ceiling handed to the writer, not a knife held to the page.
 BUDGETS = {
     "abstract": 120,
-    "insights": 110,
     "highlights": 25,
+    "insights": 110,
     "figures": 40,
     "acts": 60,
     "threads": 40,
+    "next": 30,
     "evidence": 30,
     "signals": 20,
     "numbers": 20,
@@ -62,7 +91,6 @@ BUDGETS = {
     "friction": 40,
     "quotes": 60,
     "fit": 40,
-    "next": 30,
 }
 
 MAX_HIGHLIGHTS = 5
@@ -90,11 +118,6 @@ class Mode:
     # content.json untouched; only the default visibility changes. A 26-row table next
     # to the figure that plots the same 26 rows is a wall of text, so the table folds.
     collapsed: tuple[str, ...] = ()
-    # Sections that fall behind the appendix boundary: the page renders them after a
-    # divider, folded, once the main read is done. The record is complete, but the four
-    # to six pages a reader will actually read come first. Every appendix section is
-    # also collapsed; listing it here only adds the divider and the ordering promise.
-    appendix: tuple[str, ...] = ()
 
 
 def _halved(budgets: dict[str, int]) -> dict[str, int]:
@@ -106,8 +129,16 @@ def _without(*dropped: str) -> tuple[str, ...]:
 
 
 def _order(*first: str) -> tuple[str, ...]:
+    """Every section, with *first* leading. A section leads its own tier, not the page —
+    the tier order is the page's order, and :func:`_tiered` puts it back."""
     rest = tuple(s for s in ALL if s not in first and s != "highlights")
     return first + rest
+
+
+def _tiered(sections) -> tuple[str, ...]:
+    """*sections* in tier order. The sort is stable, so a mode's own preference survives
+    inside its tier: ``_order("evidence")`` leads the record with the evidence table."""
+    return tuple(sorted(sections, key=lambda s: _TIER_RANK[TIER_OF[s]]))
 
 
 _BUILT_INS = (
@@ -135,29 +166,22 @@ _BUILT_INS = (
         register=(
             "The professional register, cut to what a reader acts on. The verdict opens the "
             "document. The insights are the argument; write each as one claim a reader could "
-            "not have guessed from the job title, then its supports and its so-what. An act is "
-            "one line, not a paragraph. Say the thing and stop."
+            "not have guessed from the job title, then its supports and its so-what. Say the "
+            "thing and stop."
         ),
-        sections=(
-            "strip", "abstract", "insights", "figures", "acts", "threads",
-            "evidence", "signals", "numbers", "tech", "friction", "fit", "next",
-            "transcript",
-        ),
-        budgets={**_halved(BUDGETS), "abstract": 80, "insights": 100},
+        sections=("strip", "abstract", "insights", "figures", "next"),
+        budgets={"abstract": 80, "insights": 100, "figures": 20, "next": 15},
         figures=4,
         emphasis=(
             "Insights lead, right after the verdict: what happened, what it means, what to do, "
-            "in that order and fast. Figures are the few that carry an insight. The acts and "
-            "threads are compressed to a line each. Everything a reader can check later — the "
-            "evidence table, the signals, the numbers, the transcript — falls behind the "
-            "appendix boundary, folded, losing no fact and none of the reader's first six pages."
+            "in that order and fast. Figures are the few that carry an insight. The commitments "
+            "close the document. The record stops at the boundary of what a reader acts on: no "
+            "evidence table, no signals, no transcript. Render professional when someone needs "
+            "to check a claim against a timestamp."
         ),
-        transcript="collapsed",
+        transcript="omit",
         summary=(
-            "verdict, insights and the figures that carry them; the record folds into an appendix"
-        ),
-        appendix=(
-            "evidence", "signals", "numbers", "tech", "friction", "fit", "next", "transcript",
+            "verdict, insights, the figures that carry them and the commitments — no record"
         ),
     ),
     Mode(
@@ -194,7 +218,7 @@ _BUILT_INS = (
             "figures support it. Every figure caption cites the timestamps it was built from."
         ),
         transcript="open",
-        summary="third person, no contractions, findings not recommendations, evidence first",
+        summary="third person, no contractions, findings not recommendations, evidence-led record",
         collapsed=("evidence", "signals", "numbers", "tech", "friction"),
     ),
     Mode(
@@ -213,7 +237,7 @@ _BUILT_INS = (
             "look at."
         ),
         transcript="open",
-        summary="second person, contractions, quotes lead, a lighter figure set",
+        summary="second person, contractions, quotes open the record, a lighter figure set",
         collapsed=("evidence", "signals", "numbers", "tech", "friction"),
     ),
     Mode(
@@ -239,19 +263,19 @@ _BUILT_INS = (
     Mode(
         name="summarized",
         register=(
-            "One reader, two minutes, no scrolling. Abstract, verdict, one composite figure and "
-            "the numbers. Under 400 words of prose in total. Nothing is hedged to save space — "
-            "a claim that will not fit is cut, not softened."
+            "One reader, two minutes, no scrolling. Abstract, verdict and one composite figure. "
+            "Under 400 words of prose in total. Nothing is hedged to save space — a claim that "
+            "will not fit is cut, not softened."
         ),
-        sections=("abstract", "highlights", "figures", "numbers"),
-        budgets={"abstract": 120, "highlights": 25, "figures": 40, "numbers": 20},
+        sections=("abstract", "highlights", "figures"),
+        budgets={"abstract": 120, "highlights": 25, "figures": 40},
         figures=1,
         emphasis=(
             "The verdict is the document. The highlights are the at most five things that would "
             "change a reader's mind. One composite figure carries the shape of the whole call."
         ),
         transcript="omit",
-        summary="abstract, verdict, one composite figure and the numbers — under 400 words",
+        summary="abstract, verdict and one composite figure — under 400 words",
     ),
     Mode(
         name="compact",
@@ -297,19 +321,19 @@ _BUILT_INS = (
             "captions. The figure set is the document, so the bridges have to carry the argument "
             "from one figure to the next."
         ),
-        sections=("strip", "figures", "numbers"),
-        budgets={"figures": 60, "numbers": 20},
+        sections=("strip", "figures"),
+        budgets={"figures": 60},
         figures=12,
         emphasis=(
-            "Every claim lives in a figure or in a number. The strip chart supplies the shape of "
-            "the call; the figures supply everything else."
+            "Every claim lives in a figure. The strip chart supplies the shape of the call; the "
+            "figures supply everything else."
         ),
         transcript="omit",
-        summary="the figure set, the strip chart and the numbers — no prose sections",
+        summary="the figure set and the strip chart — no prose sections",
     ),
 )
 
-MODES: dict[str, Mode] = {m.name: m for m in _BUILT_INS}
+MODES: dict[str, Mode] = {}  # filled below, once _normalise is defined
 
 
 def _normalise(m: Mode, where: str) -> Mode:
@@ -339,16 +363,23 @@ def _normalise(m: Mode, where: str) -> Mode:
         raise ModeError(
             f"{where}: transcript {m.transcript!r} is not one of {', '.join(TRANSCRIPT)}"
         )
-    bad_appendix = [s for s in m.appendix if s not in SECTIONS]
-    if bad_appendix:
+    # A mode picks sections, never tiers: a section with no tier would render outside the
+    # hierarchy. Only a drift between SECTIONS and TIER_OF can reach this.
+    untiered = [s for s in m.sections if s not in TIER_OF]
+    if untiered:
         raise ModeError(
-            f"{where}: unknown appendix section {', '.join(repr(s) for s in bad_appendix)} — "
-            f"the section ids are {', '.join(ALL)}"
+            f"{where}: section {', '.join(repr(s) for s in untiered)} belongs to no tier — "
+            f"the tiers are {', '.join(TIERS)}"
         )
     sections = tuple(s for s in m.sections if s != "transcript")
     if m.transcript != "omit":
         sections += ("transcript",)
-    return replace(m, sections=sections)
+    return replace(m, sections=_tiered(sections))
+
+
+# The built-ins run the same gate a project mode does — a section that is unknown, listed
+# twice or out of tier order fails at import rather than at render.
+MODES.update({m.name: _normalise(m, f"built-in mode {m.name!r}") for m in _BUILT_INS})
 
 
 def _from_dict(name: str, spec, where: str) -> Mode:
@@ -368,7 +399,6 @@ def _from_dict(name: str, spec, where: str) -> Mode:
         register=str(spec.get("register", base.register)),
         sections=tuple(spec.get("sections", base.sections)),
         collapsed=tuple(spec.get("collapsed", base.collapsed)),
-        appendix=tuple(spec.get("appendix", base.appendix)),
         budgets=dict(spec.get("budgets", base.budgets)),
         figures=spec.get("figures", base.figures),
         emphasis=str(spec.get("emphasis", base.emphasis)),
@@ -410,6 +440,24 @@ def section_order(mode: str, root=None) -> list[str]:
     return list(get(mode, root).sections)
 
 
+def _tiers(m: Mode) -> list[tuple[str, str, str, list[str]]]:
+    out = []
+    for tier, (label, lede) in TIERS.items():
+        sections = [s for s in m.sections if TIER_OF[s] == tier]
+        if sections:
+            out.append((tier, label, lede, sections))
+    return out
+
+
+def tier_order(mode: str, root=None) -> list[tuple[str, str, str, list[str]]]:
+    """(tier id, label, lede, section ids) for every tier this mode renders, in order.
+
+    A mode that drops a whole tier — ``brief`` has no record, ``diagrams-only`` stops
+    after the ideas — produces no entry for it rather than an empty one.
+    """
+    return _tiers(get(mode, root))
+
+
 def prompt_guidance(mode: str, root=None) -> str:
     """The register and emphasis text, for injection into the synthesizer prompt."""
     m = get(mode, root)
@@ -449,9 +497,11 @@ def apply(content: dict, mode: str, root=None) -> dict:
     out = {k: v for k, v in content.items() if k not in owned or k in keep}
     if "highlights" in m.sections:
         out["highlights"] = _highlights(content)
-    appendix = [sec for sec in m.appendix if sec in m.sections]
-    # Every appendix section renders folded; the transcript folds through its own flag,
-    # so it is never double-wrapped in a collapse here.
+    tiers = _tiers(m)
+    # The record tier is the appendix: the page renders it after a divider, folded, once
+    # the main read is done. Every appendix section renders folded; the transcript folds
+    # through its own flag, so it is never double-wrapped in a collapse here.
+    appendix = [sec for sec in m.sections if TIER_OF[sec] == "record"]
     collapsed = list(m.collapsed)
     for sec in appendix:
         if sec != "transcript" and sec not in collapsed:
@@ -464,14 +514,17 @@ def apply(content: dict, mode: str, root=None) -> dict:
         "transcript": m.transcript,
         "collapsed": [sec for sec in collapsed if sec in m.sections],
         "appendix": appendix,
+        "tiers": [
+            {"id": tier, "label": label, "lede": lede, "sections": sections}
+            for tier, label, lede, sections in tiers
+        ],
     }
     return out
 
 
 APPENDIX_DIVIDER = (
-    '<div class="appendix-divider" role="separator"><span>Appendix</span>'
-    "<p>The full record — every claim, signal, number and the transcript, kept out of the "
-    "main read.</p></div>\n"
+    f'<div class="appendix-divider" role="separator"><span>{TIERS["record"][0]}</span>'
+    f"<p>{TIERS['record'][1]} Kept out of the main read.</p></div>\n"
 )
 
 
@@ -591,6 +644,19 @@ def _prose_fields(content: dict):
     for section, field in _LIST_FIELDS:
         for i, row in enumerate(content.get(section) or []):
             yield f"{section}[{i}].{field}", row.get(field, ""), "list_item"
+    # The verdict is the first paragraph a reader sees and the landings are read
+    # beside the acts; both are visible running prose, so both are capped. They
+    # were omitted here once, and the 28-word rule silently never ran on the
+    # document's opening position.
+    verdict = content.get("verdict") or {}
+    yield "verdict.position", verdict.get("position", ""), "abstract"
+    for key in ("for", "against"):
+        for i, item in enumerate(verdict.get(key) or []):
+            yield f"verdict.{key}[{i}]", item, "list_item"
+    yield "verdict.decides_it", verdict.get("decides_it", ""), "list_item"
+    for i, land in enumerate(content.get("lands") or []):
+        yield f"lands[{i}].observation", land.get("observation", ""), "list_item"
+        yield f"lands[{i}].transfers_to", land.get("transfers_to", ""), "list_item"
     fit = content.get("fit") or {}
     for key in ("aligned_on", "unresolved"):
         for i, item in enumerate(fit.get(key) or []):

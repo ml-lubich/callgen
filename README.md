@@ -31,8 +31,15 @@ structure of the conversation is position in time rather than decoration. The
 whole transcript ships inside the page with search and per-speaker filtering,
 and every timestamp anywhere on the page jumps to the turn it came from.
 
-The figures sit second on that axis — directly after the abstract, ahead of the
-prose that checks them.
+The page reads in five tiers of rising depth, so a reader gets the answer first
+and the record last and can stop at any boundary: the **overview** (the strip
+chart, the abstract and its verdict), **the main ideas** (the insights and the
+figures), **what was discussed** (the acts and the threads), **what happens
+next** (the commitments), and **the record** (the evidence, the signals, the
+numbers, the named tech, the friction, the quotes, the fit and the transcript).
+The record renders behind a divider, folded — complete, and out of the reader's
+first six pages. The figures sit in the second tier, ahead of the prose that
+checks them.
 
 ## Pictures first
 
@@ -145,11 +152,14 @@ document. `cd web && npm test` runs its unit tests.
 
 ### Modes
 
-`callgen modes` lists the nine output modes a build can be rendered in —
-`professional` (the default), `concise`, `formal`, `casual`, `interesting`,
-`summarized`, `compact`, `creative` and `diagrams-only`. A mode sets the register
-the synthesizer writes in, which sections render in what order, the prose and
-figure budgets, and the transcript setting. It never changes a fact. A project
+`callgen modes` lists the ten output modes a build can be rendered in —
+`professional` (the default), `brief`, `concise`, `formal`, `casual`,
+`interesting`, `summarized`, `compact`, `creative` and `diagrams-only`. A mode
+sets the register the synthesizer writes in, which sections render, the prose and
+figure budgets, and the transcript setting. Sections always render in tier order,
+so a mode picks which sections and which tiers it keeps rather than inventing an
+order: `brief` stops after the commitments, `diagrams-only` after the ideas. It
+never changes a fact. A project
 can add its own in `.callgen/modes.json`, merged over the built-ins. See
 `skills/modes/`.
 

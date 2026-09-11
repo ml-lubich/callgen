@@ -3,32 +3,529 @@
   .dg figcaption{display:block;margin:0 0 1rem;max-width:66ch}
   .dg .dg-t{display:block;font-family:var(--display);font-size:21px;line-height:1.25;color:var(--ink)}
   .dg .dg-w{display:block;margin-top:.4rem;font-family:var(--body);font-size:13px;color:var(--ink-soft)}
-  .dg .dg-scroll{overflow-x:auto;overflow-y:hidden}
   .dg svg{display:block}
   .dg .box{fill:var(--paper-2);stroke-width:1.2}
   .dg .frame{fill:none;stroke:var(--grid);stroke-width:.5;stroke-dasharray:2 3}
+  .dg .ghost{fill:none;stroke:var(--grid);stroke-width:1;stroke-dasharray:4 3}
   .dg .axis{fill:none;stroke:var(--grid);stroke-width:.5}
   .dg .edge{fill:none;stroke-width:1.2}
-  .dg .sa{stroke:var(--pen-a)} .dg .sb{stroke:var(--pen-b)}
-  .dg .fa{fill:var(--pen-a)} .dg .fb{fill:var(--pen-b)}
-  .dg .bara{fill:var(--pen-a)} .dg .barb{fill:var(--pen-b)}
+  .dg .sa{stroke:var(--pen-a)} .dg .sb{stroke:var(--pen-b)} .dg .sn{stroke:var(--ink-soft)}
+  .dg .fa{fill:var(--pen-a)} .dg .fb{fill:var(--pen-b)} .dg .fn{fill:var(--ink-soft)}
+  .dg .bara{fill:var(--pen-a)} .dg .barb{fill:var(--pen-b)} .dg .barn{fill:var(--grid)}
+  .dg .oa{color:var(--pen-a)} .dg .ob{color:var(--pen-b)} .dg .on{color:var(--ink-soft)}
+  .dg .og{color:var(--grid);stroke-dasharray:3 3}
   .dg text{font-family:var(--cond)}
-  .dg .n-l{font-size:13px;font-weight:600;fill:var(--ink)}
-  .dg .n-n{font-size:11.5px;fill:var(--ink-soft)}
-  .dg .n-i{font-size:11.5px;font-weight:600;fill:var(--ink-soft)}
-  .dg .g-l{font-size:11.5px;font-weight:600;fill:var(--ink-soft);letter-spacing:.09em;text-transform:uppercase}
+  .dg .n-l{font-size:14px;font-weight:600;fill:var(--ink)}
+  .dg .n-n{font-size:13px;fill:var(--ink-soft)}
+  .dg .n-i{font-size:13px;font-weight:600;fill:var(--ink-soft)}
+  .dg .g-l{font-size:13px;font-weight:600;fill:var(--ink-soft);letter-spacing:.08em;text-transform:uppercase}
   .dg .dg-key{margin:1rem 0 0;padding-left:1.4rem;max-width:66ch;font-family:var(--body);
     font-size:13px;line-height:1.55;color:var(--ink-soft)}
   .dg-lead{margin:0 0 2.5rem;max-width:66ch;font-family:var(--body);font-size:17px;color:var(--ink)}
   .dg-bridge{margin:0 0 2.5rem;max-width:60ch;font-family:var(--body);font-size:15px;color:var(--ink-soft)}
 </style>
-<div class="dg-lead">Three figures, in order: the first shows the evidence that undercut the plan
-before anyone acted on it, the second lays the two plans side by side on the dimensions that
-actually mattered, and the third shows when the group committed to a plan and when it let go
-of it. One pen per person throughout: <b style="color:var(--pen-a)">Priya Raghavan</b>, who
-proposed and later reversed the decision, and <b style="color:var(--pen-b)">Wren Okafor</b>,
-whose ticket data drove the reversal; Tomas Halvorsen's engineering framing sits in
+<!-- callgen diagram object kit — "drafting-table axonometric".
+     ONE HAND. 2:1 dimetric projection: every receding edge has slope EXACTLY ±0.5.
+     Single light source top-front-left. Depth is flat currentColor face-tone (top .05,
+     right .13, left .22) plus vertical hairline hatch on the left/shadow face of hero
+     objects — NEVER a gradient, shadow or bevel. Three line weights: structural 1.6,
+     detail 1.0, hairline .5. Colour is currentColor; tint a <use> with
+     color:var(--pen-m|pen-d|ink-soft). No hex, no font, no emoji, no dependency.
+     Native 48-grid; legible 22–96px. The object's form is the meaning; the label only names it. -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true" data-icon-sprite>
+  <defs></defs>
+
+  <!-- ============ DATA & STORAGE ============ -->
+
+  <!-- database: tall iso cylinder, ring divisions = rows. Not a vector store. -->
+  <symbol id="icon-database" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M9 12v24a15 7.5 0 0 0 30 0V12" fill="currentColor" stroke="none" opacity=".11"/>
+    <ellipse cx="24" cy="12" rx="15" ry="7.5" fill="currentColor" stroke="none" opacity=".05"/>
+    <ellipse cx="24" cy="12" rx="15" ry="7.5"/>
+    <path d="M9 12v24a15 7.5 0 0 0 30 0V12"/>
+    <path d="M9 20a15 7.5 0 0 0 30 0" stroke-width="1"/>
+    <path d="M9 28a15 7.5 0 0 0 30 0" stroke-width="1"/>
+  </symbol>
+
+  <!-- vector-index: iso block whose TOP face is a joined point-cloud = embedding space. -->
+  <symbol id="icon-vector-index" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M24 30 44 40 24 50 4 40Z" fill="currentColor" stroke="none" opacity=".13" transform="translate(0,-6)"/>
+    <path d="M4 20 24 30 24 44 4 34Z" fill="currentColor" stroke="none" opacity=".22"/>
+    <path d="M44 20 24 30 24 44 44 34Z" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M24 10 44 20 24 30 4 20Z" fill="currentColor" stroke="none" opacity=".05"/>
+    <path d="M24 10 44 20 44 34 24 44 4 34 4 20Z"/>
+    <path d="M24 30v14" stroke-width="1"/>
+    <path d="M13 17 24 15M24 15 33 21M24 15 20 24M33 21 30 26M20 24 30 26" stroke-width="1"/>
+    <circle cx="13" cy="17" r="1.5" fill="currentColor" stroke="none"/>
+    <circle cx="24" cy="15" r="1.5" fill="currentColor" stroke="none"/>
+    <circle cx="33" cy="21" r="1.5" fill="currentColor" stroke="none"/>
+    <circle cx="20" cy="24" r="1.5" fill="currentColor" stroke="none"/>
+    <circle cx="30" cy="26" r="1.5" fill="currentColor" stroke="none"/>
+  </symbol>
+
+  <!-- document: one thin iso slab, printed lines + folded corner on the top face. -->
+  <symbol id="icon-document" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 22 24 30 24 36 8 28Z" fill="currentColor" stroke="none" opacity=".22"/>
+    <path d="M40 22 24 30 24 36 40 28Z" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M24 8 40 16 24 24 8 16Z" fill="currentColor" stroke="none" opacity=".05"/>
+    <path d="M24 8 40 16 40 28 24 36 8 28 8 16Z"/>
+    <path d="M24 24v12" stroke-width="1"/>
+    <path d="M14 15 22 19M13 18 24 23.5M18 12.5 30 18.5M20 20 30 25" stroke-width="1"/>
+  </symbol>
+
+  <!-- document-stack: three offset slabs = real depth (a corpus / many docs). -->
+  <symbol id="icon-document-stack" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M24 4 40 12 24 20 8 12Z" fill="currentColor" stroke="none" opacity=".05"/>
+    <path d="M24 4 40 12 40 15 24 23 8 15 8 12Z"/>
+    <path d="M24 12 40 20 24 28 8 20Z" fill="currentColor" stroke="none" opacity=".05"/>
+    <path d="M24 12 40 20 40 23 24 31 8 23 8 20Z"/>
+    <path d="M8 28 24 36 24 40 8 32Z" fill="currentColor" stroke="none" opacity=".22"/>
+    <path d="M40 28 24 36 24 40 40 32Z" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M24 20 40 28 24 36 8 28Z" fill="currentColor" stroke="none" opacity=".05"/>
+    <path d="M24 20 40 28 40 32 24 40 8 32 8 28Z"/>
+    <path d="M15 25 27 31M14 28 26 34" stroke-width="1"/>
+  </symbol>
+
+  <!-- pdf: a slab with a solid banner on the page = a formatted file. -->
+  <symbol id="icon-pdf" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 22 24 30 24 36 8 28Z" fill="currentColor" stroke="none" opacity=".22"/>
+    <path d="M40 22 24 30 24 36 40 28Z" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M24 8 40 16 24 24 8 16Z" fill="currentColor" stroke="none" opacity=".05"/>
+    <path d="M24 8 40 16 40 28 24 36 8 28 8 16Z"/>
+    <path d="M24 24v12" stroke-width="1"/>
+    <path d="M15 15 27 21 33 18 21 12Z" fill="currentColor" stroke="none" opacity=".9"/>
+  </symbol>
+
+  <!-- image: an iso frame whose page shows a mountain + sun = a raster/scan. -->
+  <symbol id="icon-image" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 20 24 28 24 34 8 26Z" fill="currentColor" stroke="none" opacity=".22"/>
+    <path d="M40 20 24 28 24 34 40 26Z" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M24 6 40 14 24 22 8 14Z" fill="currentColor" stroke="none" opacity=".05"/>
+    <path d="M24 6 40 14 40 26 24 34 8 26 8 14Z"/>
+    <path d="M24 22v12" stroke-width="1"/>
+    <circle cx="17" cy="13" r="1.8" fill="currentColor" stroke="none"/>
+    <path d="M12 18 20 15 26 18.5 33 15" stroke-width="1"/>
+  </symbol>
+
+  <!-- ============ WORK ITEMS & FLOW ============ -->
+
+  <!-- ticket: a slab with a perforation + corner notch = a routable unit of work. -->
+  <symbol id="icon-ticket" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 22 24 30 24 36 8 28Z" fill="currentColor" stroke="none" opacity=".22"/>
+    <path d="M40 22 24 30 24 36 40 28Z" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M24 8 40 16 24 24 8 16Z" fill="currentColor" stroke="none" opacity=".05"/>
+    <path d="M24 8 40 16 40 28 24 36 8 28 8 16Z"/>
+    <path d="M16 12 32 20" stroke-width="1" stroke-dasharray="1.5 1.6"/>
+    <path d="M20 22 30 27" stroke-width="1"/>
+  </symbol>
+
+  <!-- inbox: an open iso tray with slips = a queue / place of incoming work. -->
+  <symbol id="icon-inbox" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M6 22 24 31 24 40 6 31Z" fill="currentColor" stroke="none" opacity=".22"/>
+    <path d="M42 22 24 31 24 40 42 31Z" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M6 22 24 31 42 22 33 17 33 24 24 28.5 15 24 15 17Z" fill="currentColor" stroke="none" opacity=".05"/>
+    <path d="M6 22 15 17 33 17 42 22 24 31Z"/>
+    <path d="M6 22 24 31 42 22M6 22v9l18 9 18-9v-9"/>
+    <path d="M15 17v7l9 4.5 9-4.5v-7" stroke-width="1"/>
+    <path d="M22 9 30 13M22 13 30 9" stroke-width="1"/>
+  </symbol>
+
+  <!-- filter: an iso funnel narrowing to a stem = triage/classify. -->
+  <symbol id="icon-filter" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <ellipse cx="24" cy="12" rx="16" ry="8" fill="currentColor" stroke="none" opacity=".05"/>
+    <ellipse cx="24" cy="12" rx="16" ry="8"/>
+    <path d="M8 12 22 30v10l4 2V30L40 12" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M8 12 22 30v10l4 2V30L40 12"/>
+  </symbol>
+
+  <!-- fork-in-road: a ground-plane path splitting two ways (iso ribbons). -->
+  <symbol id="icon-fork-in-road" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M20 44 24 42V30l14-7V13l-4 2v6l-10 5-10-5v-6l-4-2v10l14 7v12Z" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M22 44V30L8 23V13M26 44V30l14-7V13"/>
+    <path d="M4 15 8 11l4 2M36 15l4-4 4 2" stroke-width="1"/>
+  </symbol>
+
+  <!-- ============ AGENTS & PEOPLE ============ -->
+
+  <!-- robot: an iso cube head, eyes on the front-right face, antenna = the AI agent. -->
+  <symbol id="icon-robot" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M6 20 24 29 24 44 6 35Z" fill="currentColor" stroke="none" opacity=".22"/>
+    <path d="M42 20 24 29 24 44 42 35Z" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M24 11 42 20 24 29 6 20Z" fill="currentColor" stroke="none" opacity=".05"/>
+    <path d="M24 11 42 20 42 35 24 44 6 35 6 20Z"/>
+    <path d="M24 29v15" stroke-width="1"/>
+    <path d="M24 11V5M24 5 21 3.5M24 5 27 3.5" stroke-width="1"/>
+    <ellipse cx="14.5" cy="30.5" rx="2.4" ry="1.6" fill="currentColor" stroke="none"/>
+    <ellipse cx="33.5" cy="30.5" rx="2.4" ry="1.6" fill="currentColor" stroke="none"/>
+    <path d="M17 37 24 40.5 31 37" stroke-width="1"/>
+  </symbol>
+
+  <!-- person: a constructed bust; shoulders carry a faint iso top plane. -->
+  <symbol id="icon-person" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 44c0-9 7-15 16-15s16 6 16 15Z" fill="currentColor" stroke="none" opacity=".16"/>
+    <circle cx="24" cy="14" r="8" fill="currentColor" stroke="none" opacity=".05"/>
+    <circle cx="24" cy="14" r="8"/>
+    <path d="M8 44c0-9 7-15 16-15s16 6 16 15"/>
+    <path d="M13 33 24 37 35 33" stroke-width="1"/>
+  </symbol>
+
+  <!-- team: two busts offset in iso depth = a group / headcount. -->
+  <symbol id="icon-team" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="33" cy="15" r="6" fill="currentColor" stroke="none" opacity=".05"/>
+    <circle cx="33" cy="15" r="6"/>
+    <path d="M25 34c0-7 5-11 11-11s11 4 11 11" opacity=".85"/>
+    <path d="M6 44c0-9 6.5-14 15-14s15 5 15 14Z" fill="currentColor" stroke="none" opacity=".16"/>
+    <circle cx="21" cy="17" r="8" fill="currentColor" stroke="none" opacity=".05"/>
+    <circle cx="21" cy="17" r="8"/>
+    <path d="M6 44c0-9 6.5-14 15-14s15 5 15 14"/>
+  </symbol>
+
+  <!-- building: a tall iso block with window dots on both faces = an organisation/site. -->
+  <symbol id="icon-building" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 16 24 24 24 44 8 36Z" fill="currentColor" stroke="none" opacity=".22"/>
+    <path d="M40 16 24 24 24 44 40 36Z" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M24 4 40 12 24 20 8 12Z" fill="currentColor" stroke="none" opacity=".05"/>
+    <path d="M24 4 40 12 40 36 24 44 8 36 8 12Z"/>
+    <path d="M24 20v24" stroke-width="1"/>
+    <path d="M13 19.5 18 22M13 25.5 18 28M13 31.5 18 34" stroke-width="1"/>
+    <path d="M30 22 35 19.5M30 28 35 25.5M30 34 35 31.5" stroke-width="1"/>
+  </symbol>
+
+  <!-- ============ COMPUTE & INFRASTRUCTURE ============ -->
+
+  <!-- server: a wide-short iso rack, front face slotted with LEDs = a running host. -->
+  <symbol id="icon-server" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 18 24 28 24 42 4 32Z" fill="currentColor" stroke="none" opacity=".22"/>
+    <path d="M44 18 24 28 24 42 44 32Z" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M24 10 44 18 24 26 4 18Z" fill="currentColor" stroke="none" opacity=".05"/>
+    <path d="M24 10 44 18 44 32 24 42 4 32 4 18Z"/>
+    <path d="M24 26v16" stroke-width="1"/>
+    <path d="M4 22 24 31M24 31 44 22" stroke-width="1"/>
+    <path d="M4 27 24 36M24 36 44 27" stroke-width="1"/>
+    <circle cx="9" cy="23" r="1.4" fill="currentColor" stroke="none"/>
+    <circle cx="9" cy="28" r="1.4" fill="currentColor" stroke="none"/>
+    <circle cx="39" cy="23" r="1.4" fill="currentColor" stroke="none"/>
+    <circle cx="39" cy="28" r="1.4" fill="currentColor" stroke="none"/>
+  </symbol>
+
+  <!-- cloud: a bold constructed puff on a thin iso base = a hosted/off-prem service. -->
+  <symbol id="icon-cloud" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <ellipse cx="24" cy="38" rx="15" ry="4" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M13 33a7 7 0 0 1-1-14 9 9 0 0 1 17-3 6 6 0 0 1 3 11 5 5 0 0 1-2 6Z" fill="currentColor" stroke="none" opacity=".07"/>
+    <path d="M14 33h17a6.5 6.5 0 0 0 1-13 9 9 0 0 0-17-2A7 7 0 0 0 14 33Z"/>
+  </symbol>
+
+  <!-- laptop: an iso base plane (keys) + a raised screen plane = a local/dev machine. -->
+  <symbol id="icon-laptop" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M14 10 40 10 40 24 24 24Z" fill="currentColor" stroke="none" opacity=".05"/>
+    <path d="M14 10 24 24 40 24 40 10Z"/>
+    <path d="M24 24 8 32 32 40 44 32Z" fill="currentColor" stroke="none" opacity=".18"/>
+    <path d="M24 24 8 32 32 40 44 32 40 24" />
+    <path d="M18 14 34 14M18 18 30 18" stroke-width="1"/>
+  </symbol>
+
+  <!-- terminal: an iso screen block, prompt chevron + cursor = a deterministic CLI tool. -->
+  <symbol id="icon-terminal" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M6 16 24 25 24 40 6 31Z" fill="currentColor" stroke="none" opacity=".18"/>
+    <path d="M42 16 24 25 24 40 42 31Z" fill="currentColor" stroke="none" opacity=".1"/>
+    <path d="M24 8 42 16 24 25 6 16Z" fill="currentColor" stroke="none" opacity=".05"/>
+    <path d="M24 8 42 16 42 31 24 40 6 31 6 16Z"/>
+    <path d="M24 25v15" stroke-width="1"/>
+    <path d="M11 22 17 26.5 12 30" stroke-width="1"/>
+    <path d="M19 30 26 33.5" stroke-width="1"/>
+  </symbol>
+
+  <!-- api: an iso socket with two prongs = a crossed service boundary. -->
+  <symbol id="icon-api" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M14 20 24 25 24 37 14 32Z" fill="currentColor" stroke="none" opacity=".22"/>
+    <path d="M34 20 24 25 24 37 34 32Z" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M24 15 34 20 24 25 14 20Z" fill="currentColor" stroke="none" opacity=".05"/>
+    <path d="M24 15 34 20 34 32 24 37 14 32 14 20Z"/>
+    <path d="M20 12 20 17M28 12 28 17" stroke-width="1"/>
+    <path d="M24 37v6" stroke-width="1"/>
+  </symbol>
+
+  <!-- gear: a short iso disc with teeth + hub = a process/mechanism. -->
+  <symbol id="icon-gear" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M9 24v5a15 7.5 0 0 0 30 0v-5" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M9 24v5a15 7.5 0 0 0 30 0v-5"/>
+    <ellipse cx="24" cy="24" rx="15" ry="7.5" fill="currentColor" stroke="none" opacity=".05"/>
+    <ellipse cx="24" cy="24" rx="15" ry="7.5"/>
+    <path d="M24 16.5v-4M11 21 8 19M37 21l3-2M15 28l-3 2.5M33 28l3 2.5" stroke-width="1"/>
+    <ellipse cx="24" cy="24" rx="4.5" ry="2.3"/>
+  </symbol>
+
+  <!-- gate: an iso pipe segment with a valve wheel = a single control on a flow. -->
+  <symbol id="icon-gate" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 24 16 30M32 30 44 24" stroke-width="1.6"/>
+    <path d="M14 24 24 29 24 39 14 34Z" fill="currentColor" stroke="none" opacity=".22"/>
+    <path d="M34 24 24 29 24 39 34 34Z" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M24 19 34 24 24 29 14 24Z" fill="currentColor" stroke="none" opacity=".05"/>
+    <path d="M24 19 34 24 34 34 24 39 14 34 14 24Z"/>
+    <path d="M24 19v-6M20 12h8" stroke-width="1"/>
+  </symbol>
+
+  <!-- ============ VERSION & RELEASE ============ -->
+
+  <!-- branch: three nodes joined on iso lines = a git graph, lines emerging from a trunk. -->
+  <symbol id="icon-branch" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M10 38 10 16M10 22 26 14 38 20M26 14 26 30"/>
+    <circle cx="10" cy="12" r="4" fill="currentColor" stroke="none" opacity=".13"/>
+    <circle cx="10" cy="12" r="4"/>
+    <circle cx="40" cy="19" r="4" fill="currentColor" stroke="none" opacity=".13"/>
+    <circle cx="40" cy="19" r="4"/>
+    <circle cx="26" cy="34" r="4" fill="currentColor" stroke="none" opacity=".13"/>
+    <circle cx="26" cy="34" r="4"/>
+  </symbol>
+
+  <!-- tag: an iso luggage tag with a hole = a release label/version. -->
+  <symbol id="icon-tag" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M6 18 28 6 44 22 32 40 26 40 6 26Z" fill="currentColor" stroke="none" opacity=".1"/>
+    <path d="M8 20 26 8 42 24 30 38 24 38 8 26Z"/>
+    <circle cx="17" cy="19" r="2.6"/>
+    <path d="M22 24 34 30" stroke-width="1"/>
+  </symbol>
+
+  <!-- ============ SIGNALS & OUTCOMES ============ -->
+
+  <!-- search: a bold lens ring on an iso handle = a lookup/retrieval. -->
+  <symbol id="icon-search" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="20" cy="18" r="12" fill="currentColor" stroke="none" opacity=".08"/>
+    <circle cx="20" cy="18" r="12"/>
+    <circle cx="20" cy="18" r="7" stroke-width="1"/>
+    <path d="M29 27 42 40" stroke-width="2.4"/>
+  </symbol>
+
+  <!-- alert: a triangular prism sign with a bar = a warning/risk. -->
+  <symbol id="icon-alert" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M24 8 42 38 24 42 24 8Z" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M24 8 6 38 24 42 42 38Z" fill="currentColor" stroke="none" opacity=".07"/>
+    <path d="M24 8 6 38 42 38Z"/>
+    <path d="M24 8v34" stroke-width="1"/>
+    <path d="M24 22v8" stroke-width="1.6"/>
+    <circle cx="24" cy="34" r="1.3" fill="currentColor" stroke="none"/>
+  </symbol>
+
+  <!-- check: an iso stamp token with a tick on its face = confirmed/done. -->
+  <symbol id="icon-check" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 22v6a16 8 0 0 0 32 0v-6" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M8 22v6a16 8 0 0 0 32 0v-6"/>
+    <ellipse cx="24" cy="22" rx="16" ry="8" fill="currentColor" stroke="none" opacity=".05"/>
+    <ellipse cx="24" cy="22" rx="16" ry="8"/>
+    <path d="M16 22 22 26 33 18" stroke-width="1.6"/>
+  </symbol>
+
+  <!-- shield: a plate with a thin iso edge + tick = prevention/guardrail. -->
+  <symbol id="icon-shield" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M24 5 39 10v11c0 10-7 15-15 18-8-3-15-8-15-18V10Z" fill="currentColor" stroke="none" opacity=".05"/>
+    <path d="M24 5 39 10v11c0 10-7 15-15 18-8-3-15-8-15-18V10Z"/>
+    <path d="M9 10 12 8.5 27 13.5v9c0 8-5 12.5-11 15.5" fill="currentColor" stroke="none" opacity=".18"/>
+    <path d="M16 22 22 27 33 15" stroke-width="1.6"/>
+  </symbol>
+
+  <!-- chart-up: three bars rising on an iso plinth = a measured gain. -->
+  <symbol id="icon-chart-up" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M6 34 24 43 42 34 24 25Z" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M6 34 24 43 42 34 24 25Z"/>
+    <path d="M14 32V26M23 34V20M32 32V14" stroke-width="2.4"/>
+    <path d="M28 12 33 12.5 32.5 17" stroke-width="1"/>
+  </symbol>
+
+  <!-- coin: short iso disc stack + a value slash = money/cost/revenue. -->
+  <symbol id="icon-coin" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 24v5a16 8 0 0 0 32 0v-5" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M8 24v5a16 8 0 0 0 32 0v-5"/>
+    <path d="M8 20a16 8 0 0 0 32 0" stroke-width="1"/>
+    <ellipse cx="24" cy="16" rx="16" ry="8" fill="currentColor" stroke="none" opacity=".05"/>
+    <ellipse cx="24" cy="16" rx="16" ry="8"/>
+    <path d="M24 10v12M20 13.5h6.5a2 2 0 0 1 0 4H21a2 2 0 0 0 0 4h7" stroke-width="1"/>
+  </symbol>
+
+  <!-- clock: an iso disc with hands on its face = time-as-subject. -->
+  <symbol id="icon-clock" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 24v3a16 8 0 0 0 32 0v-3" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M8 24v3a16 8 0 0 0 32 0v-3"/>
+    <ellipse cx="24" cy="24" rx="16" ry="8" fill="currentColor" stroke="none" opacity=".05"/>
+    <ellipse cx="24" cy="24" rx="16" ry="8"/>
+    <path d="M24 24 24 18M24 24 31 25.5" stroke-width="1.6"/>
+    <circle cx="24" cy="24" r="1.3" fill="currentColor" stroke="none"/>
+  </symbol>
+
+  <!-- ============ CONNECTION ============ -->
+
+  <!-- link: two interlocked iso chain links = a citation/provenance tie. -->
+  <symbol id="icon-link" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <ellipse cx="17" cy="24" rx="10" ry="6" transform="rotate(-27 17 24)" fill="currentColor" stroke="none" opacity=".1"/>
+    <ellipse cx="17" cy="24" rx="10" ry="6" transform="rotate(-27 17 24)"/>
+    <ellipse cx="31" cy="24" rx="10" ry="6" transform="rotate(-27 31 24)" fill="currentColor" stroke="none" opacity=".1"/>
+    <ellipse cx="31" cy="24" rx="10" ry="6" transform="rotate(-27 31 24)"/>
+  </symbol>
+
+</svg>
+<div class="dg-lead">Ten figures, read in order. The first four establish the problem as it
+stands today — rows vanish without a word, what a row has to be to survive, how often only
+one row is at fault, and what a single rejected file costs the people who clean it up. The
+next four put the two designs the call argued about side by side, show that they are one
+report apart rather than two features, and follow one file through each of them to the
+thing a customer is finally handed. The last two are why the decision moved: one account
+whose export can never pass, and the clock on which the group decided, reaffirmed and then
+reversed itself. One pen per person throughout:
+<b style="color:var(--pen-a)">Priya Raghavan</b>, who proposed and later reversed the
+decision, and <b style="color:var(--pen-b)">Wren Okafor</b>, whose ticket data drove the
+reversal; Tomas Halvorsen's engineering framing sits in
 <b style="color:var(--ink-soft)">ink-soft</b> as the shared, unattributed structure.</div>
+
+<figure class="dg" id="dg-silent-skip">
+  <figcaption>
+    <span class="dg-t">Forty rows go in, twenty-six come out, and nobody is told</span>
+    <span class="dg-w">Every cell is one shift row from a single upload. The solid cells
+      reached the schedule; the outlined ones were dropped by the importer without an error,
+      a flag or a message. The first anyone hears of it is a phone call the next morning.</span>
+  </figcaption>
+  <svg viewBox="0 0 1000 300" role="img" preserveAspectRatio="xMidYMid meet"
+       style="width:100%;height:auto">
+    <title>One forty-row upload, twenty-six rows loaded and fourteen dropped in silence</title>
+    <desc>Drawn in Wren Okafor's pen, because the whole figure is her account of her own
+      support queue. Top left, a stack of documents stands for one uploaded file of forty
+      shift rows. Below it, forty equal cells in a single row encode those rows at true
+      proportion: the twenty-six solid cells on the left are the rows that appear on the
+      schedule, and the fourteen outlined cells on the right are the rows the importer
+      skipped. A rule under each group names the count. At the bottom, an alert symbol drawn
+      as a dashed grey wireframe stands for the notification that does not exist, and an
+      arrow runs from that absence to a person: the supervisor whose phone call is the only
+      signal the customer ever receives.</desc>
+    <defs>
+      <marker id="mk-dg-silent-skip-a" viewBox="0 0 9 9" refX="8.2" refY="4.5"
+              markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse"
+              orient="auto-start-reverse"><path class="fn" d="M0 0 L9 4.5 L0 9 Z"/></marker>
+    </defs>
+    <use href="#icon-document-stack" x="16" y="18" width="56" height="56" class="ob"/>
+    <text class="n-l" x="84" y="44">one upload, forty shift rows</text>
+    <text class="n-n" x="84" y="64">a week of shifts put in at once</text>
+    <text class="n-i" x="984" y="44" text-anchor="end">1</text>
+
+    <g class="barb"><path d="M80,96h18v30h-18Z M102,96h18v30h-18Z M124,96h18v30h-18Z M146,96h18v30h-18Z M168,96h18v30h-18Z M190,96h18v30h-18Z M212,96h18v30h-18Z M234,96h18v30h-18Z M256,96h18v30h-18Z M278,96h18v30h-18Z M300,96h18v30h-18Z M322,96h18v30h-18Z M344,96h18v30h-18Z M366,96h18v30h-18Z M388,96h18v30h-18Z M410,96h18v30h-18Z M432,96h18v30h-18Z M454,96h18v30h-18Z M476,96h18v30h-18Z M498,96h18v30h-18Z M520,96h18v30h-18Z M542,96h18v30h-18Z M564,96h18v30h-18Z M586,96h18v30h-18Z M608,96h18v30h-18Z M630,96h18v30h-18Z"/></g>
+    <g class="ghost"><path d="M652,96h18v30h-18Z M674,96h18v30h-18Z M696,96h18v30h-18Z M718,96h18v30h-18Z M740,96h18v30h-18Z M762,96h18v30h-18Z M784,96h18v30h-18Z M806,96h18v30h-18Z M828,96h18v30h-18Z M850,96h18v30h-18Z M872,96h18v30h-18Z M894,96h18v30h-18Z M916,96h18v30h-18Z M938,96h18v30h-18Z"/></g>
+
+    <path class="edge sb" d="M80,134v6M80,137H648M648,134v6"/>
+    <text class="n-l" x="364" y="160" text-anchor="middle">26 appear on the schedule</text>
+    <text class="n-i" x="364" y="180" text-anchor="middle">2</text>
+    <path class="axis" d="M652,134v6M652,137H956M956,134v6"/>
+    <text class="n-l" x="804" y="160" text-anchor="middle">14 never arrive</text>
+    <text class="n-n" x="804" y="180" text-anchor="middle">she calls it “two dozen”; her own two numbers give fourteen</text>
+    <text class="n-i" x="804" y="200" text-anchor="middle">3</text>
+
+    <use href="#icon-alert" x="80" y="224" width="52" height="52" class="og"/>
+    <text class="n-l" x="148" y="252">no flag, no error, no message</text>
+    <text class="n-n" x="148" y="272">the importer skips the row and keeps going</text>
+    <text class="n-i" x="430" y="252" text-anchor="end">4</text>
+    <path class="edge sn" d="M500,250H712" marker-end="url(#mk-dg-silent-skip-a)"/>
+    <text class="n-n" x="606" y="240" text-anchor="middle">the only signal</text>
+    <use href="#icon-person" x="724" y="224" width="52" height="52" class="ob"/>
+    <text class="n-l" x="788" y="252">a supervisor calls</text>
+    <text class="n-n" x="788" y="272">asking why nobody is on the schedule</text>
+    <text class="n-i" x="984" y="252" text-anchor="end">5</text>
+  </svg>
+  <ol class="dg-key">
+    <li><b>Forty shifts uploaded in one file</b> <span>00:02:00</span></li>
+    <li><b>Twenty-six of them show up</b> <span>00:02:00</span></li>
+    <li><b>The rest are dropped and never reported</b> <span>00:02:00</span></li>
+    <li><b>The importer skips a bad row with no flag</b> <span>00:00:55</span></li>
+    <li><b>It is not that rows fail, it is that nobody is told</b> <span>00:05:10</span></li>
+  </ol>
+</figure>
+
+<p class="dg-bridge">Before anything can be reported, something has to decide which rows are
+bad — and the checks the group named do not cover every failure they named.</p>
+
+<figure class="dg" id="dg-row-anatomy">
+  <figcaption>
+    <span class="dg-t">One failure they named has no check named for it</span>
+    <span class="dg-w">A row reaches the validator only after the customer's own column names
+      are mapped onto the five required fields. Three checks were specified for it. The fourth
+      failure mode, a start time later than the end time, was described early and never turned
+      into a check.</span>
+  </figcaption>
+  <svg viewBox="0 0 1000 420" role="img" preserveAspectRatio="xMidYMid meet"
+       style="width:100%;height:auto">
+    <title>Column mapping, the five required fields, and the three checks specified for them</title>
+    <desc>Read left to right along the top row, then down into the check chain below. A
+      document stands for the customer's own export, whose headers do not match the
+      importer's. An arrow leads into a mapping step, drawn with a link symbol, where columns
+      are matched and common aliases are fuzzy-matched. From there the record panel lists the
+      five required fields as filled bars of equal length — employee id, date, start, end and
+      role — with a sixth, location, drawn as a dashed empty bar because it is optional. A
+      connector carries each mapped row down into a chain of four decision diamonds. The
+      first three are solid: required columns, date format and duplicate shift, each with the
+      failure it rejects named beneath it. The fourth diamond is a dashed grey wireframe: the
+      start-after-end failure, named on the call but absent from the specified validator. A
+      check symbol at the end marks a row that survives every gate and is written. The whole figure is drawn in the neutral ink and carries no pen, because the mapping step, the field list and the checks were built up by all three speakers rather than owned by any one of them.</desc>
+    <defs>
+      <marker id="mk-dg-row-anatomy-a" viewBox="0 0 9 9" refX="8.2" refY="4.5"
+              markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse"
+              orient="auto-start-reverse"><path class="fn" d="M0 0 L9 4.5 L0 9 Z"/></marker>
+    </defs>
+    <use href="#icon-document" x="20" y="44" width="56" height="56" class="on"/>
+    <text class="n-l" x="20" y="126">the customer's export</text>
+    <text class="n-n" x="20" y="146">emp_id, not employee id</text>
+    <path class="edge sn" d="M186,72H228" marker-end="url(#mk-dg-row-anatomy-a)"/>
+
+    <rect class="box sn" x="236" y="40" width="180" height="100"/>
+    <use href="#icon-link" x="250" y="52" width="40" height="40" class="on"/>
+    <text class="n-l" x="250" y="116">map columns first</text>
+    <text class="n-n" x="250" y="134">aliases fuzzy-matched</text>
+    <text class="n-i" x="404" y="62" text-anchor="end">1</text>
+    <path class="edge sn" d="M416,90H450" marker-end="url(#mk-dg-row-anatomy-a)"/>
+
+    <rect class="box sn" x="458" y="24" width="270" height="200"/>
+    <text class="g-l" x="472" y="48">required, five fields</text>
+    <text class="n-i" x="716" y="48" text-anchor="end">2</text>
+    <text class="n-n" x="472" y="76">employee id</text><rect class="fn" x="580" y="66" width="132" height="11"/>
+    <text class="n-n" x="472" y="104">date</text><rect class="fn" x="580" y="94" width="132" height="11"/>
+    <text class="n-n" x="472" y="132">start</text><rect class="fn" x="580" y="122" width="132" height="11"/>
+    <text class="n-n" x="472" y="160">end</text><rect class="fn" x="580" y="150" width="132" height="11"/>
+    <text class="n-n" x="472" y="188">role</text><rect class="fn" x="580" y="178" width="132" height="11"/>
+    <text class="n-n" x="472" y="216">location</text><rect class="ghost" x="580" y="206" width="132" height="11"/>
+    <text class="n-n" x="736" y="216">optional</text>
+
+    <path class="edge sn" d="M593,224V244H60V292H84" marker-end="url(#mk-dg-row-anatomy-a)"/>
+    <text class="g-l" x="976" y="250" text-anchor="end">the validator, as specified</text>
+    <rect class="frame" x="16" y="258" width="968" height="146"/>
+
+    <path class="box sn" d="M90,292 L160,264 L230,292 L160,320 Z"/>
+    <text class="n-n" x="160" y="296" text-anchor="middle">required columns</text>
+    <text class="n-n" x="160" y="344" text-anchor="middle">row 14: missing employee id</text>
+    <path class="edge sn" d="M230,292H292" marker-end="url(#mk-dg-row-anatomy-a)"/>
+
+    <path class="box sn" d="M300,292 L370,264 L440,292 L370,320 Z"/>
+    <text class="n-n" x="370" y="296" text-anchor="middle">date format</text>
+    <text class="n-n" x="370" y="344" text-anchor="middle">a date in the wrong format</text>
+    <path class="edge sn" d="M440,292H502" marker-end="url(#mk-dg-row-anatomy-a)"/>
+
+    <path class="box sn" d="M510,292 L580,264 L650,292 L580,320 Z"/>
+    <text class="n-n" x="580" y="296" text-anchor="middle">duplicate shift</text>
+    <text class="n-n" x="580" y="344" text-anchor="middle">same person, same day, twice</text>
+    <path class="edge sn" d="M650,292H712" stroke-dasharray="4 3" marker-end="url(#mk-dg-row-anatomy-a)"/>
+
+    <path class="ghost" d="M720,292 L790,264 L860,292 L790,320 Z"/>
+    <text class="n-i" x="790" y="256" text-anchor="middle">4</text>
+    <text class="n-n" x="790" y="296" text-anchor="middle">start after end</text>
+    <text class="n-n" x="790" y="344" text-anchor="middle">named early, never specified</text>
+    <text class="n-i" x="160" y="256" text-anchor="middle">3</text>
+    <path class="edge sn" d="M860,292H898" stroke-dasharray="4 3" marker-end="url(#mk-dg-row-anatomy-a)"/>
+    <use href="#icon-check" x="912" y="268" width="48" height="48" class="on"/>
+    <text class="n-n" x="936" y="344" text-anchor="middle">row is written</text>
+  </svg>
+  <ol class="dg-key">
+    <li><b>Customer headers differ; map columns before validating</b> <span>00:16:05</span></li>
+    <li><b>Five required fields; location is optional</b> <span>00:14:10</span></li>
+    <li><b>Required columns, a real date check, duplicate shifts</b> <span>00:41:40</span></li>
+    <li><b>A start time after the end time, named but never checked</b> <span>00:04:15</span></li>
+  </ol>
+</figure>
+
+<p class="dg-bridge">Whatever the checks catch, the question the call turned on is how often a
+file contains only one such row.</p>
 
 <figure class="dg" id="dg-ticket-mix">
   <figcaption>
@@ -36,36 +533,118 @@ whose ticket data drove the reversal; Tomas Halvorsen's engineering framing sits
     <span class="dg-w">Wren's own queue shows the failure the group was designing for is rare.
       Most tickets are one bad row sitting inside a file that was otherwise fine to load.</span>
   </figcaption>
-  <div class="dg-scroll">
-    <svg viewBox="0 0 640 172" role="img" preserveAspectRatio="xMidYMid meet"
-         style="width:100%;height:auto;min-width:600px">
-      <title>Share of import tickets that are a single bad row versus a wholly broken file</title>
-      <desc>Two bars from a shared zero baseline, drawn in Wren Okafor's pen since this is her
-        estimate of her own support queue. The first bar, nine tenths of the width, is tickets
-        caused by a single bad row in an otherwise clean file. The second bar, one tenth of the
-        width, is tickets where the file itself was broken throughout. The first bar is the case
-        that reject-the-file treats identically to the second, discarding a file that was
-        almost entirely usable.</desc>
-      <text class="n-l" x="16" y="30">single bad row</text>
-      <text class="n-n" x="16" y="46">the rest of the file was fine</text>
-      <text class="n-l" x="624" y="30" text-anchor="end">9 in 10</text>
-      <rect class="barb" x="16" y="54" width="533" height="32"/>
-      <text class="n-l" x="16" y="112">file broken throughout</text>
-      <text class="n-n" x="16" y="128">no salvageable rows either way</text>
-      <text class="n-l" x="624" y="112" text-anchor="end">1 in 10</text>
-      <rect x="16" y="136" width="59" height="16" style="fill:var(--ink-soft)"/>
-      <path class="axis" d="M16,158 L624,158"/>
-      <text class="n-n" x="16" y="170">estimated from the support queue, not a pulled report</text>
-    </svg>
-  </div>
+  <svg viewBox="0 0 1000 250" role="img" preserveAspectRatio="xMidYMid meet"
+       style="width:100%;height:auto">
+    <title>Share of import tickets that are a single bad row versus a wholly broken file</title>
+    <desc>Two bars from a shared zero baseline, drawn in Wren Okafor's pen since this is her
+      estimate of her own support queue. The first bar, nine tenths of the width, is tickets
+      caused by a single bad row in an otherwise clean file, and carries a document symbol
+      with one row struck out. The second bar, one tenth of the width, is tickets where the
+      file itself was broken throughout, and carries a document symbol in the neutral ink. Bar length encodes the share of tickets; the first bar is the case that
+      reject-the-file treats identically to the second, discarding a file that was almost
+      entirely usable.</desc>
+    <use href="#icon-document" x="16" y="26" width="48" height="48" class="ob"/>
+    <text class="n-l" x="76" y="48">single bad row</text>
+    <text class="n-n" x="76" y="68">the rest of the file was fine</text>
+    <text class="n-l" x="984" y="48" text-anchor="end">9 in 10</text>
+    <text class="n-i" x="984" y="68" text-anchor="end">1</text>
+    <rect class="barb" x="16" y="86" width="871" height="34"/>
+    <use href="#icon-document" x="16" y="140" width="48" height="48" class="on"/>
+    <text class="n-l" x="76" y="162">file broken throughout</text>
+    <text class="n-n" x="76" y="182">no salvageable rows either way</text>
+    <text class="n-l" x="984" y="162" text-anchor="end">1 in 10</text>
+    <text class="n-i" x="984" y="182" text-anchor="end">2</text>
+    <rect class="fn" x="16" y="200" width="97" height="34"/>
+    <path class="axis" d="M16,240H984"/>
+  </svg>
   <ol class="dg-key">
     <li><b>Nine in ten tickets are a single bad row</b> <span>00:33:45</span></li>
     <li><b>A comma broke a 420-row file completely</b> <span>00:27:05</span></li>
   </ol>
 </figure>
 
-<p class="dg-bridge">If most failures are one bad row, the question is no longer whether to
-validate rows but what to do with a file once one of them fails it.</p>
+<p class="dg-bridge">A file that is nine-tenths good still has to be repaired by somebody, and
+today that somebody is a person with a spreadsheet open.</p>
+
+<figure class="dg" id="dg-support-loop">
+  <figcaption>
+    <span class="dg-t">The partial import already exists, and support runs it by hand</span>
+    <span class="dg-w">A rejected file does not stop at the failure. It goes round: someone
+      opens it, finds the row, fixes it and re-uploads the whole thing, and the schedule is
+      missing the entire time. The closing edge is the cost nobody has been counting.</span>
+  </figcaption>
+  <svg viewBox="0 0 1000 360" role="img" preserveAspectRatio="xMidYMid meet"
+       style="width:100%;height:auto">
+    <title>The manual repair loop support runs today, and the forty minutes its return edge costs</title>
+    <desc>Four stages run left to right across the top, each a drawn object above its label: a
+      nightly file arrives, one row fails validation, nothing at all loads, and a support
+      person opens the file and fixes the row by hand. The first three are in the neutral ink
+      because they are system behaviour; the fourth is in Wren Okafor's pen because it is her
+      team doing it. A return edge in her pen leaves the fourth stage, runs below the row and
+      comes back into the first, closing the loop by re-uploading the whole file. That return
+      edge carries the figure's one large number, forty minutes, the cost of every single
+      pass around the loop. Beneath the third stage, a dashed grey document records the worst
+      observed case: four hundred and twenty rows, none of them loaded, unnoticed until the
+      morning shift failed to appear.</desc>
+    <defs>
+      <marker id="mk-dg-support-loop-a" viewBox="0 0 9 9" refX="8.2" refY="4.5"
+              markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse"
+              orient="auto-start-reverse"><path class="fn" d="M0 0 L9 4.5 L0 9 Z"/></marker>
+      <marker id="mk-dg-support-loop-b" viewBox="0 0 9 9" refX="8.2" refY="4.5"
+              markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse"
+              orient="auto-start-reverse"><path class="fb" d="M0 0 L9 4.5 L0 9 Z"/></marker>
+    </defs>
+    <rect class="box sn" x="20" y="36" width="200" height="112"/>
+    <use href="#icon-document" x="34" y="48" width="44" height="44" class="on"/>
+    <text class="n-l" x="34" y="116">a nightly file arrives</text>
+    <text class="n-n" x="34" y="136">pushed from their export</text>
+    <text class="n-i" x="206" y="62" text-anchor="end">1</text>
+    <path class="edge sn" d="M220,92H246" marker-end="url(#mk-dg-support-loop-a)"/>
+
+    <rect class="box sn" x="252" y="36" width="200" height="112"/>
+    <use href="#icon-alert" x="266" y="48" width="44" height="44" class="on"/>
+    <text class="n-l" x="266" y="116">one row fails</text>
+    <text class="n-n" x="266" y="136">a comma, a date, an id</text>
+    <text class="n-i" x="438" y="62" text-anchor="end">2</text>
+    <path class="edge sn" d="M452,92H478" marker-end="url(#mk-dg-support-loop-a)"/>
+
+    <rect class="box sn" x="484" y="36" width="200" height="112"/>
+    <use href="#icon-inbox" x="498" y="48" width="44" height="44" class="og"/>
+    <text class="n-l" x="498" y="116">nothing loads</text>
+    <text class="n-n" x="498" y="136">the schedule stays empty</text>
+    <text class="n-i" x="670" y="62" text-anchor="end">3</text>
+    <path class="edge sn" d="M684,92H710" marker-end="url(#mk-dg-support-loop-a)"/>
+
+    <rect class="box sb" x="716" y="36" width="200" height="112"/>
+    <use href="#icon-person" x="730" y="48" width="44" height="44" class="ob"/>
+    <text class="n-l" x="730" y="116">support fixes it</text>
+    <text class="n-n" x="730" y="136">finds the row, edits, re-sends</text>
+    <text class="n-i" x="902" y="62" text-anchor="end">4</text>
+
+    <path class="edge sb" d="M816,148V266H120V116" marker-end="url(#mk-dg-support-loop-b)"/>
+    <use href="#icon-clock" x="352" y="176" width="48" height="48" class="ob"/>
+    <text class="n-l" x="416" y="212" style="font-size:32px;fill:var(--pen-b)">40 min</text>
+    <text class="n-n" x="548" y="212">of support time, every single pass</text>
+    <text class="n-n" x="416" y="238">and the schedule is missing until it is done</text>
+    <text class="n-i" x="332" y="212" text-anchor="end">5</text>
+
+    <use href="#icon-document" x="484" y="292" width="44" height="44" class="on"/>
+    <text class="n-l" x="544" y="314">420 rows, none of them loaded</text>
+    <text class="n-n" x="544" y="334">a comma in an address; unnoticed until the morning shift</text>
+    <text class="n-i" x="464" y="314" text-anchor="end">6</text>
+  </svg>
+  <ol class="dg-key">
+    <li><b>Enterprise files arrive nightly from their own export</b> <span>00:22:30</span></li>
+    <li><b>One bad row in a nightly batch</b> <span>00:24:35</span></li>
+    <li><b>Zero shifts load that night</b> <span>00:24:35</span></li>
+    <li><b>Support opens the file, finds the row, re-uploads</b> <span>00:30:10</span></li>
+    <li><b>Forty minutes minimum, every single time</b> <span>00:30:10</span></li>
+    <li><b>A comma blocked 420 rows, unnoticed until morning</b> <span>00:27:05</span></li>
+  </ol>
+</figure>
+
+<p class="dg-bridge">If the repair is already being done by hand, the design question is only
+who does it and what the customer is told while it happens.</p>
 
 <figure class="dg" id="dg-reject-vs-partial">
   <figcaption>
@@ -74,69 +653,82 @@ validate rows but what to do with a file once one of them fails it.</p>
       import, on the right, is what her evidence-driven reversal replaced it with. Each row
       names the dimension the group actually argued about.</span>
   </figcaption>
-  <div class="dg-scroll">
-    <svg viewBox="0 0 880 336" role="img" preserveAspectRatio="xMidYMid meet"
-         style="width:100%;height:auto;min-width:820px">
-      <title>Reject-the-file compared with partial import across four dimensions</title>
-      <desc>Two columns either side of a labelled centre gutter. The left column, in Priya
-        Raghavan's pen, is the reject-the-file plan agreed early in the call. The right column,
-        in Wren Okafor's pen, is the partial-import plan her ticket evidence and the pilot
-        account's dirty export eventually won. Reading down: on one bad row, the whole file is
-        discarded versus only that row is set aside; what the customer sees, one error list with
-        nothing loaded versus the good rows posted and a banner for the rest; the nightly pilot
-        account, a failure every night indefinitely versus a partial post every night; support
-        turnaround, about forty minutes of manual work each time versus none, because the report
-        is automatic.</desc>
-      <defs>
-        <marker id="mk-dg-reject-vs-partial-a" viewBox="0 0 9 9" refX="8.2" refY="4.5"
-                markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse"
-                orient="auto-start-reverse">
-          <path class="fa" d="M0 0 L9 4.5 L0 9 Z"/>
-        </marker>
-      </defs>
-      <text class="g-l" x="140" y="28" text-anchor="middle">reject the file</text>
-      <text class="g-l" x="740" y="28" text-anchor="middle">partial import</text>
-      <rect class="box sa" x="20" y="48" width="240" height="52"/>
-      <text class="n-l" x="32" y="70">whole file discarded</text>
-      <text class="n-n" x="32" y="86">one bad row sinks all of it</text>
-      <text class="g-l" x="440" y="70" text-anchor="middle">on one bad row</text>
-      <path class="edge sa" d="M280,74 L360,74" marker-end="url(#mk-dg-reject-vs-partial-a)"/>
-      <path class="edge sb" d="M520,74 L600,74" marker-end="url(#mk-dg-reject-vs-partial-a)"/>
-      <rect class="box sb" x="620" y="48" width="240" height="52"/>
-      <text class="n-l" x="632" y="70">only that row set aside</text>
-      <text class="n-n" x="632" y="86">the rest of the file posts</text>
+  <svg viewBox="0 0 1000 372" role="img" preserveAspectRatio="xMidYMid meet"
+       style="width:100%;height:auto">
+    <title>Reject-the-file compared with partial import across four dimensions</title>
+    <desc>Two columns either side of a labelled centre gutter, each row led by a drawn object.
+      The left column, in Priya Raghavan's pen, is the reject-the-file plan agreed early in
+      the call. The right column, in Wren Okafor's pen, is the partial-import plan her ticket
+      evidence and the pilot account's dirty export eventually won. Reading down: on one bad
+      row, the whole file is discarded versus only that row is set aside; what the customer
+      sees, one error list with nothing loaded versus the good rows posted and a banner for
+      the rest; the nightly pilot account, a failure every night indefinitely versus a partial
+      post every night; support turnaround, about forty minutes of manual work each time
+      versus none, because the report is automatic.</desc>
+    <defs>
+      <marker id="mk-dg-reject-vs-partial-a" viewBox="0 0 9 9" refX="8.2" refY="4.5"
+              markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse"
+              orient="auto-start-reverse">
+        <path class="fa" d="M0 0 L9 4.5 L0 9 Z"/>
+      </marker>
+      <marker id="mk-dg-reject-vs-partial-b" viewBox="0 0 9 9" refX="8.2" refY="4.5"
+              markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse"
+              orient="auto-start-reverse">
+        <path class="fb" d="M0 0 L9 4.5 L0 9 Z"/>
+      </marker>
+    </defs>
+    <text class="g-l" x="160" y="28" text-anchor="middle">reject the file</text>
+    <text class="g-l" x="840" y="28" text-anchor="middle">partial import</text>
 
-      <rect class="box sa" x="20" y="120" width="240" height="52"/>
-      <text class="n-l" x="32" y="142">one error list</text>
-      <text class="n-n" x="32" y="158">nothing at all is loaded</text>
-      <text class="g-l" x="440" y="142" text-anchor="middle">what the customer sees</text>
-      <path class="edge sa" d="M280,146 L360,146" marker-end="url(#mk-dg-reject-vs-partial-a)"/>
-      <path class="edge sb" d="M520,146 L600,146" marker-end="url(#mk-dg-reject-vs-partial-a)"/>
-      <rect class="box sb" x="620" y="120" width="240" height="52"/>
-      <text class="n-l" x="632" y="142">good rows plus a banner</text>
-      <text class="n-n" x="632" y="158">names what was skipped</text>
+    <rect class="box sa" x="20" y="48" width="280" height="60"/>
+    <use href="#icon-document" x="30" y="60" width="36" height="36" class="oa"/>
+    <text class="n-l" x="76" y="76">whole file discarded</text>
+    <text class="n-n" x="76" y="96">one bad row sinks all of it</text>
+    <text class="g-l" x="500" y="74" text-anchor="middle">on one bad row</text>
+    <path class="edge sa" d="M300,78H392" marker-end="url(#mk-dg-reject-vs-partial-a)"/>
+    <path class="edge sb" d="M700,78H608" marker-end="url(#mk-dg-reject-vs-partial-b)"/>
+    <rect class="box sb" x="700" y="48" width="280" height="60"/>
+    <use href="#icon-filter" x="710" y="60" width="36" height="36" class="ob"/>
+    <text class="n-l" x="756" y="76">only that row set aside</text>
+    <text class="n-n" x="756" y="96">the rest of the file posts</text>
 
-      <rect class="box sa" x="20" y="192" width="240" height="52"/>
-      <text class="n-l" x="32" y="214">fails every night</text>
-      <text class="n-n" x="32" y="230">their export is never clean</text>
-      <text class="g-l" x="440" y="214" text-anchor="middle">the nightly pilot account</text>
-      <path class="edge sa" d="M280,218 L360,218" marker-end="url(#mk-dg-reject-vs-partial-a)"/>
-      <path class="edge sb" d="M520,218 L600,218" marker-end="url(#mk-dg-reject-vs-partial-a)"/>
-      <rect class="box sb" x="620" y="192" width="240" height="52"/>
-      <text class="n-l" x="632" y="214">posts what's clean nightly</text>
-      <text class="n-n" x="632" y="230">flags the rest, not an outage</text>
+    <rect class="box sa" x="20" y="128" width="280" height="60"/>
+    <use href="#icon-alert" x="30" y="140" width="36" height="36" class="oa"/>
+    <text class="n-l" x="76" y="156">one error list</text>
+    <text class="n-n" x="76" y="176">nothing at all is loaded</text>
+    <text class="g-l" x="500" y="154" text-anchor="middle">what the customer sees</text>
+    <path class="edge sa" d="M300,158H392" marker-end="url(#mk-dg-reject-vs-partial-a)"/>
+    <path class="edge sb" d="M700,158H608" marker-end="url(#mk-dg-reject-vs-partial-b)"/>
+    <rect class="box sb" x="700" y="128" width="280" height="60"/>
+    <use href="#icon-tag" x="710" y="140" width="36" height="36" class="ob"/>
+    <text class="n-l" x="756" y="156">good rows plus a banner</text>
+    <text class="n-n" x="756" y="176">names what was skipped</text>
 
-      <rect class="box sa" x="20" y="264" width="240" height="52"/>
-      <text class="n-l" x="32" y="286">about forty minutes, by hand</text>
-      <text class="n-n" x="32" y="302">every single failure, manually</text>
-      <text class="g-l" x="440" y="286" text-anchor="middle">support turnaround</text>
-      <path class="edge sa" d="M280,290 L360,290" marker-end="url(#mk-dg-reject-vs-partial-a)"/>
-      <path class="edge sb" d="M520,290 L600,290" marker-end="url(#mk-dg-reject-vs-partial-a)"/>
-      <rect class="box sb" x="620" y="264" width="240" height="52"/>
-      <text class="n-l" x="632" y="286">none, report is automatic</text>
-      <text class="n-n" x="632" y="302">no manual fix needed</text>
-    </svg>
-  </div>
+    <rect class="box sa" x="20" y="208" width="280" height="60"/>
+    <use href="#icon-api" x="30" y="220" width="36" height="36" class="oa"/>
+    <text class="n-l" x="76" y="236">fails every night</text>
+    <text class="n-n" x="76" y="256">their export is never clean</text>
+    <text class="g-l" x="500" y="234" text-anchor="middle">the nightly pilot account</text>
+    <path class="edge sa" d="M300,238H392" marker-end="url(#mk-dg-reject-vs-partial-a)"/>
+    <path class="edge sb" d="M700,238H608" marker-end="url(#mk-dg-reject-vs-partial-b)"/>
+    <rect class="box sb" x="700" y="208" width="280" height="60"/>
+    <use href="#icon-api" x="710" y="220" width="36" height="36" class="ob"/>
+    <text class="n-l" x="756" y="236">posts what is clean nightly</text>
+    <text class="n-n" x="756" y="256">flags the rest, not an outage</text>
+
+    <rect class="box sa" x="20" y="288" width="280" height="60"/>
+    <use href="#icon-person" x="30" y="300" width="36" height="36" class="oa"/>
+    <text class="n-l" x="76" y="316">forty minutes, by hand</text>
+    <text class="n-n" x="76" y="336">every failure, manually</text>
+    <text class="g-l" x="500" y="314" text-anchor="middle">support turnaround</text>
+    <path class="edge sa" d="M300,318H392" marker-end="url(#mk-dg-reject-vs-partial-a)"/>
+    <path class="edge sb" d="M700,318H608" marker-end="url(#mk-dg-reject-vs-partial-b)"/>
+    <rect class="box sb" x="700" y="288" width="280" height="60"/>
+    <use href="#icon-gear" x="710" y="300" width="36" height="36" class="ob"/>
+    <text class="n-l" x="756" y="316">none, the report is automatic</text>
+    <text class="n-n" x="756" y="336">no manual fix needed</text>
+    <path class="axis" d="M500,44V352"/>
+  </svg>
   <ol class="dg-key">
     <li><b>Reject-the-file agreed</b> <span>00:19:25</span></li>
     <li><b>Forty minutes of manual work per failure</b> <span>00:30:10</span></li>
@@ -145,8 +737,295 @@ validate rows but what to do with a file once one of them fails it.</p>
   </ol>
 </figure>
 
-<p class="dg-bridge">Naming the trade-off is not the same as saying when the group actually
-changed its answer, which is what decided the account's nightly job.</p>
+<p class="dg-bridge">Those two columns were argued as two features. The engineer who would
+build them says they share almost all of their work.</p>
+
+<figure class="dg" id="dg-shared-validator">
+  <figcaption>
+    <span class="dg-t">The two plans are one report apart, not two features</span>
+    <span class="dg-w">Both designs have to read the whole file and validate every row before
+      anything commits. That shared dry pass is the expensive part. What separates them is
+      what happens after it: throw the file away, or write the good rows and report the rest.</span>
+  </figcaption>
+  <svg viewBox="0 0 1000 472" role="img" preserveAspectRatio="xMidYMid meet"
+       style="width:100%;height:auto">
+    <title>Reject-the-file and partial import as two overlapping bodies of work sharing one validator</title>
+    <desc>Two overlapping circles. Area is not to scale and encodes nothing; only membership
+      does. The left circle, in Priya Raghavan's pen, is the work reject-the-file needs: stop,
+      write nothing, hand back one error list. The right circle, in Wren Okafor's pen, is the
+      work partial import needs: post the good rows, quarantine the bad ones, produce a
+      per-row report. The lens where they cross holds a gate symbol and the one thing both
+      plans require, the dry pass that validates every row before anything commits, with its
+      three named checks listed beneath. Below the circles, struck through and marked with a
+      cross, is the claim the overlap contradicts: that building both would be two features
+      rather than one.</desc>
+    <text class="g-l" x="322" y="30" text-anchor="middle">reject the file</text>
+    <text class="g-l" x="678" y="30" text-anchor="middle">partial import</text>
+    <circle cx="410" cy="214" r="170" fill="none" stroke="var(--pen-a)" stroke-width="1.4"/>
+    <circle cx="590" cy="214" r="170" fill="none" stroke="var(--pen-b)" stroke-width="1.4"/>
+
+    <use href="#icon-inbox" x="298" y="112" width="48" height="48" class="oa"/>
+    <text class="n-l" x="322" y="198" text-anchor="middle">nothing writes</text>
+    <text class="n-n" x="322" y="220" text-anchor="middle">one error list</text>
+    <text class="n-n" x="322" y="242" text-anchor="middle">fix and re-upload</text>
+    <text class="n-i" x="322" y="268" text-anchor="middle">1</text>
+
+    <use href="#icon-filter" x="654" y="112" width="48" height="48" class="ob"/>
+    <text class="n-l" x="678" y="198" text-anchor="middle">good rows post</text>
+    <text class="n-n" x="678" y="220" text-anchor="middle">bad rows held back</text>
+    <text class="n-n" x="678" y="242" text-anchor="middle">per-row report</text>
+    <text class="n-i" x="678" y="268" text-anchor="middle">2</text>
+
+    <use href="#icon-gate" x="478" y="126" width="44" height="44" class="on"/>
+    <text class="n-l" x="500" y="200" text-anchor="middle">one validator</text>
+    <text class="n-n" x="500" y="222" text-anchor="middle">required columns</text>
+    <text class="n-n" x="500" y="242" text-anchor="middle">date format</text>
+    <text class="n-n" x="500" y="262" text-anchor="middle">duplicate shift</text>
+    <text class="n-n" x="500" y="288" text-anchor="middle">built either way</text>
+    <text class="n-i" x="500" y="314" text-anchor="middle">3</text>
+
+    <rect class="frame" x="300" y="410" width="340" height="44"/>
+    <text class="n-n" x="316" y="438">two features, not one</text>
+    <path class="edge sa" d="M310,432H470"/>
+    <path class="edge sa" d="M576,418l26,28M602,418l-26,28"/>
+    <text class="n-i" x="656" y="438">4</text>
+  </svg>
+  <ol class="dg-key">
+    <li><b>Reject-the-file: a dry pass, then nothing commits</b> <span>00:07:30</span></li>
+    <li><b>Partial import: write the good rows, report the bad</b> <span>00:38:20</span></li>
+    <li><b>The validator gets built either way</b> <span>00:41:40</span></li>
+    <li><b>Priya's objection: building both is two features</b> <span>00:35:50</span></li>
+  </ol>
+</figure>
+
+<p class="dg-bridge">Put one real file through all three behaviours and the difference stops
+being architectural: two of them write the same rows.</p>
+
+<figure class="dg" id="dg-three-behaviours">
+  <figcaption>
+    <span class="dg-t">Two of the three write the same rows; only one of them says so</span>
+    <span class="dg-w">One file of three thousand rows with a single typo, the case Priya
+      raised herself. Today's importer and partial import write almost exactly the same rows.
+      Reject-the-file writes none of them. What actually separates the three is the middle
+      band: what anybody is told afterwards.</span>
+  </figcaption>
+  <svg viewBox="0 0 1000 356" role="img" preserveAspectRatio="xMidYMid meet"
+       style="width:100%;height:auto">
+    <title>One three-thousand-row file with one typo, put through three importer behaviours</title>
+    <desc>Three panels on one shared grid, one per behaviour, with three bands read across
+      them. The top band is a magnitude bar on one shared scale where full width is three
+      thousand rows: today's silent skip writes two thousand nine hundred and ninety-nine, a
+      full bar; reject-the-file writes none, a bar of zero width shown as a tick at the
+      shared zero; partial import writes the same two thousand nine hundred and ninety-nine,
+      a full bar again. The middle band is what is reported, drawn as objects: a dashed grey
+      alert wireframe for the notification that does not exist today, a document for the
+      single error list, and a stack of documents for the per-row report. The bottom band is
+      what the customer learns, drawn as a person in grey, in Priya Raghavan's pen and in
+      Wren Okafor's pen respectively. Position in the grid, not size, carries the comparison
+      in the lower two bands.</desc>
+    <text class="g-l" x="176" y="136" text-anchor="end">rows written</text>
+    <text class="g-l" x="176" y="156" text-anchor="end">of 3,000</text>
+    <text class="g-l" x="176" y="216" text-anchor="end">what is reported</text>
+    <text class="g-l" x="176" y="286" text-anchor="end">what the customer</text>
+    <text class="g-l" x="176" y="306" text-anchor="end">learns</text>
+    <path class="axis" d="M190,64V324M460,64V324M730,64V324M984,64V324"/>
+    <path class="axis" d="M190,180H984M190,250H984"/>
+
+    <text class="g-l" x="204" y="52">today — silent skip</text>
+    <text class="n-i" x="428" y="52" text-anchor="end">1</text>
+    <rect class="frame" x="204" y="100" width="226" height="18"/>
+    <rect class="fn" x="204" y="100" width="226" height="18"/>
+    <text class="n-n" x="204" y="142">2,999 written</text>
+    <text class="n-n" x="204" y="162">one row dropped in silence</text>
+    <use href="#icon-alert" x="204" y="192" width="40" height="40" class="og"/>
+    <text class="n-n" x="254" y="216">nothing at all</text>
+    <use href="#icon-person" x="204" y="262" width="40" height="40" class="og"/>
+    <text class="n-n" x="254" y="282">learns nothing until</text>
+    <text class="n-n" x="254" y="302">somebody phones in</text>
+
+    <text class="g-l" x="474" y="52">reject the file</text>
+    <text class="n-i" x="698" y="52" text-anchor="end">2</text>
+    <rect class="frame" x="474" y="100" width="226" height="18"/>
+    <path class="edge sa" d="M474,94V124"/>
+    <text class="n-n" x="474" y="142">0 written</text>
+    <text class="n-n" x="474" y="162">2,999 good rows lost with it</text>
+    <use href="#icon-document" x="474" y="192" width="40" height="40" class="oa"/>
+    <text class="n-n" x="524" y="216">one error list</text>
+    <use href="#icon-person" x="474" y="262" width="40" height="40" class="oa"/>
+    <text class="n-n" x="524" y="282">fix it and re-upload</text>
+    <text class="n-n" x="524" y="302">the whole file</text>
+
+    <text class="g-l" x="744" y="52">partial import</text>
+    <text class="n-i" x="968" y="52" text-anchor="end">3</text>
+    <rect class="frame" x="744" y="100" width="226" height="18"/>
+    <rect class="barb" x="744" y="100" width="226" height="18"/>
+    <text class="n-n" x="744" y="142">2,999 written</text>
+    <text class="n-n" x="744" y="162">one row quarantined</text>
+    <use href="#icon-document-stack" x="744" y="192" width="40" height="40" class="ob"/>
+    <text class="n-n" x="794" y="216">a per-row report</text>
+    <use href="#icon-person" x="744" y="262" width="40" height="40" class="ob"/>
+    <text class="n-n" x="794" y="282">a banner naming</text>
+    <text class="n-n" x="794" y="302">the skipped rows</text>
+    <text class="n-i" x="968" y="282" text-anchor="end">4</text>
+  </svg>
+  <ol class="dg-key">
+    <li><b>Today: the row is skipped and nothing is said</b> <span>00:00:55</span></li>
+    <li><b>Three thousand rows lost for one typo</b> <span>00:09:30</span></li>
+    <li><b>Good rows post, bad rows quarantined</b> <span>00:52:45</span></li>
+    <li><b>A banner names how many rows were skipped</b> <span>00:55:00</span></li>
+  </ol>
+</figure>
+
+<p class="dg-bridge">The middle band is the whole disagreement, and it comes down to one
+record: what the thing the customer opens actually contains.</p>
+
+<figure class="dg" id="dg-error-record">
+  <figcaption>
+    <span class="dg-t">A usable error names the row, the field and the reason</span>
+    <span class="dg-w">The same four fields in every panel, in the same order. Today there is
+      no record at all. A generic failure message fills one field and leaves the rest empty.
+      What the group specified fills all four, and the dot marks the last one: the report is
+      a file, so it can be forwarded.</span>
+  </figcaption>
+  <svg viewBox="0 0 1000 300" role="img" preserveAspectRatio="xMidYMid meet"
+       style="width:100%;height:auto">
+    <title>The same error record in three states: absent, generic, and specified</title>
+    <desc>Three panels share one field order, listed once down the left edge: row, field,
+      reason and attachment. In each panel a field is a bar. A dashed grey outline is an empty
+      field and a solid bar is a filled one, with its value set beside it rather than on it.
+      The first panel, today, has four empty fields and a dashed grey alert symbol, because no
+      per-row record is produced at all. The second panel, in Priya Raghavan's pen, is the
+      generic message the group ruled out: only the reason field is filled, with the words
+      validation failed. The third panel, in Wren Okafor's pen, is what was specified: row
+      fourteen, employee id, missing, and an attachment, with a small dot at the end of the
+      attachment bar marking that the report is a downloadable file rather than something only
+      shown on screen.</desc>
+    <text class="g-l" x="176" y="112" text-anchor="end">row</text>
+    <text class="g-l" x="176" y="152" text-anchor="end">field</text>
+    <text class="g-l" x="176" y="192" text-anchor="end">reason</text>
+    <text class="g-l" x="176" y="232" text-anchor="end">attachment</text>
+    <path class="axis" d="M190,60V262M460,60V262M730,60V262M984,60V262"/>
+
+    <text class="g-l" x="204" y="50">today</text>
+    <text class="n-i" x="428" y="50" text-anchor="end">1</text>
+    <use href="#icon-alert" x="204" y="68" width="34" height="34" class="og"/>
+    <text class="n-n" x="248" y="90">no record is made</text>
+    <rect class="ghost" x="204" y="106" width="90" height="12"/>
+    <rect class="ghost" x="204" y="146" width="90" height="12"/>
+    <rect class="ghost" x="204" y="186" width="90" height="12"/>
+    <rect class="ghost" x="204" y="226" width="90" height="12"/>
+
+    <text class="g-l" x="474" y="50">generic message</text>
+    <text class="n-i" x="698" y="50" text-anchor="end">2</text>
+    <use href="#icon-document" x="474" y="68" width="34" height="34" class="oa"/>
+    <text class="n-n" x="518" y="90">ruled out on the call</text>
+    <rect class="ghost" x="474" y="106" width="90" height="12"/>
+    <rect class="ghost" x="474" y="146" width="90" height="12"/>
+    <rect class="bara" x="474" y="186" width="90" height="12"/>
+    <text class="n-n" x="574" y="196">validation failed</text>
+    <rect class="ghost" x="474" y="226" width="90" height="12"/>
+
+    <text class="g-l" x="744" y="50">as specified</text>
+    <text class="n-i" x="968" y="50" text-anchor="end">3</text>
+    <use href="#icon-document-stack" x="744" y="68" width="34" height="34" class="ob"/>
+    <text class="n-n" x="788" y="90">one entry per bad row</text>
+    <rect class="barb" x="744" y="106" width="90" height="12"/>
+    <text class="n-n" x="844" y="116">14</text>
+    <rect class="barb" x="744" y="146" width="90" height="12"/>
+    <text class="n-n" x="844" y="156">employee id</text>
+    <rect class="barb" x="744" y="186" width="90" height="12"/>
+    <text class="n-n" x="844" y="196">missing</text>
+    <rect class="barb" x="744" y="226" width="90" height="12"/>
+    <circle cx="844" cy="232" r="5" class="fb"/>
+    <text class="n-n" x="858" y="236">its own csv, forwardable</text>
+    <text class="n-i" x="968" y="258" text-anchor="end">4</text>
+  </svg>
+  <ol class="dg-key">
+    <li><b>Today the row is dropped with no record at all</b> <span>00:00:55</span></li>
+    <li><b>Not a generic “validation failed”</b> <span>00:42:45</span></li>
+    <li><b>Row 14: missing employee id — the row and the field</b> <span>00:42:45</span></li>
+    <li><b>Downloadable, because tickets get forwarded by email</b> <span>00:43:45</span></li>
+  </ol>
+</figure>
+
+<p class="dg-bridge">All of that assumes a file that can eventually pass. One account on the
+list has an export that structurally cannot.</p>
+
+<figure class="dg" id="dg-nightly-forever">
+  <figcaption>
+    <span class="dg-t">Three systems in, one file out, and it fails every night</span>
+    <span class="dg-w">The pilot account's nightly export is merged from three regional
+      systems that do not agree on formatting. Under reject-the-file, that is not a rollout
+      hiccup with an end date — it is a night that repeats until somebody else's systems
+      change.</span>
+  </figcaption>
+  <svg viewBox="0 0 1000 330" role="img" preserveAspectRatio="xMidYMid meet"
+       style="width:100%;height:auto">
+    <title>Three regional systems merging into one nightly export that reject-the-file refuses every night</title>
+    <desc>Read left to right. Three building symbols in a column stand for the three regional
+      systems that feed the account's export; their three edges merge into one line. That line
+      reaches a document, the single nightly file, then an interface symbol for the API push
+      that delivers it, then a decision diamond in Priya Raghavan's pen labelled reject the
+      file. The outcome on the right is an empty inbox drawn as a dashed grey wireframe: zero
+      shifts loaded. Along the bottom, a row of dashed grey blocks repeats that outcome night
+      after night and then runs off into a much-greater-than sign rather than stopping at a
+      final block, because the sequence has no end: the export's inconsistency is a permanent
+      property of the account, not a backlog that gets worked off.</desc>
+    <defs>
+      <marker id="mk-dg-nightly-forever-a" viewBox="0 0 9 9" refX="8.2" refY="4.5"
+              markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse"
+              orient="auto-start-reverse"><path class="fn" d="M0 0 L9 4.5 L0 9 Z"/></marker>
+    </defs>
+    <use href="#icon-building" x="20" y="34" width="48" height="48" class="ob"/>
+    <use href="#icon-building" x="20" y="94" width="48" height="48" class="ob"/>
+    <use href="#icon-building" x="20" y="154" width="48" height="48" class="ob"/>
+    <text class="n-l" x="20" y="228">three regional systems</text>
+    <text class="n-n" x="20" y="248">they do not agree on formatting</text>
+    <text class="n-i" x="212" y="228">1</text>
+    <path class="edge sn" d="M72,58H180V118M72,178H180V118M72,118H180"/>
+    <path class="edge sn" d="M180,118H300" marker-end="url(#mk-dg-nightly-forever-a)"/>
+
+    <use href="#icon-document" x="310" y="90" width="56" height="56" class="ob"/>
+    <text class="n-l" x="300" y="172">one nightly export</text>
+    <text class="n-n" x="300" y="192">whatever their tool emits</text>
+    <text class="n-i" x="380" y="104" text-anchor="end">2</text>
+    <path class="edge sn" d="M374,118H408" marker-end="url(#mk-dg-nightly-forever-a)"/>
+
+    <use href="#icon-api" x="418" y="94" width="48" height="48" class="on"/>
+    <text class="n-n" x="418" y="172">pushed nightly</text>
+    <text class="n-n" x="418" y="192">no ui involved</text>
+    <text class="n-i" x="478" y="104" text-anchor="end">3</text>
+    <path class="edge sn" d="M476,118H514" marker-end="url(#mk-dg-nightly-forever-a)"/>
+
+    <path class="box sa" d="M520,118 L600,86 L680,118 L600,150 Z"/>
+    <text class="n-n" x="600" y="122" text-anchor="middle">reject the file</text>
+    <text class="n-i" x="600" y="74" text-anchor="middle">4</text>
+    <path class="edge sn" d="M680,118H716" marker-end="url(#mk-dg-nightly-forever-a)"/>
+
+    <use href="#icon-inbox" x="726" y="94" width="48" height="48" class="og"/>
+    <text class="n-l" x="790" y="114">zero shifts load</text>
+    <text class="n-n" x="790" y="134">every night, not once</text>
+    <text class="n-i" x="984" y="114" text-anchor="end">5</text>
+
+    <text class="g-l" x="20" y="276">and again, the next night</text>
+    <g class="ghost"><path d="M20,286h48v32h-48Z M80,286h48v32h-48Z M140,286h48v32h-48Z M200,286h48v32h-48Z M260,286h48v32h-48Z M320,286h48v32h-48Z M380,286h48v32h-48Z"/></g>
+    <text x="444" y="314" font-size="28" class="fa">≫</text>
+    <text class="n-l" x="492" y="304">indefinitely</text>
+    <text class="n-n" x="580" y="304">a permanent property of the export, not a rollout hiccup</text>
+    <text class="n-i" x="984" y="304" text-anchor="end">6</text>
+  </svg>
+  <ol class="dg-key">
+    <li><b>Three regional systems feed the export</b> <span>00:50:20</span></li>
+    <li><b>Their export is never going to be fully clean</b> <span>00:50:20</span></li>
+    <li><b>Enterprise accounts push files nightly through the API</b> <span>00:22:30</span></li>
+    <li><b>One bad row in a nightly batch under reject-the-file</b> <span>00:24:35</span></li>
+    <li><b>Zero shifts load that night</b> <span>00:24:35</span></li>
+    <li><b>They would fail nightly, indefinitely</b> <span>00:51:30</span></li>
+  </ol>
+</figure>
+
+<p class="dg-bridge">That account was raised nine minutes before the end. Everything before it
+had already been settled twice.</p>
 
 <figure class="dg" id="dg-decision-timeline">
   <figcaption>
@@ -155,47 +1034,52 @@ changed its answer, which is what decided the account's nightly job.</p>
       forty-five minute mark, despite Wren's evidence landing in between. The reversal itself
       does not land until the pilot account's export comes up, near the end of the call.</span>
   </figcaption>
-  <div class="dg-scroll">
-    <svg viewBox="0 0 880 210" role="img" preserveAspectRatio="xMidYMid meet"
-         style="width:100%;height:auto;min-width:820px">
-      <title>Timeline of the reject-the-file decision, the evidence against it, and its reversal</title>
-      <desc>A single time axis from the start of the call to its end, position proportional to
-        elapsed time. Priya Raghavan's pen marks the two moments she owns: proposing
-        reject-the-file early, and reaffirming the locked spec later despite the evidence. Wren
-        Okafor's pen marks the two moments her material supplies: the ticket-mix estimate, and
-        the reversal it eventually forces. Below the axis, three shaded bands show the call's
-        three acts, ink-soft and unattributed since they are structure, not a claim.</desc>
-      <path class="axis" d="M40,60 L840,60"/>
-      <path class="axis" d="M40,55 L40,65"/>
-      <text class="n-n" x="40" y="80">0 min</text>
-      <path class="axis" d="M252,55 L252,65"/>
-      <text class="n-n" x="252" y="80" text-anchor="middle">15 min</text>
-      <path class="axis" d="M465,55 L465,65"/>
-      <text class="n-n" x="465" y="80" text-anchor="middle">30 min</text>
-      <path class="axis" d="M678,55 L678,65"/>
-      <text class="n-n" x="678" y="80" text-anchor="middle">45 min</text>
-      <path class="axis" d="M840,55 L840,65"/>
-      <text class="n-n" x="840" y="80" text-anchor="end">56 min</text>
+  <svg viewBox="0 0 1000 230" role="img" preserveAspectRatio="xMidYMid meet"
+       style="width:100%;height:auto">
+    <title>Timeline of the reject-the-file decision, the evidence against it, and its reversal</title>
+    <desc>A single time axis from the start of the call to its end, position strictly
+      proportional to elapsed seconds. Priya Raghavan's pen marks the two moments she owns:
+      proposing reject-the-file early, and reaffirming the locked spec later despite the
+      evidence. Wren Okafor's pen marks the two moments her material supplies: the ticket-mix
+      estimate, and the reversal it eventually forces. Each event is a dot on the axis with a
+      leader rising to its number. Below the axis, three dashed bands show the call's three
+      acts, in the neutral ink because they are structure rather than a claim.</desc>
+    <path class="axis" d="M40,70H960"/>
+    <path class="axis" d="M40,64v12M40,64v12"/>
+    <text class="n-n" x="40" y="92">0 min</text>
+    <path class="axis" d="M284,64v12"/>
+    <text class="n-n" x="284" y="92" text-anchor="middle">15 min</text>
+    <path class="axis" d="M529,64v12"/>
+    <text class="n-n" x="529" y="92" text-anchor="middle">30 min</text>
+    <path class="axis" d="M773,64v12"/>
+    <text class="n-n" x="773" y="92" text-anchor="middle">45 min</text>
+    <path class="axis" d="M960,64v12"/>
+    <text class="n-n" x="960" y="92" text-anchor="end">56 min</text>
 
-      <circle class="fa" cx="127" cy="60" r="4"/>
-      <text class="n-i" x="127" y="42" text-anchor="middle">1</text>
-      <circle class="fa" cx="315" cy="60" r="4"/>
-      <text class="n-i" x="315" y="42" text-anchor="middle">2</text>
-      <circle class="fb" cx="519" cy="60" r="4"/>
-      <text class="n-i" x="519" y="42" text-anchor="middle">3</text>
-      <circle class="fa" cx="690" cy="60" r="4"/>
-      <text class="n-i" x="690" y="24" text-anchor="middle">4</text>
-      <circle class="fb" cx="788" cy="60" r="4"/>
-      <text class="n-i" x="788" y="42" text-anchor="middle">5</text>
+    <path class="edge sa" d="M141,70V44"/>
+    <circle class="fa" cx="141" cy="70" r="4.5"/>
+    <text class="n-i" x="141" y="36" text-anchor="middle">1</text>
+    <path class="edge sa" d="M357,70V44"/>
+    <circle class="fa" cx="357" cy="70" r="4.5"/>
+    <text class="n-i" x="357" y="36" text-anchor="middle">2</text>
+    <path class="edge sb" d="M591,70V44"/>
+    <circle class="fb" cx="591" cy="70" r="4.5"/>
+    <text class="n-i" x="591" y="36" text-anchor="middle">3</text>
+    <path class="edge sa" d="M788,70V20"/>
+    <circle class="fa" cx="788" cy="70" r="4.5"/>
+    <text class="n-i" x="788" y="14" text-anchor="middle">4</text>
+    <path class="edge sb" d="M900,70V44"/>
+    <circle class="fb" cx="900" cy="70" r="4.5"/>
+    <text class="n-i" x="900" y="36" text-anchor="middle">5</text>
 
-      <rect class="frame" x="40" y="100" width="287" height="30"/>
-      <text class="g-l" x="48" y="120">act one — the plan forms</text>
-      <rect class="frame" x="327" y="100" width="363" height="30"/>
-      <text class="g-l" x="335" y="120">act two — the numbers complicate it</text>
-      <rect class="frame" x="690" y="100" width="150" height="30"/>
-      <text class="g-l" x="698" y="120">act three — reversal</text>
-    </svg>
-  </div>
+    <rect class="frame" x="40" y="116" width="330" height="38"/>
+    <text class="g-l" x="52" y="140">act one — the plan forms</text>
+    <rect class="frame" x="370" y="116" width="418" height="38"/>
+    <text class="g-l" x="382" y="140">act two — the numbers complicate it</text>
+    <rect class="frame" x="788" y="116" width="172" height="38"/>
+    <text class="g-l" x="800" y="140">act three — reversal</text>
+    <text class="n-n" x="40" y="180">the spec is locked at 4 and reversed at 5, seven minutes apart</text>
+  </svg>
   <ol class="dg-key">
     <li><b>Reject-the-file proposed</b> <span>00:06:10</span></li>
     <li><b>The group agrees to it</b> <span>00:19:25</span></li>

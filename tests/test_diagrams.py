@@ -139,6 +139,57 @@ def test_a_font_size_at_the_minimum_passes(good):
     assert check_svg_fragment(good.replace("11.5px", f"{MIN_FONT_PX}px")) == []
 
 
+def test_a_pinned_min_width_is_reported(good):
+    bad = good.replace("height:auto", "height:auto;min-width:660px", 1)
+    assert [(p.kind, p.where) for p in check_svg_fragment(bad)] == [("min-width", "dg-apron-dwell")]
+
+
+def test_a_media_query_min_width_is_not_a_pinned_figure(good):
+    ok = good.replace(".dg svg{display:block}", "@media (min-width:900px){.dg svg{margin:0}}", 1)
+    assert check_svg_fragment(ok) == []
+
+
+def test_a_scrolling_wrapper_is_reported(good):
+    bad = good.replace(".dg svg{display:block}", ".dg .dg-scroll{overflow-x:auto}", 1)
+    problems = check_svg_fragment(bad)
+    assert [(p.kind, p.where) for p in problems] == [("scroll-wrapper", "fragment")] * 2
+
+
+def test_a_figure_that_is_only_boxes_and_text_is_reported(good):
+    start = good.index("<figure", good.index("dg-gap-closes") - 40)
+    boxed = (
+        '<figure class="dg" id="dg-boxed"><figcaption><span class="dg-t">A</span>'
+        '<span class="dg-w">B</span></figcaption>'
+        '<svg viewBox="0 0 1200 90" role="img"><title>Boxes</title><desc>Two boxes.</desc>'
+        '<rect x="0" y="0" width="200" height="60"/><text x="8" y="30">one</text></svg>'
+        '<ol class="dg-key"><li><b>said</b> <span>00:00:11</span></li></ol></figure>'
+    )
+    problems = check_svg_fragment(good[:start] + boxed + good[start:])
+    assert [(p.kind, p.where) for p in problems] == [("no-glyph", "dg-boxed")]
+
+
+def test_an_empty_desc_counts_as_no_desc(good):
+    bad = good.replace(
+        "<desc>A pallet arrives", "<desc>   </desc><desc data-old>A pallet arrives", 1
+    )
+    problems = check_svg_fragment(bad)
+    assert [(p.kind, p.where) for p in problems] == [("missing-a11y", "dg-apron-dwell")]
+    assert "<desc>" in problems[0].detail
+
+
+def test_a_second_svg_in_a_figure_is_checked_on_its_own(good):
+    bare = '<svg viewBox="0 0 1200 40" role="img"><title>t</title><desc>d</desc><line/></svg>'
+    bad = good.replace("</svg>", "</svg>" + bare.replace("<desc>d</desc>", ""), 1)
+    problems = check_svg_fragment(bad)
+    assert [(p.kind, p.where) for p in problems] == [("missing-a11y", "dg-apron-dwell")]
+    assert "<svg> 2" in problems[0].detail
+
+
+def test_the_font_floor_is_eleven_pixels(good):
+    assert MIN_FONT_PX == 11.0
+    assert kinds(check_svg_fragment(good.replace("11.5px", "10.5px", 1))) == ["tiny-text"]
+
+
 def test_several_defects_are_all_reported(good):
     bad = good.replace("var(--pen-a)", "#A6371F").replace("var(--cond)", "monospace")
     assert kinds(check_svg_fragment(bad)) == ["hex-color", "monospace"]
@@ -215,6 +266,11 @@ def test_cli_fails_and_names_every_defect(tmp_path, capsys, good):
             "no-key",
         ),
         (lambda t: t.replace("11.5px", "6px", 1), "tiny-text"),
+        (lambda t: t.replace("height:auto", "height:auto;min-width:660px", 1), "min-width"),
+        (
+            lambda t: t.replace(".dg svg{display:block}", ".dg .x{overflow-x:scroll}", 1),
+            "scroll-wrapper",
+        ),
     ],
 )
 def test_cli_reports_each_seeded_defect(tmp_path, capsys, good, mutate, kind):

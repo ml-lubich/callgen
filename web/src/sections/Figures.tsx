@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useRef } from "react";
 import { Skeleton } from "../components/Skeleton";
 import { figureFor, registeredFigureIds } from "../figures";
+import { IconSprite } from "../glyphs/icons";
 import { reduceMotion } from "../lib/jump";
 
 /** Elements that are worth drawing as a stroke rather than fading in. */
 const STROKED = "path, line, polyline";
-const FILLED = "text, rect, circle, ellipse, polygon, image";
+const FILLED = "text, rect, circle, ellipse, polygon, image, use";
 
 interface Piece {
   id: string;
@@ -159,9 +160,13 @@ export function Figures({
 
   const present = new Set(pieces.map((p) => p.id));
   const extra = registeredFigureIds().filter((id) => !present.has(id));
+  // a figure drawn in React reaches the object kit by id, so the sprite has to be in the
+  // document — unless the hand-authored fragment already inlined its own copy
+  const ownSprite = !fragment.includes("data-icon-sprite");
 
   return (
     <div className="dg-wrap" ref={ref}>
+      {ownSprite && <IconSprite />}
       {pieces.map((piece) => {
         const Override = figureFor(piece.id);
         if (Override) return <Override key={piece.id} id={piece.id} />;

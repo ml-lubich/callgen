@@ -3,32 +3,752 @@
   .dg figcaption{display:block;margin:0 0 1rem;max-width:66ch}
   .dg .dg-t{display:block;font-family:var(--display);font-size:21px;line-height:1.25;color:var(--ink)}
   .dg .dg-w{display:block;margin-top:.4rem;font-family:var(--body);font-size:13px;color:var(--ink-soft)}
-  .dg .dg-scroll{overflow-x:auto;overflow-y:hidden}
   .dg svg{display:block}
   .dg .box{fill:var(--paper-2);stroke-width:1.2}
   .dg .frame{fill:none;stroke:var(--grid);stroke-width:.5;stroke-dasharray:2 3}
+  .dg .ghost{fill:none;stroke:var(--grid);stroke-width:1;stroke-dasharray:4 3}
   .dg .axis{fill:none;stroke:var(--grid);stroke-width:.5}
   .dg .edge{fill:none;stroke-width:1.2}
-  .dg .sa{stroke:var(--pen-a)} .dg .sb{stroke:var(--pen-b)}
-  .dg .fa{fill:var(--pen-a)} .dg .fb{fill:var(--pen-b)}
-  .dg .bara{fill:var(--pen-a)} .dg .barb{fill:var(--pen-b)}
+  .dg .sa{stroke:var(--pen-a)} .dg .sb{stroke:var(--pen-b)} .dg .sn{stroke:var(--ink-soft)}
+  .dg .fa{fill:var(--pen-a)} .dg .fb{fill:var(--pen-b)} .dg .fn{fill:var(--ink-soft)}
+  .dg .bara{fill:var(--pen-a)} .dg .barb{fill:var(--pen-b)} .dg .barn{fill:var(--grid)}
+  .dg .oa{color:var(--pen-a)} .dg .ob{color:var(--pen-b)} .dg .on{color:var(--ink-soft)}
+  .dg .og{color:var(--grid);stroke-dasharray:3 3}
   .dg text{font-family:var(--cond)}
-  .dg .n-l{font-size:13px;font-weight:600;fill:var(--ink)}
-  .dg .n-n{font-size:11.5px;fill:var(--ink-soft)}
-  .dg .n-i{font-size:11.5px;font-weight:600;fill:var(--ink-soft)}
-  .dg .g-l{font-size:11.5px;font-weight:600;fill:var(--ink-soft);letter-spacing:.09em;text-transform:uppercase}
+  .dg .n-l{font-size:14px;font-weight:600;fill:var(--ink)}
+  .dg .n-n{font-size:13px;fill:var(--ink-soft)}
+  .dg .n-i{font-size:13px;font-weight:600;fill:var(--ink-soft)}
+  .dg .g-l{font-size:13px;font-weight:600;fill:var(--ink-soft);letter-spacing:.08em;text-transform:uppercase}
   .dg .dg-key{margin:1rem 0 0;padding-left:1.4rem;max-width:66ch;font-family:var(--body);
     font-size:13px;line-height:1.55;color:var(--ink-soft)}
   .dg-lead{margin:0 0 2.5rem;max-width:66ch;font-family:var(--body);font-size:17px;color:var(--ink)}
   .dg-bridge{margin:0 0 2.5rem;max-width:60ch;font-family:var(--body);font-size:15px;color:var(--ink-soft)}
 </style>
-<div class="dg-lead">Three figures, read in order. The first lays the whole incident on its
-own clock, from the config change to the moment the backlog hit zero, and marks which
-points on that clock were a person acting versus the system reacting on its own. The
-second opens the middle of that clock into a causal chain, from the change to the
-moment a customer saw a duplicate email. The third steps back and shows how the night
-actually split up, and gives the two decision points — the wrong fix and the right
-one — the same colors they carry in the first two figures.</div>
+<!-- callgen diagram object kit — "drafting-table axonometric".
+     ONE HAND. 2:1 dimetric projection: every receding edge has slope EXACTLY ±0.5.
+     Single light source top-front-left. Depth is flat currentColor face-tone (top .05,
+     right .13, left .22) plus vertical hairline hatch on the left/shadow face of hero
+     objects — NEVER a gradient, shadow or bevel. Three line weights: structural 1.6,
+     detail 1.0, hairline .5. Colour is currentColor; tint a <use> with
+     color:var(--pen-m|pen-d|ink-soft). No hex, no font, no emoji, no dependency.
+     Native 48-grid; legible 22–96px. The object's form is the meaning; the label only names it. -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true" data-icon-sprite>
+  <defs></defs>
+
+  <!-- ============ DATA & STORAGE ============ -->
+
+  <!-- database: tall iso cylinder, ring divisions = rows. Not a vector store. -->
+  <symbol id="icon-database" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M9 12v24a15 7.5 0 0 0 30 0V12" fill="currentColor" stroke="none" opacity=".11"/>
+    <ellipse cx="24" cy="12" rx="15" ry="7.5" fill="currentColor" stroke="none" opacity=".05"/>
+    <ellipse cx="24" cy="12" rx="15" ry="7.5"/>
+    <path d="M9 12v24a15 7.5 0 0 0 30 0V12"/>
+    <path d="M9 20a15 7.5 0 0 0 30 0" stroke-width="1"/>
+    <path d="M9 28a15 7.5 0 0 0 30 0" stroke-width="1"/>
+  </symbol>
+
+  <!-- vector-index: iso block whose TOP face is a joined point-cloud = embedding space. -->
+  <symbol id="icon-vector-index" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M24 30 44 40 24 50 4 40Z" fill="currentColor" stroke="none" opacity=".13" transform="translate(0,-6)"/>
+    <path d="M4 20 24 30 24 44 4 34Z" fill="currentColor" stroke="none" opacity=".22"/>
+    <path d="M44 20 24 30 24 44 44 34Z" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M24 10 44 20 24 30 4 20Z" fill="currentColor" stroke="none" opacity=".05"/>
+    <path d="M24 10 44 20 44 34 24 44 4 34 4 20Z"/>
+    <path d="M24 30v14" stroke-width="1"/>
+    <path d="M13 17 24 15M24 15 33 21M24 15 20 24M33 21 30 26M20 24 30 26" stroke-width="1"/>
+    <circle cx="13" cy="17" r="1.5" fill="currentColor" stroke="none"/>
+    <circle cx="24" cy="15" r="1.5" fill="currentColor" stroke="none"/>
+    <circle cx="33" cy="21" r="1.5" fill="currentColor" stroke="none"/>
+    <circle cx="20" cy="24" r="1.5" fill="currentColor" stroke="none"/>
+    <circle cx="30" cy="26" r="1.5" fill="currentColor" stroke="none"/>
+  </symbol>
+
+  <!-- document: one thin iso slab, printed lines + folded corner on the top face. -->
+  <symbol id="icon-document" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 22 24 30 24 36 8 28Z" fill="currentColor" stroke="none" opacity=".22"/>
+    <path d="M40 22 24 30 24 36 40 28Z" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M24 8 40 16 24 24 8 16Z" fill="currentColor" stroke="none" opacity=".05"/>
+    <path d="M24 8 40 16 40 28 24 36 8 28 8 16Z"/>
+    <path d="M24 24v12" stroke-width="1"/>
+    <path d="M14 15 22 19M13 18 24 23.5M18 12.5 30 18.5M20 20 30 25" stroke-width="1"/>
+  </symbol>
+
+  <!-- document-stack: three offset slabs = real depth (a corpus / many docs). -->
+  <symbol id="icon-document-stack" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M24 4 40 12 24 20 8 12Z" fill="currentColor" stroke="none" opacity=".05"/>
+    <path d="M24 4 40 12 40 15 24 23 8 15 8 12Z"/>
+    <path d="M24 12 40 20 24 28 8 20Z" fill="currentColor" stroke="none" opacity=".05"/>
+    <path d="M24 12 40 20 40 23 24 31 8 23 8 20Z"/>
+    <path d="M8 28 24 36 24 40 8 32Z" fill="currentColor" stroke="none" opacity=".22"/>
+    <path d="M40 28 24 36 24 40 40 32Z" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M24 20 40 28 24 36 8 28Z" fill="currentColor" stroke="none" opacity=".05"/>
+    <path d="M24 20 40 28 40 32 24 40 8 32 8 28Z"/>
+    <path d="M15 25 27 31M14 28 26 34" stroke-width="1"/>
+  </symbol>
+
+  <!-- pdf: a slab with a solid banner on the page = a formatted file. -->
+  <symbol id="icon-pdf" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 22 24 30 24 36 8 28Z" fill="currentColor" stroke="none" opacity=".22"/>
+    <path d="M40 22 24 30 24 36 40 28Z" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M24 8 40 16 24 24 8 16Z" fill="currentColor" stroke="none" opacity=".05"/>
+    <path d="M24 8 40 16 40 28 24 36 8 28 8 16Z"/>
+    <path d="M24 24v12" stroke-width="1"/>
+    <path d="M15 15 27 21 33 18 21 12Z" fill="currentColor" stroke="none" opacity=".9"/>
+  </symbol>
+
+  <!-- image: an iso frame whose page shows a mountain + sun = a raster/scan. -->
+  <symbol id="icon-image" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 20 24 28 24 34 8 26Z" fill="currentColor" stroke="none" opacity=".22"/>
+    <path d="M40 20 24 28 24 34 40 26Z" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M24 6 40 14 24 22 8 14Z" fill="currentColor" stroke="none" opacity=".05"/>
+    <path d="M24 6 40 14 40 26 24 34 8 26 8 14Z"/>
+    <path d="M24 22v12" stroke-width="1"/>
+    <circle cx="17" cy="13" r="1.8" fill="currentColor" stroke="none"/>
+    <path d="M12 18 20 15 26 18.5 33 15" stroke-width="1"/>
+  </symbol>
+
+  <!-- ============ WORK ITEMS & FLOW ============ -->
+
+  <!-- ticket: a slab with a perforation + corner notch = a routable unit of work. -->
+  <symbol id="icon-ticket" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 22 24 30 24 36 8 28Z" fill="currentColor" stroke="none" opacity=".22"/>
+    <path d="M40 22 24 30 24 36 40 28Z" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M24 8 40 16 24 24 8 16Z" fill="currentColor" stroke="none" opacity=".05"/>
+    <path d="M24 8 40 16 40 28 24 36 8 28 8 16Z"/>
+    <path d="M16 12 32 20" stroke-width="1" stroke-dasharray="1.5 1.6"/>
+    <path d="M20 22 30 27" stroke-width="1"/>
+  </symbol>
+
+  <!-- inbox: an open iso tray with slips = a queue / place of incoming work. -->
+  <symbol id="icon-inbox" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M6 22 24 31 24 40 6 31Z" fill="currentColor" stroke="none" opacity=".22"/>
+    <path d="M42 22 24 31 24 40 42 31Z" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M6 22 24 31 42 22 33 17 33 24 24 28.5 15 24 15 17Z" fill="currentColor" stroke="none" opacity=".05"/>
+    <path d="M6 22 15 17 33 17 42 22 24 31Z"/>
+    <path d="M6 22 24 31 42 22M6 22v9l18 9 18-9v-9"/>
+    <path d="M15 17v7l9 4.5 9-4.5v-7" stroke-width="1"/>
+    <path d="M22 9 30 13M22 13 30 9" stroke-width="1"/>
+  </symbol>
+
+  <!-- filter: an iso funnel narrowing to a stem = triage/classify. -->
+  <symbol id="icon-filter" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <ellipse cx="24" cy="12" rx="16" ry="8" fill="currentColor" stroke="none" opacity=".05"/>
+    <ellipse cx="24" cy="12" rx="16" ry="8"/>
+    <path d="M8 12 22 30v10l4 2V30L40 12" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M8 12 22 30v10l4 2V30L40 12"/>
+  </symbol>
+
+  <!-- fork-in-road: a ground-plane path splitting two ways (iso ribbons). -->
+  <symbol id="icon-fork-in-road" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M20 44 24 42V30l14-7V13l-4 2v6l-10 5-10-5v-6l-4-2v10l14 7v12Z" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M22 44V30L8 23V13M26 44V30l14-7V13"/>
+    <path d="M4 15 8 11l4 2M36 15l4-4 4 2" stroke-width="1"/>
+  </symbol>
+
+  <!-- ============ AGENTS & PEOPLE ============ -->
+
+  <!-- robot: an iso cube head, eyes on the front-right face, antenna = the AI agent. -->
+  <symbol id="icon-robot" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M6 20 24 29 24 44 6 35Z" fill="currentColor" stroke="none" opacity=".22"/>
+    <path d="M42 20 24 29 24 44 42 35Z" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M24 11 42 20 24 29 6 20Z" fill="currentColor" stroke="none" opacity=".05"/>
+    <path d="M24 11 42 20 42 35 24 44 6 35 6 20Z"/>
+    <path d="M24 29v15" stroke-width="1"/>
+    <path d="M24 11V5M24 5 21 3.5M24 5 27 3.5" stroke-width="1"/>
+    <ellipse cx="14.5" cy="30.5" rx="2.4" ry="1.6" fill="currentColor" stroke="none"/>
+    <ellipse cx="33.5" cy="30.5" rx="2.4" ry="1.6" fill="currentColor" stroke="none"/>
+    <path d="M17 37 24 40.5 31 37" stroke-width="1"/>
+  </symbol>
+
+  <!-- person: a constructed bust; shoulders carry a faint iso top plane. -->
+  <symbol id="icon-person" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 44c0-9 7-15 16-15s16 6 16 15Z" fill="currentColor" stroke="none" opacity=".16"/>
+    <circle cx="24" cy="14" r="8" fill="currentColor" stroke="none" opacity=".05"/>
+    <circle cx="24" cy="14" r="8"/>
+    <path d="M8 44c0-9 7-15 16-15s16 6 16 15"/>
+    <path d="M13 33 24 37 35 33" stroke-width="1"/>
+  </symbol>
+
+  <!-- team: two busts offset in iso depth = a group / headcount. -->
+  <symbol id="icon-team" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="33" cy="15" r="6" fill="currentColor" stroke="none" opacity=".05"/>
+    <circle cx="33" cy="15" r="6"/>
+    <path d="M25 34c0-7 5-11 11-11s11 4 11 11" opacity=".85"/>
+    <path d="M6 44c0-9 6.5-14 15-14s15 5 15 14Z" fill="currentColor" stroke="none" opacity=".16"/>
+    <circle cx="21" cy="17" r="8" fill="currentColor" stroke="none" opacity=".05"/>
+    <circle cx="21" cy="17" r="8"/>
+    <path d="M6 44c0-9 6.5-14 15-14s15 5 15 14"/>
+  </symbol>
+
+  <!-- building: a tall iso block with window dots on both faces = an organisation/site. -->
+  <symbol id="icon-building" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 16 24 24 24 44 8 36Z" fill="currentColor" stroke="none" opacity=".22"/>
+    <path d="M40 16 24 24 24 44 40 36Z" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M24 4 40 12 24 20 8 12Z" fill="currentColor" stroke="none" opacity=".05"/>
+    <path d="M24 4 40 12 40 36 24 44 8 36 8 12Z"/>
+    <path d="M24 20v24" stroke-width="1"/>
+    <path d="M13 19.5 18 22M13 25.5 18 28M13 31.5 18 34" stroke-width="1"/>
+    <path d="M30 22 35 19.5M30 28 35 25.5M30 34 35 31.5" stroke-width="1"/>
+  </symbol>
+
+  <!-- ============ COMPUTE & INFRASTRUCTURE ============ -->
+
+  <!-- server: a wide-short iso rack, front face slotted with LEDs = a running host. -->
+  <symbol id="icon-server" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 18 24 28 24 42 4 32Z" fill="currentColor" stroke="none" opacity=".22"/>
+    <path d="M44 18 24 28 24 42 44 32Z" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M24 10 44 18 24 26 4 18Z" fill="currentColor" stroke="none" opacity=".05"/>
+    <path d="M24 10 44 18 44 32 24 42 4 32 4 18Z"/>
+    <path d="M24 26v16" stroke-width="1"/>
+    <path d="M4 22 24 31M24 31 44 22" stroke-width="1"/>
+    <path d="M4 27 24 36M24 36 44 27" stroke-width="1"/>
+    <circle cx="9" cy="23" r="1.4" fill="currentColor" stroke="none"/>
+    <circle cx="9" cy="28" r="1.4" fill="currentColor" stroke="none"/>
+    <circle cx="39" cy="23" r="1.4" fill="currentColor" stroke="none"/>
+    <circle cx="39" cy="28" r="1.4" fill="currentColor" stroke="none"/>
+  </symbol>
+
+  <!-- cloud: a bold constructed puff on a thin iso base = a hosted/off-prem service. -->
+  <symbol id="icon-cloud" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <ellipse cx="24" cy="38" rx="15" ry="4" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M13 33a7 7 0 0 1-1-14 9 9 0 0 1 17-3 6 6 0 0 1 3 11 5 5 0 0 1-2 6Z" fill="currentColor" stroke="none" opacity=".07"/>
+    <path d="M14 33h17a6.5 6.5 0 0 0 1-13 9 9 0 0 0-17-2A7 7 0 0 0 14 33Z"/>
+  </symbol>
+
+  <!-- laptop: an iso base plane (keys) + a raised screen plane = a local/dev machine. -->
+  <symbol id="icon-laptop" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M14 10 40 10 40 24 24 24Z" fill="currentColor" stroke="none" opacity=".05"/>
+    <path d="M14 10 24 24 40 24 40 10Z"/>
+    <path d="M24 24 8 32 32 40 44 32Z" fill="currentColor" stroke="none" opacity=".18"/>
+    <path d="M24 24 8 32 32 40 44 32 40 24" />
+    <path d="M18 14 34 14M18 18 30 18" stroke-width="1"/>
+  </symbol>
+
+  <!-- terminal: an iso screen block, prompt chevron + cursor = a deterministic CLI tool. -->
+  <symbol id="icon-terminal" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M6 16 24 25 24 40 6 31Z" fill="currentColor" stroke="none" opacity=".18"/>
+    <path d="M42 16 24 25 24 40 42 31Z" fill="currentColor" stroke="none" opacity=".1"/>
+    <path d="M24 8 42 16 24 25 6 16Z" fill="currentColor" stroke="none" opacity=".05"/>
+    <path d="M24 8 42 16 42 31 24 40 6 31 6 16Z"/>
+    <path d="M24 25v15" stroke-width="1"/>
+    <path d="M11 22 17 26.5 12 30" stroke-width="1"/>
+    <path d="M19 30 26 33.5" stroke-width="1"/>
+  </symbol>
+
+  <!-- api: an iso socket with two prongs = a crossed service boundary. -->
+  <symbol id="icon-api" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M14 20 24 25 24 37 14 32Z" fill="currentColor" stroke="none" opacity=".22"/>
+    <path d="M34 20 24 25 24 37 34 32Z" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M24 15 34 20 24 25 14 20Z" fill="currentColor" stroke="none" opacity=".05"/>
+    <path d="M24 15 34 20 34 32 24 37 14 32 14 20Z"/>
+    <path d="M20 12 20 17M28 12 28 17" stroke-width="1"/>
+    <path d="M24 37v6" stroke-width="1"/>
+  </symbol>
+
+  <!-- gear: a short iso disc with teeth + hub = a process/mechanism. -->
+  <symbol id="icon-gear" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M9 24v5a15 7.5 0 0 0 30 0v-5" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M9 24v5a15 7.5 0 0 0 30 0v-5"/>
+    <ellipse cx="24" cy="24" rx="15" ry="7.5" fill="currentColor" stroke="none" opacity=".05"/>
+    <ellipse cx="24" cy="24" rx="15" ry="7.5"/>
+    <path d="M24 16.5v-4M11 21 8 19M37 21l3-2M15 28l-3 2.5M33 28l3 2.5" stroke-width="1"/>
+    <ellipse cx="24" cy="24" rx="4.5" ry="2.3"/>
+  </symbol>
+
+  <!-- gate: an iso pipe segment with a valve wheel = a single control on a flow. -->
+  <symbol id="icon-gate" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 24 16 30M32 30 44 24" stroke-width="1.6"/>
+    <path d="M14 24 24 29 24 39 14 34Z" fill="currentColor" stroke="none" opacity=".22"/>
+    <path d="M34 24 24 29 24 39 34 34Z" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M24 19 34 24 24 29 14 24Z" fill="currentColor" stroke="none" opacity=".05"/>
+    <path d="M24 19 34 24 34 34 24 39 14 34 14 24Z"/>
+    <path d="M24 19v-6M20 12h8" stroke-width="1"/>
+  </symbol>
+
+  <!-- ============ VERSION & RELEASE ============ -->
+
+  <!-- branch: three nodes joined on iso lines = a git graph, lines emerging from a trunk. -->
+  <symbol id="icon-branch" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M10 38 10 16M10 22 26 14 38 20M26 14 26 30"/>
+    <circle cx="10" cy="12" r="4" fill="currentColor" stroke="none" opacity=".13"/>
+    <circle cx="10" cy="12" r="4"/>
+    <circle cx="40" cy="19" r="4" fill="currentColor" stroke="none" opacity=".13"/>
+    <circle cx="40" cy="19" r="4"/>
+    <circle cx="26" cy="34" r="4" fill="currentColor" stroke="none" opacity=".13"/>
+    <circle cx="26" cy="34" r="4"/>
+  </symbol>
+
+  <!-- tag: an iso luggage tag with a hole = a release label/version. -->
+  <symbol id="icon-tag" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M6 18 28 6 44 22 32 40 26 40 6 26Z" fill="currentColor" stroke="none" opacity=".1"/>
+    <path d="M8 20 26 8 42 24 30 38 24 38 8 26Z"/>
+    <circle cx="17" cy="19" r="2.6"/>
+    <path d="M22 24 34 30" stroke-width="1"/>
+  </symbol>
+
+  <!-- ============ SIGNALS & OUTCOMES ============ -->
+
+  <!-- search: a bold lens ring on an iso handle = a lookup/retrieval. -->
+  <symbol id="icon-search" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="20" cy="18" r="12" fill="currentColor" stroke="none" opacity=".08"/>
+    <circle cx="20" cy="18" r="12"/>
+    <circle cx="20" cy="18" r="7" stroke-width="1"/>
+    <path d="M29 27 42 40" stroke-width="2.4"/>
+  </symbol>
+
+  <!-- alert: a triangular prism sign with a bar = a warning/risk. -->
+  <symbol id="icon-alert" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M24 8 42 38 24 42 24 8Z" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M24 8 6 38 24 42 42 38Z" fill="currentColor" stroke="none" opacity=".07"/>
+    <path d="M24 8 6 38 42 38Z"/>
+    <path d="M24 8v34" stroke-width="1"/>
+    <path d="M24 22v8" stroke-width="1.6"/>
+    <circle cx="24" cy="34" r="1.3" fill="currentColor" stroke="none"/>
+  </symbol>
+
+  <!-- check: an iso stamp token with a tick on its face = confirmed/done. -->
+  <symbol id="icon-check" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 22v6a16 8 0 0 0 32 0v-6" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M8 22v6a16 8 0 0 0 32 0v-6"/>
+    <ellipse cx="24" cy="22" rx="16" ry="8" fill="currentColor" stroke="none" opacity=".05"/>
+    <ellipse cx="24" cy="22" rx="16" ry="8"/>
+    <path d="M16 22 22 26 33 18" stroke-width="1.6"/>
+  </symbol>
+
+  <!-- shield: a plate with a thin iso edge + tick = prevention/guardrail. -->
+  <symbol id="icon-shield" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M24 5 39 10v11c0 10-7 15-15 18-8-3-15-8-15-18V10Z" fill="currentColor" stroke="none" opacity=".05"/>
+    <path d="M24 5 39 10v11c0 10-7 15-15 18-8-3-15-8-15-18V10Z"/>
+    <path d="M9 10 12 8.5 27 13.5v9c0 8-5 12.5-11 15.5" fill="currentColor" stroke="none" opacity=".18"/>
+    <path d="M16 22 22 27 33 15" stroke-width="1.6"/>
+  </symbol>
+
+  <!-- chart-up: three bars rising on an iso plinth = a measured gain. -->
+  <symbol id="icon-chart-up" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M6 34 24 43 42 34 24 25Z" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M6 34 24 43 42 34 24 25Z"/>
+    <path d="M14 32V26M23 34V20M32 32V14" stroke-width="2.4"/>
+    <path d="M28 12 33 12.5 32.5 17" stroke-width="1"/>
+  </symbol>
+
+  <!-- coin: short iso disc stack + a value slash = money/cost/revenue. -->
+  <symbol id="icon-coin" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 24v5a16 8 0 0 0 32 0v-5" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M8 24v5a16 8 0 0 0 32 0v-5"/>
+    <path d="M8 20a16 8 0 0 0 32 0" stroke-width="1"/>
+    <ellipse cx="24" cy="16" rx="16" ry="8" fill="currentColor" stroke="none" opacity=".05"/>
+    <ellipse cx="24" cy="16" rx="16" ry="8"/>
+    <path d="M24 10v12M20 13.5h6.5a2 2 0 0 1 0 4H21a2 2 0 0 0 0 4h7" stroke-width="1"/>
+  </symbol>
+
+  <!-- clock: an iso disc with hands on its face = time-as-subject. -->
+  <symbol id="icon-clock" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 24v3a16 8 0 0 0 32 0v-3" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M8 24v3a16 8 0 0 0 32 0v-3"/>
+    <ellipse cx="24" cy="24" rx="16" ry="8" fill="currentColor" stroke="none" opacity=".05"/>
+    <ellipse cx="24" cy="24" rx="16" ry="8"/>
+    <path d="M24 24 24 18M24 24 31 25.5" stroke-width="1.6"/>
+    <circle cx="24" cy="24" r="1.3" fill="currentColor" stroke="none"/>
+  </symbol>
+
+  <!-- ============ CONNECTION ============ -->
+
+  <!-- link: two interlocked iso chain links = a citation/provenance tie. -->
+  <symbol id="icon-link" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <ellipse cx="17" cy="24" rx="10" ry="6" transform="rotate(-27 17 24)" fill="currentColor" stroke="none" opacity=".1"/>
+    <ellipse cx="17" cy="24" rx="10" ry="6" transform="rotate(-27 17 24)"/>
+    <ellipse cx="31" cy="24" rx="10" ry="6" transform="rotate(-27 31 24)" fill="currentColor" stroke="none" opacity=".1"/>
+    <ellipse cx="31" cy="24" rx="10" ry="6" transform="rotate(-27 31 24)"/>
+  </symbol>
+
+</svg>
+<div class="dg-lead">Eight figures, read in order. The first two are the cause: a change that
+reached further than it was meant to, and a number small enough to look harmless in daylight.
+The next two are why it was misread and why it escaped the building: every health signal read
+green while the workers starved, and one message, restarted mid-flight, became a second email
+because nothing downstream checks whether it has already been sent. The fifth and sixth put
+that whole mechanism on the night's real clock, the seventh divides the clock into the two
+waits and the two decisions that bracket them, and the last asks how much of that clock is
+actually evidence. One pen per person throughout:
+<b style="color:var(--pen-a)">Nadia Brandt</b>, who was paged and restarted the fleet, and
+<b style="color:var(--pen-b)">Colm Ferreira</b>, who shipped the change and found it; system
+behaviour that neither of them chose sits in
+<b style="color:var(--ink-soft)">ink-soft</b>.</div>
+
+<figure class="dg" id="dg-config-scope">
+  <figcaption>
+    <span class="dg-t">One key apart, and nothing in between to catch it</span>
+    <span class="dg-w">The change was written for one queue's config key. It shipped against
+      the shared default, which the ingest fleet reads too. Between the change and the default
+      there is no check at all — the empty diamond is the guardrail that does not exist.</span>
+  </figcaption>
+  <svg viewBox="0 0 1000 360" role="img" preserveAspectRatio="xMidYMid meet"
+       style="width:100%;height:auto">
+    <title>The intended scope of the connection-pool change against the scope it actually had</title>
+    <desc>Two bands on the same horizontal pitch so the two paths can be compared position by
+      position. The upper band, as intended, runs from Colm Ferreira's change, drawn in his
+      pen with a gear, through one queue's own config key to that queue's workers: one arrow,
+      one destination. The lower band, what shipped, starts from the same change and passes
+      through a decision diamond drawn as a dashed grey wireframe, the scope check that does
+      not exist, into the shared default. From there the path fans out to two destinations
+      rather than one: the queue that was meant to change, and the ingest fleet, which reads
+      the same default and is marked with an alert symbol because it was never the target.</desc>
+    <defs>
+      <marker id="mk-dg-config-scope-a" viewBox="0 0 9 9" refX="8.2" refY="4.5"
+              markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse"
+              orient="auto-start-reverse"><path class="fn" d="M0 0 L9 4.5 L0 9 Z"/></marker>
+    </defs>
+    <text class="g-l" x="20" y="26">as intended</text>
+    <rect class="box sb" x="20" y="40" width="200" height="86"/>
+    <use href="#icon-gear" x="32" y="50" width="32" height="32" class="ob"/>
+    <text class="n-l" x="32" y="100">the connection change</text>
+    <text class="n-n" x="32" y="118">twenty down to four</text>
+    <text class="n-i" x="208" y="62" text-anchor="end">1</text>
+    <path class="edge sn" d="M220,84H432" marker-end="url(#mk-dg-config-scope-a)"/>
+    <rect class="box sn" x="440" y="40" width="200" height="86"/>
+    <use href="#icon-tag" x="452" y="50" width="32" height="32" class="on"/>
+    <text class="n-l" x="452" y="100">that one queue's key</text>
+    <text class="n-n" x="452" y="118">the migration was hurting it</text>
+    <path class="edge sn" d="M640,84H732" marker-end="url(#mk-dg-config-scope-a)"/>
+    <rect class="box sn" x="740" y="40" width="240" height="86"/>
+    <use href="#icon-server" x="752" y="50" width="32" height="32" class="on"/>
+    <text class="n-l" x="752" y="100">that queue's workers</text>
+    <text class="n-n" x="752" y="118">the only fleet meant to change</text>
+
+    <text class="g-l" x="20" y="188">what shipped</text>
+    <rect class="box sb" x="20" y="202" width="200" height="86"/>
+    <use href="#icon-gear" x="32" y="212" width="32" height="32" class="ob"/>
+    <text class="n-l" x="32" y="262">the same change</text>
+    <text class="n-n" x="32" y="280">one key name away</text>
+    <text class="n-i" x="208" y="224" text-anchor="end">2</text>
+    <path class="edge sn" d="M220,246H262" marker-end="url(#mk-dg-config-scope-a)"/>
+    <path class="ghost" d="M270,246 L336,214 L402,246 L336,278 Z"/>
+    <text class="n-n" x="336" y="250" text-anchor="middle">scope check</text>
+    <text class="n-n" x="336" y="304" text-anchor="middle">no such check exists today</text>
+    <text class="n-i" x="336" y="206" text-anchor="middle">5</text>
+    <path class="edge sn" d="M402,246H432" stroke-dasharray="4 3" marker-end="url(#mk-dg-config-scope-a)"/>
+    <rect class="box sb" x="440" y="202" width="200" height="86"/>
+    <use href="#icon-tag" x="452" y="212" width="32" height="32" class="ob"/>
+    <text class="n-l" x="452" y="262">the shared default</text>
+    <text class="n-n" x="452" y="280">read by more than one fleet</text>
+    <text class="n-i" x="628" y="224" text-anchor="end">3</text>
+    <path class="edge sn" d="M640,246H690M690,180V312"/>
+    <path class="edge sn" d="M690,180H732M690,312H732" marker-end="url(#mk-dg-config-scope-a)"/>
+    <rect class="box sn" x="740" y="150" width="240" height="60"/>
+    <use href="#icon-server" x="752" y="162" width="28" height="28" class="on"/>
+    <text class="n-n" x="790" y="186">that queue's workers</text>
+    <rect class="box sn" x="740" y="282" width="240" height="60"/>
+    <use href="#icon-alert" x="752" y="294" width="28" height="28" class="on"/>
+    <text class="n-l" x="790" y="312">the ingest fleet</text>
+    <text class="n-n" x="790" y="330">never the target</text>
+    <text class="n-i" x="968" y="302" text-anchor="end">4</text>
+  </svg>
+  <ol class="dg-key">
+    <li><b>Max connections per worker, twenty down to four</b> <span>00:01:10</span></li>
+    <li><b>He meant to scope it to that one queue's config key</b> <span>00:03:38</span></li>
+    <li><b>It went out against the shared default instead</b> <span>00:03:38</span></li>
+    <li><b>The ingest workers read from that same default</b> <span>00:03:38</span></li>
+    <li><b>Nothing today flags a change touching a shared default</b> <span>00:39:09</span></li>
+  </ol>
+</figure>
+
+<p class="dg-bridge">Reaching the ingest fleet was only half of it. Four connections had to
+also be a number small enough to look harmless and still be fatal.</p>
+
+<figure class="dg" id="dg-pool-cap">
+  <figcaption>
+    <span class="dg-t">Four was above daytime use and far below what the batch needed</span>
+    <span class="dg-w">All four bars are connections per worker on one scale with a shared
+      zero. The dashed line is the new cap. Ordinary daytime use sits under it, which is why
+      nothing broke for most of a day. What the workers reached for once the revert landed is
+      three times it.</span>
+  </figcaption>
+  <svg viewBox="0 0 1000 310" role="img" preserveAspectRatio="xMidYMid meet"
+       style="width:100%;height:auto">
+    <title>Connections per worker: the cap before and after the change, against observed use</title>
+    <desc>Four horizontal bars share one zero and one scale of zero to twenty connections per
+      worker, with ticks at zero, four, ten and twenty. The top two bars, in Colm Ferreira's
+      pen, are the setting he changed: twenty before, four after. The lower two, in the
+      neutral ink because they are observed behaviour rather than anyone's decision, are use
+      rather than limit, and each is drawn as a range because both were given as ranges: two
+      to three connections on an ordinary day, and ten to twelve within a minute or two of the
+      revert. A dashed vertical line at four runs the height of the figure: the daytime range
+      falls short of it and the post-revert range runs well past it, which is the whole reason
+      the same number was invisible by day and fatal during the nightly batch.</desc>
+    <path class="axis" d="M200,40V262"/>
+    <path class="axis" d="M340,40V262M550,40V262M900,40V262"/>
+    <text class="n-n" x="200" y="284" text-anchor="middle">0</text>
+    <text class="n-n" x="340" y="284" text-anchor="middle">4</text>
+    <text class="n-n" x="550" y="284" text-anchor="middle">10</text>
+    <text class="n-n" x="900" y="284" text-anchor="middle">20</text>
+    <text class="g-l" x="200" y="302">connections per worker</text>
+    <path class="edge sb" d="M340,34V268" stroke-dasharray="5 4"/>
+    <text class="n-i" x="348" y="30">the new cap</text>
+
+    <text class="n-l" x="190" y="64" text-anchor="end">cap before</text>
+    <text class="n-n" x="190" y="82" text-anchor="end">what it had been</text>
+    <rect class="barb" x="200" y="50" width="700" height="26"/>
+    <text class="n-l" x="916" y="70">20</text>
+    <text class="n-i" x="968" y="70">1</text>
+
+    <text class="n-l" x="190" y="120" text-anchor="end">cap after</text>
+    <text class="n-n" x="190" y="138" text-anchor="end">the change that shipped</text>
+    <rect class="barb" x="200" y="106" width="140" height="26"/>
+    <text class="n-l" x="356" y="126">4</text>
+    <text class="n-i" x="968" y="126">2</text>
+
+    <text class="n-l" x="190" y="176" text-anchor="end">daytime use</text>
+    <text class="n-n" x="190" y="194" text-anchor="end">most of the day, per worker</text>
+    <rect class="fn" x="270" y="162" width="35" height="26"/>
+    <path class="axis" d="M200,162V188"/>
+    <text class="n-n" x="356" y="182">two or three, under the cap</text>
+    <text class="n-i" x="968" y="182">3</text>
+
+    <text class="n-l" x="190" y="232" text-anchor="end">use after the revert</text>
+    <text class="n-n" x="190" y="250" text-anchor="end">within a minute or two</text>
+    <rect class="fn" x="550" y="218" width="70" height="26"/>
+    <text class="n-n" x="636" y="238">ten to twelve, three times the cap</text>
+    <text class="n-i" x="968" y="238">4</text>
+  </svg>
+  <ol class="dg-key">
+    <li><b>Twenty connections per worker before the change</b> <span>00:01:10</span></li>
+    <li><b>Dropped to four</b> <span>00:01:10</span></li>
+    <li><b>Two or three is all a worker uses most of the day</b> <span>00:06:18</span></li>
+    <li><b>Ten or twelve again within minutes of the revert</b> <span>00:32:39</span></li>
+  </ol>
+</figure>
+
+<p class="dg-bridge">A starved worker is still a running worker, and that is exactly what the
+dashboard said it was.</p>
+
+<figure class="dg" id="dg-green-dashboard">
+  <figcaption>
+    <span class="dg-t">Four green signals, one number nobody looked at</span>
+    <span class="dg-w">Everything the responder checked came back healthy, because starvation
+      does not show up in any of those checks. The one measurement that would have told the
+      story is the dashed one. The runbook then turned four green ticks and a stalled queue
+      into an instruction.</span>
+  </figcaption>
+  <svg viewBox="0 0 1000 340" role="img" preserveAspectRatio="xMidYMid meet"
+       style="width:100%;height:auto">
+    <title>The four health signals that read green, the unchecked connection count, and the runbook rule</title>
+    <desc>The left half lists what the responder actually looked at: four rows, each a stamp
+      symbol in the neutral ink beside the signal it confirmed — no crash loops, no errors in
+      the logs, no restarts, every worker green. Beneath them a fifth row is drawn as a dashed
+      grey magnifier and a dashed empty bar: per-worker connection counts, the measurement
+      never taken. The right half is the runbook rule as a vertical chain of two decision
+      diamonds, health checks green and queue not draining, both answered yes, falling into a
+      terminal box in Nadia Brandt's pen: restart the fleet. The chain is vertical so the
+      reading order is the order the rule is applied in.</desc>
+    <defs>
+      <marker id="mk-dg-green-dashboard-a" viewBox="0 0 9 9" refX="8.2" refY="4.5"
+              markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse"
+              orient="auto-start-reverse"><path class="fn" d="M0 0 L9 4.5 L0 9 Z"/></marker>
+    </defs>
+    <text class="g-l" x="20" y="30">what the dashboard showed</text>
+    <use href="#icon-check" x="20" y="48" width="30" height="30" class="on"/>
+    <text class="n-l" x="62" y="68">no crash loops</text>
+    <use href="#icon-check" x="20" y="90" width="30" height="30" class="on"/>
+    <text class="n-l" x="62" y="110">no errors in the logs</text>
+    <use href="#icon-check" x="20" y="132" width="30" height="30" class="on"/>
+    <text class="n-l" x="62" y="152">no restarts</text>
+    <use href="#icon-check" x="20" y="174" width="30" height="30" class="on"/>
+    <text class="n-l" x="62" y="194">every worker green</text>
+    <text class="n-i" x="440" y="68" text-anchor="end">1</text>
+    <path class="axis" d="M20,222H440"/>
+    <use href="#icon-search" x="20" y="238" width="30" height="30" class="og"/>
+    <text class="n-l" x="62" y="256">per-worker connection counts</text>
+    <text class="n-n" x="62" y="274">never checked; the number that would have told the story</text>
+    <rect class="ghost" x="62" y="286" width="300" height="14"/>
+    <text class="n-i" x="440" y="256" text-anchor="end">2</text>
+
+    <text class="g-l" x="560" y="30">the runbook rule</text>
+    <path class="box sn" d="M560,80 L700,44 L840,80 L700,116 Z"/>
+    <text class="n-n" x="700" y="84" text-anchor="middle">health checks green?</text>
+    <path class="edge sn" d="M700,116V146" marker-end="url(#mk-dg-green-dashboard-a)"/>
+    <text class="n-n" x="712" y="138">yes</text>
+    <path class="box sn" d="M560,190 L700,154 L840,190 L700,226 Z"/>
+    <text class="n-n" x="700" y="194" text-anchor="middle">queue not draining?</text>
+    <path class="edge sn" d="M700,226V256" marker-end="url(#mk-dg-green-dashboard-a)"/>
+    <text class="n-i" x="960" y="84" text-anchor="end">3</text>
+    <text class="n-n" x="712" y="248">yes</text>
+    <rect class="box sa" x="580" y="258" width="240" height="70"/>
+    <use href="#icon-person" x="592" y="268" width="30" height="30" class="oa"/>
+    <text class="n-l" x="632" y="288">restart the fleet</text>
+    <text class="n-n" x="592" y="318">the known fix for a wedged worker</text>
+    <text class="n-i" x="960" y="288" text-anchor="end">4</text>
+  </svg>
+  <ol class="dg-key">
+    <li><b>No crash loops, no errors, no restarts, all green</b> <span>00:14:58</span></li>
+    <li><b>Per-worker connection counts were never checked</b> <span>00:14:58</span></li>
+    <li><b>The runbook does not tell stuck apart from starved</b> <span>00:37:39</span></li>
+    <li><b>Green checks and a stalled queue means restart</b> <span>00:37:39</span></li>
+  </ol>
+</figure>
+
+<p class="dg-bridge">Restarting a starved worker is survivable. Restarting one that is holding
+an unacknowledged message is what reached a customer.</p>
+
+<figure class="dg" id="dg-redelivery">
+  <figcaption>
+    <span class="dg-t">One message, one missing check, two emails</span>
+    <span class="dg-w">Follow a single message across the restart. Everything in the chain
+      behaves exactly as designed; the only thing that turns a redelivery into a duplicate is
+      the gate that is not there. That gate has been built once before, on another service.</span>
+  </figcaption>
+  <svg viewBox="0 0 1000 262" role="img" preserveAspectRatio="xMidYMid meet"
+       style="width:100%;height:auto">
+    <title>One unacknowledged message from delivery through the restart to a second confirmation email</title>
+    <desc>A single message is followed left to right. A tray symbol is the queue that delivers
+      it. A server symbol is the worker that holds it, started but not yet acknowledged. An
+      alert symbol in Nadia Brandt's pen is the restart that kills the process mid-flight. The
+      tray appears again because the queue, never having seen an acknowledgement, delivers the
+      same message a second time. Next comes a decision diamond drawn as a dashed grey
+      wireframe: the check on message id that the notification service does not perform. Since
+      nothing rejects the repeat, the final node is a person receiving a second copy of the
+      same confirmation email. A note under the missing gate records that this exact gate was
+      built once already, on a different service, and never revisited here.</desc>
+    <defs>
+      <marker id="mk-dg-redelivery-a" viewBox="0 0 9 9" refX="8.2" refY="4.5"
+              markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse"
+              orient="auto-start-reverse"><path class="fn" d="M0 0 L9 4.5 L0 9 Z"/></marker>
+    </defs>
+    <rect class="box sn" x="20" y="56" width="150" height="112"/>
+    <use href="#icon-inbox" x="32" y="68" width="36" height="36" class="on"/>
+    <text class="n-l" x="32" y="130">delivered</text>
+    <text class="n-n" x="32" y="150">once, to one worker</text>
+    <text class="n-i" x="158" y="80" text-anchor="end">1</text>
+    <path class="edge sn" d="M170,112H182" marker-end="url(#mk-dg-redelivery-a)"/>
+
+    <rect class="box sn" x="190" y="56" width="150" height="112"/>
+    <use href="#icon-server" x="202" y="68" width="36" height="36" class="on"/>
+    <text class="n-l" x="202" y="130">held, not acked</text>
+    <text class="n-n" x="202" y="150">work already started</text>
+    <text class="n-i" x="328" y="80" text-anchor="end">2</text>
+    <path class="edge sn" d="M340,112H352" marker-end="url(#mk-dg-redelivery-a)"/>
+
+    <rect class="box sa" x="360" y="56" width="150" height="112"/>
+    <use href="#icon-alert" x="372" y="68" width="36" height="36" class="oa"/>
+    <text class="n-l" x="372" y="130">killed mid-flight</text>
+    <text class="n-n" x="372" y="150">the fleet restart</text>
+    <text class="n-i" x="498" y="80" text-anchor="end">3</text>
+    <path class="edge sn" d="M510,112H522" marker-end="url(#mk-dg-redelivery-a)"/>
+
+    <rect class="box sn" x="530" y="56" width="150" height="112"/>
+    <use href="#icon-inbox" x="542" y="68" width="36" height="36" class="on"/>
+    <text class="n-l" x="542" y="130">delivered again</text>
+    <text class="n-n" x="542" y="150">no ack was ever seen</text>
+    <text class="n-i" x="668" y="80" text-anchor="end">4</text>
+    <path class="edge sn" d="M680,112H700" marker-end="url(#mk-dg-redelivery-a)"/>
+
+    <path class="ghost" d="M708,112 L774,78 L840,112 L774,146 Z"/>
+    <text class="n-n" x="774" y="116" text-anchor="middle">seen this id?</text>
+    <text class="n-i" x="774" y="70" text-anchor="middle">5</text>
+    <path class="edge sn" d="M840,112H860" stroke-dasharray="4 3" marker-end="url(#mk-dg-redelivery-a)"/>
+
+    <rect class="box sn" x="850" y="56" width="130" height="112"/>
+    <use href="#icon-person" x="862" y="68" width="36" height="36" class="on"/>
+    <text class="n-l" x="862" y="130">a second</text>
+    <text class="n-l" x="862" y="148">email</text>
+
+    <path class="edge sn" d="M774,146V184H236" stroke-dasharray="4 3"/>
+    <use href="#icon-check" x="190" y="194" width="34" height="34" class="ob"/>
+    <text class="n-l" x="236" y="214">this gate was built once, on another service</text>
+    <text class="n-n" x="236" y="234">a dedupe key off the message id; nobody asked whether this service had the same gap</text>
+    <text class="n-i" x="172" y="214" text-anchor="end">6</text>
+  </svg>
+  <ol class="dg-key">
+    <li><b>A message is delivered to one worker</b> <span>00:21:22</span></li>
+    <li><b>The worker starts it but has not acknowledged it</b> <span>00:21:22</span></li>
+    <li><b>The restart kills the process before the ack</b> <span>00:21:22</span></li>
+    <li><b>The queue treats it as never delivered and redelivers</b> <span>00:21:22</span></li>
+    <li><b>The notification service never checks message id</b> <span>00:21:22</span></li>
+    <li><b>The same shape was fixed once with a dedupe key</b> <span>00:36:59</span></li>
+  </ol>
+</figure>
+
+<p class="dg-bridge">That is one message. Widen it to the whole night and the same restart sits
+in the middle of a chain that started somewhere else entirely.</p>
+
+<figure class="dg" id="dg-causal-chain">
+  <figcaption>
+    <span class="dg-t">The restart, not the config change, is what customers felt</span>
+    <span class="dg-w">A straight line from a scoped-wrong setting to a starved queue. The
+      chain only turns customer-visible after the restart, drawn off the main row because
+      it is the decision both of them now say they would not repeat.</span>
+  </figcaption>
+  <svg viewBox="0 0 1000 360" role="img" preserveAspectRatio="xMidYMid meet"
+       style="width:100%;height:auto">
+    <title>Causal chain from the config change to duplicate customer emails</title>
+    <desc>Two drivers on the left, each led by a drawn object: Colm Ferreira's connection-pool
+      change, a gear in his pen, and the ordinary nightly rise in batch volume, a rising chart
+      in the neutral ink. Their edges merge into one node, an inbox: the backlog growing
+      unseen. That backlog is what leads Nadia Brandt to restart the fleet, a person in her
+      pen, set below the main row because it is the disputed step. The restart's edge turns
+      the corner back up into a reconnect storm against the config service, drawn as a server,
+      which redelivers unacknowledged messages; the last node on the right, an alert, is the
+      notification service turning that redelivery into a second email. Vertical position
+      separates the disputed step from the chain it interrupts.</desc>
+    <defs>
+      <marker id="mk-dg-causal-chain-a" viewBox="0 0 9 9" refX="8.2" refY="4.5"
+              markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse"
+              orient="auto-start-reverse"><path class="fn" d="M0 0 L9 4.5 L0 9 Z"/></marker>
+    </defs>
+    <path class="edge sn" d="M220,75H250V141M220,201H250V141"/>
+    <path class="edge sn" d="M250,141H280" marker-end="url(#mk-dg-causal-chain-a)"/>
+    <path class="edge sn" d="M380,196V230" marker-end="url(#mk-dg-causal-chain-a)"/>
+    <path class="edge sn" d="M480,285H520V141H540" marker-end="url(#mk-dg-causal-chain-a)"/>
+    <path class="edge sn" d="M740,141H760" marker-end="url(#mk-dg-causal-chain-a)"/>
+
+    <rect class="box sb" x="20" y="20" width="200" height="110"/>
+    <use href="#icon-gear" x="32" y="32" width="36" height="36" class="ob"/>
+    <text class="n-l" x="32" y="94">Connections capped</text>
+    <text class="n-n" x="32" y="114">twenty to four, wrong key</text>
+    <text class="n-i" x="208" y="46" text-anchor="end">1</text>
+
+    <rect class="box sn" x="20" y="146" width="200" height="110"/>
+    <use href="#icon-chart-up" x="32" y="158" width="36" height="36" class="on"/>
+    <text class="n-l" x="32" y="220">Nightly batch rises</text>
+    <text class="n-n" x="32" y="240">the usual overnight ingest</text>
+    <text class="n-i" x="208" y="172" text-anchor="end">2</text>
+
+    <rect class="box sn" x="280" y="86" width="200" height="110"/>
+    <use href="#icon-inbox" x="292" y="98" width="36" height="36" class="on"/>
+    <text class="n-l" x="292" y="160">Backlog grows unseen</text>
+    <text class="n-n" x="292" y="180">workers cannot keep pace</text>
+    <text class="n-i" x="468" y="112" text-anchor="end">3</text>
+
+    <rect class="box sa" x="280" y="230" width="200" height="110"/>
+    <use href="#icon-person" x="292" y="242" width="36" height="36" class="oa"/>
+    <text class="n-l" x="292" y="304">On-call restarts</text>
+    <text class="n-n" x="292" y="324">the workers looked healthy</text>
+    <text class="n-i" x="468" y="256" text-anchor="end">4</text>
+
+    <rect class="box sn" x="540" y="86" width="200" height="110"/>
+    <use href="#icon-server" x="552" y="98" width="36" height="36" class="on"/>
+    <text class="n-l" x="552" y="160">Reconnect storm</text>
+    <text class="n-n" x="552" y="180">unacked messages redeliver</text>
+    <text class="n-i" x="728" y="112" text-anchor="end">5</text>
+
+    <rect class="box sn" x="760" y="86" width="220" height="110"/>
+    <use href="#icon-alert" x="772" y="98" width="36" height="36" class="on"/>
+    <text class="n-l" x="772" y="160">Duplicate emails</text>
+    <text class="n-n" x="772" y="180">notification service resends</text>
+    <text class="n-i" x="968" y="112" text-anchor="end">6</text>
+  </svg>
+  <ol class="dg-key">
+    <li><b>Config change caps worker connections at four</b> <span>00:03:38</span></li>
+    <li><b>Nightly batch volume rises as usual</b> <span>00:06:18</span></li>
+    <li><b>Workers can't keep pace; backlog grows</b> <span>00:07:53</span></li>
+    <li><b>On-call restarts the fleet</b> <span>00:16:50</span></li>
+    <li><b>Reconnect storm redelivers unacknowledged messages</b> <span>00:21:22</span></li>
+    <li><b>Customers get a second confirmation email</b> <span>00:21:42</span></li>
+  </ol>
+</figure>
+
+<p class="dg-bridge">That chain accounts for the failure. It says nothing about how long each
+link took, which is where the night was actually spent.</p>
+
 <figure class="dg" id="dg-incident-timeline">
   <figcaption>
     <span class="dg-t">Two people acted twelve minutes apart on the incident clock</span>
@@ -36,77 +756,83 @@ one — the same colors they carry in the first two figures.</div>
       drained queue, not the length of this call. Events above the line are what happened;
       the bands below are the four stretches the retro breaks the night into.</span>
   </figcaption>
-  <div class="dg-scroll">
-    <svg viewBox="0 0 880 248" role="img" preserveAspectRatio="xMidYMid meet" style="width:100%;height:auto;min-width:840px">
-      <title>Incident events plotted on real elapsed minutes, 0148 to 0455 UTC</title>
-      <desc>A horizontal axis spans zero to one hundred eighty seven minutes, the true
-        elapsed time from the config change at 0148 UTC to the backlog reaching zero at
-        0455 UTC; position is strictly proportional to minutes elapsed, not to the length
-        of this call. Eight events sit above the axis, each on a leader line down to its
-        true position. Colm Ferreira's actions are drawn in his pen, blue; Nadia Brandt's
-        actions are drawn in her pen, orange; events with no single actor — the backlog
-        starting to climb, the page firing, the duplicate emails becoming visible — are
-        drawn in the soft neutral ink. Below the axis, four dashed bands mark the stretches
-        the retro names: silent growth, the wrong fix, diagnosis, and recovery.</desc>
-      <path class="axis" d="M40,140 L840,140"/>
-      <path class="axis" d="M40,136 L40,144"/>
-      <text class="n-n" x="40" y="158" text-anchor="middle">0 min</text>
-      <path class="axis" d="M296.8,136 L296.8,144"/>
-      <text class="n-n" x="296.8" y="158" text-anchor="middle">60 min</text>
-      <path class="axis" d="M553.5,136 L553.5,144"/>
-      <text class="n-n" x="553.5" y="158" text-anchor="middle">120 min</text>
-      <path class="axis" d="M810.2,136 L810.2,144"/>
-      <text class="n-n" x="810.2" y="158" text-anchor="middle">180 min</text>
+  <svg viewBox="0 0 1000 260" role="img" preserveAspectRatio="xMidYMid meet" style="width:100%;height:auto">
+    <title>Incident events plotted on real elapsed minutes, 0148 to 0455 UTC</title>
+    <desc>A horizontal axis spans zero to one hundred eighty seven minutes, the true
+      elapsed time from the config change at 0148 UTC to the backlog reaching zero at
+      0455 UTC; position is strictly proportional to minutes elapsed, not to the length
+      of this call. Eight events sit above the axis, each on a leader line down to its
+      true position. Colm Ferreira's actions are drawn in his pen; Nadia Brandt's
+      actions are drawn in hers; events with no single actor — the backlog starting to
+      climb, the page firing, the duplicate emails becoming visible — are drawn in the
+      neutral ink. Below the axis, four dashed bands mark the stretches the retro names:
+      silent growth, the wrong fix, diagnosis, and recovery.</desc>
+    <path class="axis" d="M40,146H960"/>
+    <path class="axis" d="M40,142v8"/>
+    <text class="n-n" x="40" y="166" text-anchor="middle">0 min</text>
+    <path class="axis" d="M335,142v8"/>
+    <text class="n-n" x="335" y="166" text-anchor="middle">60 min</text>
+    <path class="axis" d="M630,142v8"/>
+    <text class="n-n" x="630" y="166" text-anchor="middle">120 min</text>
+    <path class="axis" d="M926,142v8"/>
+    <text class="n-n" x="926" y="166" text-anchor="middle">180 min</text>
 
-      <rect class="frame" x="40" y="170" width="226.7" height="40"/>
-      <text class="g-l" x="52" y="187">Silent growth</text>
-      <text class="n-n" x="52" y="204">53 min</text>
-      <rect class="frame" x="266.7" y="170" width="128.4" height="40"/>
-      <text class="g-l" x="278.7" y="187">Wrong fix</text>
-      <text class="n-n" x="278.7" y="204">30 min</text>
-      <rect class="frame" x="395.1" y="170" width="218.2" height="40"/>
-      <text class="g-l" x="407.1" y="187">Diagnosis</text>
-      <text class="n-n" x="407.1" y="204">51 min</text>
-      <rect class="frame" x="613.3" y="170" width="226.7" height="40"/>
-      <text class="g-l" x="625.3" y="187">Recovery</text>
-      <text class="n-n" x="625.3" y="204">53 min</text>
+    <rect class="frame" x="40" y="180" width="261" height="44"/>
+    <text class="g-l" x="52" y="199">Silent growth</text>
+    <text class="n-n" x="52" y="217">53 min</text>
+    <rect class="frame" x="301" y="180" width="147" height="44"/>
+    <text class="g-l" x="313" y="199">Wrong fix</text>
+    <text class="n-n" x="313" y="217">30 min</text>
+    <rect class="frame" x="448" y="180" width="251" height="44"/>
+    <text class="g-l" x="460" y="199">Diagnosis</text>
+    <text class="n-n" x="460" y="217">51 min</text>
+    <rect class="frame" x="699" y="180" width="261" height="44"/>
+    <text class="g-l" x="711" y="199">Recovery</text>
+    <text class="n-n" x="711" y="217">53 min</text>
 
-      <text class="n-n" x="40" y="228">0148 UTC — incident starts</text>
-      <text class="n-n" x="840" y="228" text-anchor="end">0455 UTC — backlog at zero</text>
+    <text class="n-n" x="40" y="248">0148 UTC — incident starts</text>
+    <text class="n-n" x="960" y="248" text-anchor="end">0455 UTC — backlog at zero</text>
 
-      <path class="edge sb" d="M40,140 L40,76"/>
-      <text class="n-l" x="40" y="54" text-anchor="start">1 · Config change ships</text>
-      <text class="n-n" x="40" y="70" text-anchor="start">(0148 UTC)</text>
+    <path class="edge sb" d="M40,146V78"/>
+    <circle class="fb" cx="40" cy="146" r="4.5"/>
+    <text class="n-l" x="40" y="54">1 · Config change ships</text>
+    <text class="n-n" x="40" y="72">0148 UTC</text>
 
-      <path class="edge" style="stroke:var(--ink-soft)" d="M151.2,140 L151.2,120"/>
-      <text class="n-l" x="151.2" y="98" text-anchor="middle">2 · Backlog starts climbing</text>
-      <text class="n-n" x="151.2" y="114" text-anchor="middle">(0214 UTC)</text>
+    <path class="edge sn" d="M168,146V122"/>
+    <circle class="fn" cx="168" cy="146" r="4.5"/>
+    <text class="n-l" x="168" y="98" text-anchor="middle">2 · Backlog climbs</text>
+    <text class="n-n" x="168" y="116" text-anchor="middle">0214 UTC</text>
 
-      <path class="edge" style="stroke:var(--ink-soft)" d="M266.7,140 L266.7,76"/>
-      <text class="n-l" x="266.7" y="54" text-anchor="middle">3 · Page fires</text>
-      <text class="n-n" x="266.7" y="70" text-anchor="middle">(0241 UTC)</text>
+    <path class="edge sn" d="M301,146V78"/>
+    <circle class="fn" cx="301" cy="146" r="4.5"/>
+    <text class="n-l" x="301" y="54" text-anchor="middle">3 · Page fires</text>
+    <text class="n-n" x="301" y="72" text-anchor="middle">0241 UTC</text>
 
-      <path class="edge sa" d="M339.5,140 L339.5,120"/>
-      <text class="n-l" x="339.5" y="98" text-anchor="middle">4 · Fleet restart begins</text>
-      <text class="n-n" x="339.5" y="114" text-anchor="middle">(0258 UTC)</text>
+    <path class="edge sa" d="M384,146V122"/>
+    <circle class="fa" cx="384" cy="146" r="4.5"/>
+    <text class="n-l" x="384" y="98" text-anchor="middle">4 · Fleet restart</text>
+    <text class="n-n" x="384" y="116" text-anchor="middle">0258 UTC</text>
 
-      <path class="edge" style="stroke:var(--ink-soft)" d="M395.1,140 L395.1,76"/>
-      <text class="n-l" x="395.1" y="54" text-anchor="middle">5 · Duplicate emails begin</text>
-      <text class="n-n" x="395.1" y="70" text-anchor="middle">(0311 UTC)</text>
+    <path class="edge sn" d="M448,146V78"/>
+    <circle class="fn" cx="448" cy="146" r="4.5"/>
+    <text class="n-l" x="470" y="54" text-anchor="middle">5 · Duplicate emails</text>
+    <text class="n-n" x="470" y="72" text-anchor="middle">0311 UTC, roughly</text>
 
-      <path class="edge sb" d="M510.6,140 L510.6,120"/>
-      <text class="n-l" x="510.6" y="98" text-anchor="middle">6 · Root cause found</text>
-      <text class="n-n" x="510.6" y="114" text-anchor="middle">(0338 UTC)</text>
+    <path class="edge sb" d="M581,146V122"/>
+    <circle class="fb" cx="581" cy="146" r="4.5"/>
+    <text class="n-l" x="581" y="98" text-anchor="middle">6 · Root cause found</text>
+    <text class="n-n" x="581" y="116" text-anchor="middle">0338 UTC</text>
 
-      <path class="edge sb" d="M613.3,140 L613.3,76"/>
-      <text class="n-l" x="613.3" y="54" text-anchor="middle">7 · Revert deployed</text>
-      <text class="n-n" x="613.3" y="70" text-anchor="middle">(0402 UTC)</text>
+    <path class="edge sb" d="M699,146V78"/>
+    <circle class="fb" cx="699" cy="146" r="4.5"/>
+    <text class="n-l" x="699" y="54" text-anchor="middle">7 · Revert deployed</text>
+    <text class="n-n" x="699" y="72" text-anchor="middle">0402 UTC</text>
 
-      <path class="edge sa" d="M840,140 L840,120"/>
-      <text class="n-l" x="840" y="98" text-anchor="end">8 · Backlog at zero</text>
-      <text class="n-n" x="840" y="114" text-anchor="end">(0455 UTC)</text>
-    </svg>
-  </div>
+    <path class="edge sa" d="M960,146V122"/>
+    <circle class="fa" cx="960" cy="146" r="4.5"/>
+    <text class="n-l" x="960" y="98" text-anchor="end">8 · Backlog at zero</text>
+    <text class="n-n" x="960" y="116" text-anchor="end">0455 UTC</text>
+  </svg>
   <ol class="dg-key">
     <li><b>Config change ships, scoped to the wrong default</b> <span>00:03:38</span></li>
     <li><b>Backlog starts climbing on the queue depth chart</b> <span>00:07:53</span></li>
@@ -118,86 +844,10 @@ one — the same colors they carry in the first two figures.</div>
     <li><b>Queue depth alert clears at zero</b> <span>00:35:09</span></li>
   </ol>
 </figure>
-<p class="dg-bridge">Two of those eight points are decisions a person made, twelve minutes
-apart on this clock; the timeline cannot show why only one of them made things worse —
-that needs the mechanism.</p>
-<figure class="dg" id="dg-causal-chain">
-  <figcaption>
-    <span class="dg-t">The restart, not the config change, is what customers felt</span>
-    <span class="dg-w">A straight line from a scoped-wrong setting to a starved queue. The
-      chain only turns customer-visible after the restart, drawn off the main row because
-      it is the decision both of them now say they would not repeat.</span>
-  </figcaption>
-  <div class="dg-scroll">
-    <svg viewBox="0 0 880 330" role="img" preserveAspectRatio="xMidYMid meet" style="width:100%;height:auto;min-width:820px">
-      <title>Causal chain from the config change to duplicate customer emails</title>
-      <desc>Two drivers on the left — Colm Ferreira's connection-pool change, drawn in his
-        pen, blue, and the ordinary nightly rise in batch volume, drawn in the neutral
-        ink — merge into one node: the backlog growing unseen. That backlog is what leads
-        Nadia Brandt to restart the fleet, drawn in her pen, orange, and set below the main
-        row because it is the disputed step. The restart's edge turns the corner back up
-        into a reconnect storm that redelivers unacknowledged messages, and that redelivery
-        is what the notification service turns into a second email, the customer-visible
-        node on the right, drawn in the neutral ink because no one node claims sole
-        authorship of the mechanism at that point.</desc>
-      <defs>
-        <marker id="mk-dg-causal-chain-a" viewBox="0 0 9 9" refX="8.2" refY="4.5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path style="fill:var(--ink-soft)" d="M0 0 L9 4.5 L0 9 Z"/></marker>
-      </defs>
-      <path class="edge" style="stroke:var(--ink-soft)" d="M172,60 L200,60 L200,114"/>
-      <path class="edge" style="stroke:var(--ink-soft)" d="M172,168 L200,168 L200,114"/>
-      <path class="edge" style="stroke:var(--ink-soft)" d="M200,114 L228,114" marker-end="url(#mk-dg-causal-chain-a)"/>
-      <path class="edge" style="stroke:var(--ink-soft)" d="M306,150 L306,228" marker-end="url(#mk-dg-causal-chain-a)"/>
-      <path class="edge" style="stroke:var(--ink-soft)" d="M384,264 L420,264 L420,114 L456,114" marker-end="url(#mk-dg-causal-chain-a)"/>
-      <path class="edge" style="stroke:var(--ink-soft)" d="M612,114 L660,114" marker-end="url(#mk-dg-causal-chain-a)"/>
 
-      <rect class="box sb" x="16" y="24" width="156" height="72"/>
-      <text class="n-i" x="163" y="40" text-anchor="end">1</text>
-      <text class="n-l" x="27" y="54">Config change caps</text>
-      <text class="n-l" x="27" y="70">worker connections</text>
-      <text class="n-n" x="27" y="86">twenty to four, wrong queue</text>
+<p class="dg-bridge">Two of those eight points are decisions a person made. The other stretches
+are waiting, and the split between them is not even.</p>
 
-      <rect class="box" style="stroke:var(--ink-soft)" x="16" y="132" width="156" height="72"/>
-      <text class="n-i" x="163" y="148" text-anchor="end">2</text>
-      <text class="n-l" x="27" y="162">Nightly batch</text>
-      <text class="n-l" x="27" y="178">volume rises</text>
-      <text class="n-n" x="27" y="194">usual overnight ingest spike</text>
-
-      <rect class="box" style="stroke:var(--ink-soft)" x="228" y="78" width="156" height="72"/>
-      <text class="n-i" x="375" y="94" text-anchor="end">3</text>
-      <text class="n-l" x="239" y="108">Backlog grows</text>
-      <text class="n-l" x="239" y="124">unseen</text>
-      <text class="n-n" x="239" y="140">workers can't keep pace</text>
-
-      <rect class="box sa" x="228" y="228" width="156" height="72"/>
-      <text class="n-i" x="375" y="244" text-anchor="end">4</text>
-      <text class="n-l" x="239" y="258">On-call restarts</text>
-      <text class="n-l" x="239" y="274">the fleet</text>
-      <text class="n-n" x="239" y="290">workers looked healthy</text>
-
-      <rect class="box" style="stroke:var(--ink-soft)" x="456" y="78" width="156" height="72"/>
-      <text class="n-i" x="603" y="94" text-anchor="end">5</text>
-      <text class="n-l" x="467" y="108">Reconnect storm</text>
-      <text class="n-l" x="467" y="124">hits config service</text>
-      <text class="n-n" x="467" y="140">unacked messages redeliver</text>
-
-      <rect class="box" style="stroke:var(--ink-soft)" x="660" y="78" width="156" height="72"/>
-      <text class="n-i" x="807" y="94" text-anchor="end">6</text>
-      <text class="n-l" x="671" y="108">Customers get</text>
-      <text class="n-l" x="671" y="124">duplicate emails</text>
-      <text class="n-n" x="671" y="140">notification service resends</text>
-    </svg>
-  </div>
-  <ol class="dg-key">
-    <li><b>Config change caps worker connections at four</b> <span>00:03:38</span></li>
-    <li><b>Nightly batch volume rises as usual</b> <span>00:06:18</span></li>
-    <li><b>Workers can't keep pace; backlog grows</b> <span>00:07:53</span></li>
-    <li><b>On-call restarts the fleet</b> <span>00:16:50</span></li>
-    <li><b>Reconnect storm redelivers unacknowledged messages</b> <span>00:21:22</span></li>
-    <li><b>Customers get a second confirmation email</b> <span>00:21:42</span></li>
-  </ol>
-</figure>
-<p class="dg-bridge">That chain accounts for the failure; it says nothing about the time
-lost on either side of it, which is what the last figure is for.</p>
 <figure class="dg" id="dg-incident-composition">
   <figcaption>
     <span class="dg-t">The two decisions bracket the two waits</span>
@@ -206,44 +856,131 @@ lost on either side of it, which is what the last figure is for.</p>
       person acted — carry the same pens as the timeline; the two stretches of waiting
       are left in the neutral ink.</span>
   </figcaption>
-  <div class="dg-scroll">
-    <svg viewBox="0 0 880 190" role="img" preserveAspectRatio="xMidYMid meet" style="width:100%;height:auto;min-width:840px">
-      <title>The incident's one hundred eighty seven minutes, split into four stretches</title>
-      <desc>One bar, proportional left to right, split into four segments: fifty three
-        minutes of silent growth from 0148 to 0241 UTC, drawn in the neutral ink; thirty
-        minutes of the wrong fix from 0241 to 0311 UTC, drawn in Nadia Brandt's pen,
-        orange, because that stretch is the restart she chose; fifty one minutes of
-        diagnosis from 0311 to 0402 UTC, neutral again; and fifty three minutes of
-        recovery from 0402 to 0455 UTC, drawn in Colm Ferreira's pen, blue, because that
-        stretch runs from the revert he shipped. The four durations are each the gap
-        between two times given on the call, and they sum to the full one hundred eighty
-        seven minutes.</desc>
-      <text class="n-l" x="153.5" y="60" text-anchor="middle">1 · Silent growth</text>
-      <text class="n-n" x="153.5" y="76" text-anchor="middle">53 min</text>
-      <path class="axis" d="M153.5,82 L153.5,90"/>
-      <text class="n-l" x="331" y="60" text-anchor="middle">2 · Wrong fix</text>
-      <text class="n-n" x="331" y="76" text-anchor="middle">30 min</text>
-      <path class="axis" d="M331,82 L331,90"/>
-      <text class="n-l" x="504" y="60" text-anchor="middle">3 · Diagnosis</text>
-      <text class="n-n" x="504" y="76" text-anchor="middle">51 min</text>
-      <path class="axis" d="M504,82 L504,90"/>
-      <text class="n-l" x="726.5" y="60" text-anchor="middle">4 · Recovery</text>
-      <text class="n-n" x="726.5" y="76" text-anchor="middle">53 min</text>
-      <path class="axis" d="M726.5,82 L726.5,90"/>
+  <svg viewBox="0 0 1000 210" role="img" preserveAspectRatio="xMidYMid meet" style="width:100%;height:auto">
+    <title>The incident's one hundred eighty seven minutes, split into four stretches</title>
+    <desc>One bar, proportional left to right, split into four segments: fifty three
+      minutes of silent growth from 0148 to 0241 UTC, drawn in the neutral ink; thirty
+      minutes of the wrong fix from 0241 to 0311 UTC, drawn in Nadia Brandt's pen,
+      because that stretch is the restart she chose; fifty one minutes of
+      diagnosis from 0311 to 0402 UTC, neutral again; and fifty three minutes of
+      recovery from 0402 to 0455 UTC, drawn in Colm Ferreira's pen, because that
+      stretch runs from the revert he shipped. The four durations are each the gap
+      between two times given on the call, and they sum to the full one hundred eighty
+      seven minutes. A small tick drops from each label to the segment it names.</desc>
+    <text class="n-l" x="170" y="62" text-anchor="middle">1 · Silent growth</text>
+    <text class="n-n" x="170" y="80" text-anchor="middle">53 min · nobody is awake</text>
+    <path class="axis" d="M170,86V96"/>
+    <text class="n-l" x="374" y="62" text-anchor="middle">2 · Wrong fix</text>
+    <text class="n-n" x="374" y="80" text-anchor="middle">30 min</text>
+    <path class="axis" d="M374,86V96"/>
+    <text class="n-l" x="574" y="62" text-anchor="middle">3 · Diagnosis</text>
+    <text class="n-n" x="574" y="80" text-anchor="middle">51 min</text>
+    <path class="axis" d="M574,86V96"/>
+    <text class="n-l" x="830" y="62" text-anchor="middle">4 · Recovery</text>
+    <text class="n-n" x="830" y="80" text-anchor="middle">53 min · draining</text>
+    <path class="axis" d="M830,86V96"/>
 
-      <rect x="40" y="90" width="227" height="56" style="fill:var(--grid)"/>
-      <rect class="bara" x="267" y="90" width="128" height="56"/>
-      <rect x="395" y="90" width="218" height="56" style="fill:var(--grid)"/>
-      <rect class="barb" x="613" y="90" width="227" height="56"/>
-      <path class="axis" d="M40,150 L840,150"/>
-      <text class="n-n" x="40" y="168">0148 UTC</text>
-      <text class="n-n" x="840" y="168" text-anchor="end">0455 UTC</text>
-    </svg>
-  </div>
+    <rect class="fn" x="40" y="96" width="261" height="60"/>
+    <rect class="bara" x="301" y="96" width="147" height="60"/>
+    <rect class="fn" x="448" y="96" width="251" height="60"/>
+    <rect class="barb" x="699" y="96" width="261" height="60"/>
+    <path class="axis" d="M40,162H960"/>
+    <text class="n-n" x="40" y="182">0148 UTC</text>
+    <text class="n-n" x="960" y="182" text-anchor="end">0455 UTC</text>
+    <text class="n-n" x="40" y="202">the two stretches a person was acting are the two shortest</text>
+  </svg>
   <ol class="dg-key">
     <li><b>Silent growth ends when the page fires</b> <span>00:09:38</span></li>
     <li><b>Wrong fix ends when duplicates are reported</b> <span>00:23:50</span></li>
     <li><b>Diagnosis ends when the revert ships</b> <span>00:30:37</span></li>
     <li><b>Recovery ends when the backlog reads zero</b> <span>00:35:09</span></li>
+  </ol>
+</figure>
+
+<p class="dg-bridge">Every one of those boundaries is a timestamp, and they are not all worth
+the same. Four came off a log; the rest came off a chart or out of a memory.</p>
+
+<figure class="dg" id="dg-time-provenance">
+  <figcaption>
+    <span class="dg-t">The customer-facing part of the night is the least evidenced</span>
+    <span class="dg-w">Nine figures are quoted in this retro. Four are times read from a log
+      on the call and are exact. Two were read off a dashboard nobody saved. Three are memory
+      or secondhand, and one of those three is the only moment a customer was affected.</span>
+  </figcaption>
+  <svg viewBox="0 0 1000 360" role="img" preserveAspectRatio="xMidYMid meet"
+       style="width:100%;height:auto">
+    <title>The nine figures quoted in the retro, grouped by what backs each one</title>
+    <desc>At the top, one bar divided into three segments in proportion to the counts, nine
+      figures in total: four ninths solid ink for times read from a log, two ninths a lighter
+      fill for times read off a dashboard, and three ninths left open as a dashed outline for
+      times held only in memory. The open segment is deliberately the least drawn, because it
+      is the least evidenced. Below, three rows list the individual figures behind each segment,
+      each with an object naming its source: a terminal for a log, a rising chart for a
+      dashboard, a person for a memory. Each item carries the pen of whichever participant
+      produced it, Nadia Brandt's or Colm Ferreira's, so the figure also shows that neither of
+      them is more or less certain than the other.</desc>
+    <text class="g-l" x="40" y="28">what backs each of the nine figures</text>
+    <rect class="fn" x="40" y="40" width="409" height="24"/>
+    <rect class="barn" x="449" y="40" width="204" height="24"/>
+    <rect class="ghost" x="653" y="40" width="307" height="24"/>
+    <text class="n-n" x="40" y="84">4 read from a log</text>
+    <text class="n-n" x="449" y="84">2 off a chart</text>
+    <text class="n-n" x="653" y="84">3 from memory</text>
+
+    <text class="g-l" x="176" y="136" text-anchor="end">from a log</text>
+    <use href="#icon-terminal" x="200" y="112" width="32" height="32" class="ob"/>
+    <text class="n-l" x="242" y="130">0148 UTC</text>
+    <text class="n-n" x="242" y="148">the deploy log</text>
+    <text class="n-i" x="384" y="130">1</text>
+    <use href="#icon-terminal" x="400" y="112" width="32" height="32" class="oa"/>
+    <text class="n-l" x="442" y="130">0258 UTC</text>
+    <text class="n-n" x="442" y="148">the runbook log</text>
+    <text class="n-i" x="584" y="130">2</text>
+    <use href="#icon-terminal" x="600" y="112" width="32" height="32" class="ob"/>
+    <text class="n-l" x="642" y="130">0338 UTC</text>
+    <text class="n-n" x="642" y="148">terminal history</text>
+    <text class="n-i" x="784" y="130">3</text>
+    <use href="#icon-terminal" x="800" y="112" width="32" height="32" class="oa"/>
+    <text class="n-l" x="842" y="130">0455 UTC</text>
+    <text class="n-n" x="842" y="148">incident channel</text>
+    <text class="n-i" x="968" y="130">4</text>
+    <path class="axis" d="M200,168H960"/>
+
+    <text class="g-l" x="176" y="212" text-anchor="end">off a chart</text>
+    <use href="#icon-chart-up" x="200" y="188" width="32" height="32" class="oa"/>
+    <text class="n-l" x="242" y="206">0214 UTC</text>
+    <text class="n-n" x="242" y="224">queue depth chart, read not saved</text>
+    <text class="n-i" x="450" y="206">5</text>
+    <use href="#icon-chart-up" x="470" y="188" width="32" height="32" class="ob"/>
+    <text class="n-l" x="512" y="206">0417 UTC</text>
+    <text class="n-n" x="512" y="224">same chart, visibly declining</text>
+    <text class="n-i" x="700" y="206">6</text>
+    <path class="axis" d="M200,244H960"/>
+
+    <text class="g-l" x="176" y="288" text-anchor="end">from memory</text>
+    <use href="#icon-person" x="200" y="264" width="32" height="32" class="oa"/>
+    <text class="n-l" x="242" y="282">0311 UTC, roughly</text>
+    <text class="n-n" x="242" y="300">heard secondhand from support</text>
+    <text class="n-i" x="450" y="282">7</text>
+    <use href="#icon-person" x="470" y="264" width="32" height="32" class="oa"/>
+    <text class="n-l" x="512" y="282">the depth when paged</text>
+    <text class="n-n" x="512" y="300">never written down at all</text>
+    <text class="n-i" x="700" y="282">8</text>
+    <use href="#icon-person" x="720" y="264" width="32" height="32" class="ob"/>
+    <text class="n-l" x="762" y="282">the minute it cleared</text>
+    <text class="n-n" x="762" y="300">he cannot swear to it</text>
+    <text class="n-i" x="968" y="282">9</text>
+    <text class="n-n" x="200" y="336">the only moment a customer noticed anything sits in the open segment</text>
+  </svg>
+  <ol class="dg-key">
+    <li><b>The deploy log fixes the config change at 0148 UTC</b> <span>00:03:38</span></li>
+    <li><b>The runbook log corrects the restart to 0258 UTC</b> <span>00:16:50</span></li>
+    <li><b>Terminal history and the diff give root cause at 0338 UTC</b> <span>00:28:02</span></li>
+    <li><b>The incident channel gives backlog at zero, 0455 UTC</b> <span>00:35:09</span></li>
+    <li><b>The queue depth chart is read on the call, not saved</b> <span>00:07:53</span></li>
+    <li><b>The decline from 0417 UTC is read off the same chart</b> <span>00:32:39</span></li>
+    <li><b>The duplicate emails are placed secondhand, roughly</b> <span>00:23:32</span></li>
+    <li><b>The depth she saw when paged was never recorded</b> <span>00:12:38</span></li>
+    <li><b>He cannot name the minute the backlog hit zero</b> <span>00:34:39</span></li>
   </ol>
 </figure>

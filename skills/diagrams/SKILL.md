@@ -28,7 +28,7 @@ beside a label:
   <svg x="12" y="20" width="22" height="22" viewBox="0 0 48 48" style="color:var(--pen-a)">
     <use href="#icon-document-stack"/></svg>
   <text x="44" y="30" font-size="13" fill="var(--ink)">Salesforce docs</text>
-  <text x="44" y="48" font-size="10" fill="var(--ink-soft)">product documents</text>
+  <text x="44" y="48" font-size="13" fill="var(--ink-soft)">product documents</text>
 </svg>
 ```
 That icon could be `#icon-server` or `#icon-ticket` and the node would read the same — it is
@@ -39,7 +39,7 @@ scale, the box dissolved so the object itself is the node (assumes `icons.svg` i
 <svg viewBox="0 0 220 68" role="img"><title>Node: object, label, note</title>
   <use href="#icon-document-stack" x="4" y="6" width="56" height="56" style="color:var(--pen-a)"/>
   <text x="68" y="30" font-size="13" fill="var(--ink)">Salesforce docs</text>
-  <text x="68" y="48" font-size="10" fill="var(--ink-soft)">a scraped corpus, audited by hand</text>
+  <text x="68" y="48" font-size="13" fill="var(--ink-soft)">a scraped corpus, audited by hand</text>
 </svg>
 ```
 The reader recognises a real stack of documents before reading a word, and the note earns its
@@ -100,7 +100,7 @@ Shows that two quantities are **not on the same scale**, before a label says so.
   <rect x="0" y="4" width="96" height="8" fill="var(--paper-2)" stroke="var(--grid)"/>
   <rect x="0" y="4" width="62" height="8" fill="var(--pen-a)"/>
   <rect x="0" y="26" width="90" height="8" fill="var(--pen-b)"/>
-  <text x="96" y="35" font-size="12" fill="var(--pen-b)">≫</text>
+  <text x="96" y="35" font-size="13" fill="var(--pen-b)">≫</text>
   <rect x="30" y="48" width="66" height="8" fill="var(--paper-2)" stroke="var(--grid)"/>
   <rect x="30" y="48" width="28" height="8" fill="var(--ink-soft)"/>
 </svg>
@@ -112,11 +112,11 @@ own-scale starts elsewhere. Fails when all three share a track, asserting the op
 Shows a record going from unactionable to actionable, as fields not prose.
 ```html
 <svg viewBox="0 0 160 56" role="img"><title>Record fields</title>
-  <text x="0" y="12" font-size="10" fill="var(--ink-soft)">source</text>
+  <text x="0" y="12" font-size="13" fill="var(--ink-soft)">source</text>
   <rect x="48" y="4" width="104" height="9" fill="none" stroke="var(--grid)" stroke-dasharray="3 3"/>
-  <text x="0" y="32" font-size="10" fill="var(--ink)">source</text>
+  <text x="0" y="32" font-size="13" fill="var(--ink)">source</text>
   <rect x="48" y="24" width="72" height="9" fill="var(--pen-a)"/>
-  <text x="0" y="52" font-size="10" fill="var(--ink)">source</text>
+  <text x="0" y="52" font-size="13" fill="var(--ink)">source</text>
   <rect x="48" y="44" width="88" height="9" fill="var(--pen-a)"/>
   <circle cx="146" cy="48" r="2.5" fill="var(--pen-b)"/>
 </svg>
@@ -131,7 +131,7 @@ Shows an unstructured input and what had to be done to read it.
   <path d="M60 2v14h14" fill="none" stroke="var(--ink-soft)"/>
   <path d="M12 32h52M12 42h52M12 52h34" stroke="var(--grid)" stroke-width="3"/>
   <rect x="12" y="60" width="32" height="12" rx="2" fill="none" stroke="var(--pen-b)"/>
-  <text x="16" y="69" font-size="8" fill="var(--pen-b)">OCR</text>
+  <text x="16" y="69" font-size="13" fill="var(--pen-b)">OCR</text>
 </svg>
 ```
 Fails when every document gets the badge: it means "this one needed extra", so on all, nothing.
@@ -166,8 +166,8 @@ Shows cheap-first, expensive-last as a line stepping *down*, so cost is a direct
   <circle cx="42" cy="10" r="2.5" fill="var(--pen-b)"/>
   <circle cx="82" cy="28" r="2.5" fill="var(--pen-b)"/>
   <circle cx="126" cy="46" r="2.5" fill="var(--pen-b)"/>
-  <text x="2" y="8" font-size="8" fill="var(--ink-soft)">cheap</text>
-  <text x="108" y="58" font-size="8" fill="var(--ink-soft)">costly</text>
+  <text x="2" y="8" font-size="13" fill="var(--ink-soft)">cheap</text>
+  <text x="108" y="58" font-size="13" fill="var(--ink-soft)">costly</text>
 </svg>
 ```
 Fails when risers are even; uneven risers show which escalation actually hurts.
@@ -178,11 +178,11 @@ Shows the ratio. Shared zero, equal thickness, no truncated axis, ever.
 <svg viewBox="0 0 320 54" role="img"><title>Magnitudes at true proportion</title>
   <path d="M60 4v46" stroke="var(--grid)"/>
   <rect x="60" y="6" width="190" height="10" fill="var(--pen-a)"/>
-  <text x="256" y="15" font-size="11" fill="var(--pen-a)">119,000</text>
+  <text x="256" y="15" font-size="13" fill="var(--pen-a)">119,000</text>
   <rect x="60" y="24" width="1" height="10" fill="var(--pen-b)"/>
-  <text x="66" y="33" font-size="11" fill="var(--pen-b)">25</text>
+  <text x="66" y="33" font-size="13" fill="var(--pen-b)">25</text>
   <rect x="60" y="42" width="7" height="10" fill="var(--ink-soft)"/>
-  <text x="73" y="51" font-size="11" fill="var(--ink-soft)">4,000</text>
+  <text x="73" y="51" font-size="13" fill="var(--ink-soft)">4,000</text>
 </svg>
 ```
 A one-unit bar is correct and is the point. Widening it "so it shows" is the lie this prevents.
@@ -192,8 +192,8 @@ Shows a figure the speaker wanted heard: large, in a pen, unit small beside it.
 ```html
 <svg viewBox="0 0 200 46" role="img"><title>Headline figure</title>
   <text x="0" y="30" font-size="30" font-weight="600" fill="var(--pen-b)">$237K</text>
-  <text x="106" y="30" font-size="10" fill="var(--ink-soft)">/ yr at this volume</text>
-  <text x="0" y="43" font-size="10" fill="var(--ink)">saved</text>
+  <text x="106" y="30" font-size="13" fill="var(--ink-soft)">/ yr at this volume</text>
+  <text x="0" y="43" font-size="13" fill="var(--ink)">saved</text>
 </svg>
 ```
 Fails when every number is set large. Two or three per figure set, no more.
@@ -207,7 +207,7 @@ Shows two things measured against each other, meeting at a symbol, delta leaving
   <path d="M70 30h12M76 24v12" stroke="var(--ink)"/>
   <path d="M85 30h38" fill="none" stroke="var(--pen-a)"/>
   <path d="M117 26l6 4-6 4Z" fill="var(--pen-a)"/>
-  <text x="0" y="59" font-size="8" fill="var(--ink-soft)">compare</text>
+  <text x="0" y="59" font-size="13" fill="var(--ink-soft)">compare</text>
 </svg>
 ```
 Fails when both inputs use one pen. They are the two things being told apart.
@@ -230,7 +230,7 @@ Shows the path not taken, still on the page — what was ruled out is half the a
 ```html
 <svg viewBox="0 0 150 34" role="img"><title>Rejected option</title>
   <rect x="1" y="1" width="130" height="30" fill="var(--paper-2)" stroke="var(--grid)"/>
-  <text x="10" y="20" font-size="11" fill="var(--ink-soft)">vendor quote</text>
+  <text x="10" y="20" font-size="13" fill="var(--ink-soft)">vendor quote</text>
   <path d="M10 16h72" stroke="var(--ink-soft)"/>
   <path d="M133 8l13 12M146 8l-13 12" stroke="var(--pen-b)" stroke-width="1.5"/>
 </svg>
@@ -247,8 +247,8 @@ Shows *when*. Position is computed from real seconds, never spaced by hand.
   <circle cx="64" cy="18" r="2.5" fill="var(--pen-a)"/>
   <circle cx="77" cy="24" r="2.5" fill="var(--pen-a)"/>
   <circle cx="223" cy="12" r="2.5" fill="var(--pen-a)"/>
-  <text x="8" y="44" font-size="9" fill="var(--ink-soft)">00:00</text>
-  <text x="266" y="44" font-size="9" fill="var(--ink-soft)">01:07</text>
+  <text x="8" y="44" font-size="13" fill="var(--ink-soft)">00:00</text>
+  <text x="266" y="44" font-size="13" fill="var(--ink-soft)">01:07</text>
 </svg>
 ```
 `x = pad + (s / duration_s) * (width - 2*pad)`, `duration_s` from `metrics.json`. Colliding
@@ -266,9 +266,9 @@ Shows that the same shape recurs. One cell template, one shared scale.
     <path d="M9 45l18-14 18 8 18-22"/><path d="M111 45l18-3 18-2 18-26"/>
     <path d="M213 45l18-26 18 6 18 4"/>
   </g>
-  <text x="1" y="8" font-size="9" fill="var(--ink-soft)">A</text>
-  <text x="103" y="8" font-size="9" fill="var(--ink-soft)">B</text>
-  <text x="205" y="8" font-size="9" fill="var(--ink-soft)">C</text>
+  <text x="1" y="8" font-size="13" fill="var(--ink-soft)">A</text>
+  <text x="103" y="8" font-size="13" fill="var(--ink-soft)">B</text>
+  <text x="205" y="8" font-size="13" fill="var(--ink-soft)">C</text>
 </svg>
 ```
 Fails on per-cell scaling: every case then looks identical. Past six cells it is a texture.
@@ -284,7 +284,7 @@ Shows that the loop closes, and what the closing edge costs.
   <path d="M63 21h26M155 21h26" fill="none" stroke="var(--ink-soft)"/>
   <path d="M216 34v24H36v-24" fill="none" stroke="var(--pen-b)" stroke-dasharray="4 3"/>
   <path d="M33 40l3-6 3 6Z" fill="var(--pen-b)"/>
-  <text x="96" y="54" font-size="9" fill="var(--pen-b)">6 weeks</text>
+  <text x="96" y="54" font-size="13" fill="var(--pen-b)">6 weeks</text>
 </svg>
 ```
 Never a circle: it makes every step look equidistant and hides which edge is expensive. An
@@ -297,11 +297,39 @@ Shows one whole splitting into named parts, including the part you cannot accoun
   <rect x="0" y="4" width="186" height="14" fill="var(--pen-a)"/>
   <rect x="186" y="4" width="72" height="14" fill="var(--pen-b)"/>
   <rect x="258" y="4" width="41" height="14" fill="none" stroke="var(--grid)"/>
-  <text x="2" y="30" font-size="9" fill="var(--ink-soft)">triage 62%</text>
-  <text x="190" y="30" font-size="9" fill="var(--ink-soft)">fixes 24%</text>
+  <text x="2" y="30" font-size="13" fill="var(--ink-soft)">triage 62%</text>
+  <text x="190" y="30" font-size="13" fill="var(--ink-soft)">fixes 24%</text>
 </svg>
 ```
 The open segment is the remainder. Fails when parts are inflated to sum, or are not parts.
+
+## Six shapes for a whole concept
+
+The fifteen above are parts a figure is assembled from. These six are a whole figure each,
+for the moments where the argument is the shape itself. They live in
+`web/src/glyphs/index.tsx` as components a React page drops in; draw them by hand in the
+same geometry when the fragment is hand-authored. Each takes a pen, carries its own
+`<title>` and `<desc>`, cuts a label that will not fit and keeps the full value on the
+label's own `<title>`.
+
+- **ConceptCard** — an object from `icons.svg`, a two-to-six-word name, one line of body,
+  and the timestamp. Reach for this when the page has to open with the handful of things
+  the call was about, before any one of them is argued. A row of them is the opening band.
+- **Timeline** — events on one axis, staggered above and below, over a ruler in minutes.
+  Reach for this when *when* is the argument: what clustered, or how long a decision
+  trailed the evidence for it. Two to twelve events; past that, split the call in two.
+- **Venn2** — two circles and the lens where they cross, each region holding a count or a
+  short label. Reach for this when the finding is overlap — how much of one group is
+  already inside the other. Area is not to scale, and the `<desc>` says so.
+- **Matrix2x2** — two axes crossed, four quadrants, dots for the things placed in them.
+  Reach for this when the call sorted things by two properties at once and the claim is
+  which corner something landed in. A quadrant with no name is a quadrant with no claim.
+- **Stack** — layers in order from the top, numbered, with an arrow between them when the
+  order is a pipeline rather than a hierarchy. Reach for this when one thing sits on
+  another and the reader has to see which way the dependency runs.
+- **Ring** — one share of one whole, the number in the middle, the caption beneath. Reach
+  for this when a single proportion *is* the finding and a bar beside nothing is a bar
+  beside nothing. One ring per page; two rings is a comparison, and wants bars.
 
 ## Composition: one dense surface, not a gallery
 
@@ -383,7 +411,7 @@ makes fusion legal. Every node is a glyph.
       </g>
       <rect x="16" y="106" width="120" height="52" fill="var(--paper-2)" stroke="var(--ink-soft)"/>
       <text x="28" y="130" font-size="13" fill="var(--ink)">one query</text>
-      <text x="28" y="147" font-size="10" fill="var(--ink-soft)">1</text>
+      <text x="28" y="147" font-size="13" fill="var(--ink-soft)">1</text>
       <g fill="var(--paper-2)" stroke="var(--pen-a)">
         <rect x="176" y="16" width="272" height="64"/><rect x="176" y="100" width="272" height="64"/>
         <rect x="176" y="184" width="272" height="64"/>
@@ -391,17 +419,17 @@ makes fusion legal. Every node is a glyph.
       <text x="188" y="36" font-size="13" fill="var(--ink)">semantic</text>
       <rect x="188" y="44" width="180" height="10" fill="var(--paper)" stroke="var(--grid)"/>
       <rect x="188" y="44" width="112" height="10" fill="var(--pen-a)"/>
-      <text x="188" y="70" font-size="10" fill="var(--ink-soft)">bounded 0–1 · 2</text>
+      <text x="188" y="70" font-size="13" fill="var(--ink-soft)">bounded 0–1 · 2</text>
       <text x="188" y="120" font-size="13" fill="var(--ink)">lexical</text>
       <rect x="188" y="128" width="196" height="10" fill="var(--pen-b)"/>
       <text x="390" y="139" font-size="13" fill="var(--pen-b)">≫</text>
-      <text x="188" y="154" font-size="10" fill="var(--ink-soft)">unbounded · 3</text>
+      <text x="188" y="154" font-size="13" fill="var(--ink-soft)">unbounded · 3</text>
       <text x="188" y="204" font-size="13" fill="var(--ink)">graph</text>
       <rect x="248" y="212" width="120" height="10" fill="var(--paper)" stroke="var(--grid)"/>
       <rect x="248" y="212" width="52" height="10" fill="var(--ink-soft)"/>
-      <text x="188" y="238" font-size="10" fill="var(--ink-soft)">own scale · 4</text>
+      <text x="188" y="238" font-size="13" fill="var(--ink-soft)">own scale · 4</text>
       <rect x="496" y="16" width="204" height="232" fill="none" stroke="var(--grid)" stroke-dasharray="4 4"/>
-      <text x="508" y="38" font-size="11" fill="var(--ink-soft)">NORMALISE TO RANK</text>
+      <text x="508" y="38" font-size="13" fill="var(--ink-soft)">NORMALISE TO RANK</text>
       <g fill="var(--paper)" stroke="var(--grid)">
         <rect x="512" y="56" width="172" height="10"/><rect x="512" y="88" width="172" height="10"/>
         <rect x="512" y="120" width="172" height="10"/>
@@ -409,7 +437,7 @@ makes fusion legal. Every node is a glyph.
       <rect x="512" y="56" width="132" height="10" fill="var(--pen-a)"/>
       <rect x="512" y="88" width="104" height="10" fill="var(--pen-b)"/>
       <rect x="512" y="120" width="72" height="10" fill="var(--ink-soft)"/>
-      <text x="512" y="152" font-size="10" fill="var(--ink)">one scale, 0–1 · 5</text>
+      <text x="512" y="152" font-size="13" fill="var(--ink)">one scale, 0–1 · 5</text>
       <path d="M692 61h12v63M692 93h12v31M692 125h12M704 124h3" fill="none" stroke="var(--ink-soft)"/>
       <circle cx="718" cy="124" r="11" fill="var(--paper)" stroke="var(--ink)"/>
       <path d="M712 124h12M718 118v12" stroke="var(--ink)"/>
@@ -419,7 +447,7 @@ makes fusion legal. Every node is a glyph.
       <rect x="762" y="116" width="90" height="7" fill="var(--pen-a)"/>
       <rect x="762" y="128" width="68" height="7" fill="var(--pen-b)"/>
       <rect x="762" y="140" width="46" height="7" fill="var(--ink-soft)"/>
-      <text x="762" y="164" font-size="10" fill="var(--ink-soft)">one order · 6</text>
+      <text x="762" y="164" font-size="13" fill="var(--ink-soft)">one order · 6</text>
     </svg>
   <ol class="dg-key">
     <li><b>one query</b> <span>00:12:40</span></li>
@@ -466,7 +494,7 @@ unattributed. A figure with no attribution axis is drawn in one pen, and `<desc>
 **Type.** No fixed-width typewriter faces anywhere — not for labels, not for timestamps,
 not for identifiers. Timestamps use the condensed face with `font-variant-numeric:
 tabular-nums`. Node labels are **five words or fewer**; the note under a node is **twelve
-words or fewer**. Nothing below 10px.
+words or fewer**. Nothing below 11px.
 
 **Line.** Structure strokes 1–1.6px, 0.5px for hairline grid, axes and hatch. No shadows, no
 gradients, no bevels, no `rx` above 2, no emoji, no icon fonts, no clip art. Category objects
@@ -484,7 +512,10 @@ the page — the commonest way a set of individually correct figures breaks once
 reading order and stating what position and colour encode, a `<figcaption>` with `dg-t` (a
 title stating the finding, not the topic) and `dg-w` (what to look at and what it means),
 and a numbered `dg-key` — one entry per badge with the timestamp where it was said. The key
-is what makes a diagram checkable, and the first thing the verifier reads.
+is what makes a diagram checkable, and the first thing the verifier reads. Every `<svg>` in
+the figure carries its own `role="img"`, `<title>` and `<desc>`, and an empty `<desc>` counts
+as none. A figure built only from `<rect>` and `<text>` is a table with a frame around it and
+fails on its own: give each node an object from `icons.svg` or a drawn glyph.
 
 ## The set is one argument
 
@@ -498,7 +529,7 @@ is what makes a diagram checkable, and the first thing the verifier reads.
 
 ## Responsiveness
 
-Figures scale to the column: `width:100%; height:auto`, never a `min-width`, never a scrolling wrapper. A horizontal scrollbar inside a figure is overflow with a frame around it, and on a narrow window it clips the left column and reads as broken. Author at a viewBox width of 1000-1200 units with labels at 13px or larger so the figure is still legible when a 1000px window scales it to 0.8; the page renders the figures section single-column below 1280px so a figure always has the full content width. If a figure cannot be read at that scale, it has too much in it: split it.
+Figures scale to the column: `width:100%; height:auto`, never a `min-width`, never a scrolling wrapper — `lint-diagrams` now fails both. A horizontal scrollbar inside a figure is overflow with a frame around it, and on a narrow window it clips the left column and reads as broken. Author at a viewBox width of 1000-1200 units with labels at 13px or larger so the figure is still legible when a 1000px window scales it to 0.8; the page renders the figures section single-column below 1280px so a figure always has the full content width. If a figure cannot be read at that scale, it has too much in it: split it.
 
 ## The self-check before declaring done
 
@@ -507,7 +538,8 @@ callgen lint-diagrams out/diagrams.html --turns work/turns.json
 ```
 
 That covers well-formedness, literal colours, fixed-width faces, marker ids reused across
-figures, a missing `role="img"`, `<title>`, `<desc>` or key, text below 10px, and every
+figures, a missing `role="img"`, `<title>`, a non-empty `<desc>` or key, a `min-width` or a
+scrolling wrapper, a figure with nothing drawn in it, text below 11px, and every
 cited timestamp resolving to a real turn. Then check by hand what a linter cannot:
 
 1. **Cover the labels.** Read each figure with every text element hidden. If you cannot

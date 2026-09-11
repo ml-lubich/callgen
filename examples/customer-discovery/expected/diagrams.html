@@ -3,30 +3,442 @@
   .dg figcaption{display:block;margin:0 0 1rem;max-width:66ch}
   .dg .dg-t{display:block;font-family:var(--display);font-size:21px;line-height:1.25;color:var(--ink)}
   .dg .dg-w{display:block;margin-top:.4rem;font-family:var(--body);font-size:13px;color:var(--ink-soft)}
-  .dg .dg-scroll{overflow-x:auto;overflow-y:hidden}
   .dg svg{display:block}
   .dg .box{fill:var(--paper-2);stroke-width:1.2}
   .dg .frame{fill:none;stroke:var(--grid);stroke-width:.5;stroke-dasharray:2 3}
+  .dg .ghost{fill:none;stroke:var(--grid);stroke-width:1;stroke-dasharray:4 3}
   .dg .axis{fill:none;stroke:var(--grid);stroke-width:.5}
   .dg .edge{fill:none;stroke-width:1.2}
-  .dg .sa{stroke:var(--pen-a)} .dg .sb{stroke:var(--pen-b)}
-  .dg .fa{fill:var(--pen-a)} .dg .fb{fill:var(--pen-b)}
-  .dg .bara{fill:var(--pen-a)} .dg .barb{fill:var(--pen-b)}
+  .dg .sa{stroke:var(--pen-a)} .dg .sb{stroke:var(--pen-b)} .dg .sn{stroke:var(--ink-soft)}
+  .dg .fa{fill:var(--pen-a)} .dg .fb{fill:var(--pen-b)} .dg .fn{fill:var(--ink-soft)}
+  .dg .bara{fill:var(--pen-a)} .dg .barb{fill:var(--pen-b)} .dg .barn{fill:var(--grid)}
+  .dg .oa{color:var(--pen-a)} .dg .ob{color:var(--pen-b)} .dg .on{color:var(--ink-soft)}
+  .dg .og{color:var(--grid);stroke-dasharray:3 3}
   .dg text{font-family:var(--cond)}
-  .dg .n-l{font-size:13px;font-weight:600;fill:var(--ink)}
-  .dg .n-n{font-size:11.5px;fill:var(--ink-soft)}
-  .dg .n-i{font-size:11.5px;font-weight:600;fill:var(--ink-soft)}
-  .dg .g-l{font-size:11.5px;font-weight:600;fill:var(--ink-soft);letter-spacing:.09em;text-transform:uppercase}
+  .dg .n-l{font-size:14px;font-weight:600;fill:var(--ink)}
+  .dg .n-n{font-size:13px;fill:var(--ink-soft)}
+  .dg .n-i{font-size:13px;font-weight:600;fill:var(--ink-soft)}
+  .dg .g-l{font-size:13px;font-weight:600;fill:var(--ink-soft);letter-spacing:.08em;text-transform:uppercase}
   .dg .dg-key{margin:1rem 0 0;padding-left:1.4rem;max-width:66ch;font-family:var(--body);
     font-size:13px;line-height:1.55;color:var(--ink-soft)}
   .dg-lead{margin:0 0 2.5rem;max-width:66ch;font-family:var(--body);font-size:17px;color:var(--ink)}
   .dg-bridge{margin:0 0 2.5rem;max-width:60ch;font-family:var(--body);font-size:15px;color:var(--ink-soft)}
 </style>
-<div class="dg-lead">Three figures, in order: the first shows why a sheet stops matching reality
-by mid-morning, the second turns two of the ops manager's own guesses into an annual figure
-without hiding that they are guesses, and the third lays today's process against the pilot
-he agreed to, dimension by dimension. One pen per speaker throughout: Hollis Grady's estimates
-and process are drawn in the first pen, Ines Vartanian's arithmetic and proposal in the second.</div>
+<!-- callgen diagram object kit — "drafting-table axonometric".
+     ONE HAND. 2:1 dimetric projection: every receding edge has slope EXACTLY ±0.5.
+     Single light source top-front-left. Depth is flat currentColor face-tone (top .05,
+     right .13, left .22) plus vertical hairline hatch on the left/shadow face of hero
+     objects — NEVER a gradient, shadow or bevel. Three line weights: structural 1.6,
+     detail 1.0, hairline .5. Colour is currentColor; tint a <use> with
+     color:var(--pen-m|pen-d|ink-soft). No hex, no font, no emoji, no dependency.
+     Native 48-grid; legible 22–96px. The object's form is the meaning; the label only names it. -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true" data-icon-sprite>
+  <defs></defs>
+
+  <!-- ============ DATA & STORAGE ============ -->
+
+  <!-- database: tall iso cylinder, ring divisions = rows. Not a vector store. -->
+  <symbol id="icon-database" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M9 12v24a15 7.5 0 0 0 30 0V12" fill="currentColor" stroke="none" opacity=".11"/>
+    <ellipse cx="24" cy="12" rx="15" ry="7.5" fill="currentColor" stroke="none" opacity=".05"/>
+    <ellipse cx="24" cy="12" rx="15" ry="7.5"/>
+    <path d="M9 12v24a15 7.5 0 0 0 30 0V12"/>
+    <path d="M9 20a15 7.5 0 0 0 30 0" stroke-width="1"/>
+    <path d="M9 28a15 7.5 0 0 0 30 0" stroke-width="1"/>
+  </symbol>
+
+  <!-- vector-index: iso block whose TOP face is a joined point-cloud = embedding space. -->
+  <symbol id="icon-vector-index" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M24 30 44 40 24 50 4 40Z" fill="currentColor" stroke="none" opacity=".13" transform="translate(0,-6)"/>
+    <path d="M4 20 24 30 24 44 4 34Z" fill="currentColor" stroke="none" opacity=".22"/>
+    <path d="M44 20 24 30 24 44 44 34Z" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M24 10 44 20 24 30 4 20Z" fill="currentColor" stroke="none" opacity=".05"/>
+    <path d="M24 10 44 20 44 34 24 44 4 34 4 20Z"/>
+    <path d="M24 30v14" stroke-width="1"/>
+    <path d="M13 17 24 15M24 15 33 21M24 15 20 24M33 21 30 26M20 24 30 26" stroke-width="1"/>
+    <circle cx="13" cy="17" r="1.5" fill="currentColor" stroke="none"/>
+    <circle cx="24" cy="15" r="1.5" fill="currentColor" stroke="none"/>
+    <circle cx="33" cy="21" r="1.5" fill="currentColor" stroke="none"/>
+    <circle cx="20" cy="24" r="1.5" fill="currentColor" stroke="none"/>
+    <circle cx="30" cy="26" r="1.5" fill="currentColor" stroke="none"/>
+  </symbol>
+
+  <!-- document: one thin iso slab, printed lines + folded corner on the top face. -->
+  <symbol id="icon-document" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 22 24 30 24 36 8 28Z" fill="currentColor" stroke="none" opacity=".22"/>
+    <path d="M40 22 24 30 24 36 40 28Z" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M24 8 40 16 24 24 8 16Z" fill="currentColor" stroke="none" opacity=".05"/>
+    <path d="M24 8 40 16 40 28 24 36 8 28 8 16Z"/>
+    <path d="M24 24v12" stroke-width="1"/>
+    <path d="M14 15 22 19M13 18 24 23.5M18 12.5 30 18.5M20 20 30 25" stroke-width="1"/>
+  </symbol>
+
+  <!-- document-stack: three offset slabs = real depth (a corpus / many docs). -->
+  <symbol id="icon-document-stack" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M24 4 40 12 24 20 8 12Z" fill="currentColor" stroke="none" opacity=".05"/>
+    <path d="M24 4 40 12 40 15 24 23 8 15 8 12Z"/>
+    <path d="M24 12 40 20 24 28 8 20Z" fill="currentColor" stroke="none" opacity=".05"/>
+    <path d="M24 12 40 20 40 23 24 31 8 23 8 20Z"/>
+    <path d="M8 28 24 36 24 40 8 32Z" fill="currentColor" stroke="none" opacity=".22"/>
+    <path d="M40 28 24 36 24 40 40 32Z" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M24 20 40 28 24 36 8 28Z" fill="currentColor" stroke="none" opacity=".05"/>
+    <path d="M24 20 40 28 40 32 24 40 8 32 8 28Z"/>
+    <path d="M15 25 27 31M14 28 26 34" stroke-width="1"/>
+  </symbol>
+
+  <!-- pdf: a slab with a solid banner on the page = a formatted file. -->
+  <symbol id="icon-pdf" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 22 24 30 24 36 8 28Z" fill="currentColor" stroke="none" opacity=".22"/>
+    <path d="M40 22 24 30 24 36 40 28Z" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M24 8 40 16 24 24 8 16Z" fill="currentColor" stroke="none" opacity=".05"/>
+    <path d="M24 8 40 16 40 28 24 36 8 28 8 16Z"/>
+    <path d="M24 24v12" stroke-width="1"/>
+    <path d="M15 15 27 21 33 18 21 12Z" fill="currentColor" stroke="none" opacity=".9"/>
+  </symbol>
+
+  <!-- image: an iso frame whose page shows a mountain + sun = a raster/scan. -->
+  <symbol id="icon-image" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 20 24 28 24 34 8 26Z" fill="currentColor" stroke="none" opacity=".22"/>
+    <path d="M40 20 24 28 24 34 40 26Z" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M24 6 40 14 24 22 8 14Z" fill="currentColor" stroke="none" opacity=".05"/>
+    <path d="M24 6 40 14 40 26 24 34 8 26 8 14Z"/>
+    <path d="M24 22v12" stroke-width="1"/>
+    <circle cx="17" cy="13" r="1.8" fill="currentColor" stroke="none"/>
+    <path d="M12 18 20 15 26 18.5 33 15" stroke-width="1"/>
+  </symbol>
+
+  <!-- ============ WORK ITEMS & FLOW ============ -->
+
+  <!-- ticket: a slab with a perforation + corner notch = a routable unit of work. -->
+  <symbol id="icon-ticket" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 22 24 30 24 36 8 28Z" fill="currentColor" stroke="none" opacity=".22"/>
+    <path d="M40 22 24 30 24 36 40 28Z" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M24 8 40 16 24 24 8 16Z" fill="currentColor" stroke="none" opacity=".05"/>
+    <path d="M24 8 40 16 40 28 24 36 8 28 8 16Z"/>
+    <path d="M16 12 32 20" stroke-width="1" stroke-dasharray="1.5 1.6"/>
+    <path d="M20 22 30 27" stroke-width="1"/>
+  </symbol>
+
+  <!-- inbox: an open iso tray with slips = a queue / place of incoming work. -->
+  <symbol id="icon-inbox" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M6 22 24 31 24 40 6 31Z" fill="currentColor" stroke="none" opacity=".22"/>
+    <path d="M42 22 24 31 24 40 42 31Z" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M6 22 24 31 42 22 33 17 33 24 24 28.5 15 24 15 17Z" fill="currentColor" stroke="none" opacity=".05"/>
+    <path d="M6 22 15 17 33 17 42 22 24 31Z"/>
+    <path d="M6 22 24 31 42 22M6 22v9l18 9 18-9v-9"/>
+    <path d="M15 17v7l9 4.5 9-4.5v-7" stroke-width="1"/>
+    <path d="M22 9 30 13M22 13 30 9" stroke-width="1"/>
+  </symbol>
+
+  <!-- filter: an iso funnel narrowing to a stem = triage/classify. -->
+  <symbol id="icon-filter" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <ellipse cx="24" cy="12" rx="16" ry="8" fill="currentColor" stroke="none" opacity=".05"/>
+    <ellipse cx="24" cy="12" rx="16" ry="8"/>
+    <path d="M8 12 22 30v10l4 2V30L40 12" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M8 12 22 30v10l4 2V30L40 12"/>
+  </symbol>
+
+  <!-- fork-in-road: a ground-plane path splitting two ways (iso ribbons). -->
+  <symbol id="icon-fork-in-road" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M20 44 24 42V30l14-7V13l-4 2v6l-10 5-10-5v-6l-4-2v10l14 7v12Z" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M22 44V30L8 23V13M26 44V30l14-7V13"/>
+    <path d="M4 15 8 11l4 2M36 15l4-4 4 2" stroke-width="1"/>
+  </symbol>
+
+  <!-- ============ AGENTS & PEOPLE ============ -->
+
+  <!-- robot: an iso cube head, eyes on the front-right face, antenna = the AI agent. -->
+  <symbol id="icon-robot" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M6 20 24 29 24 44 6 35Z" fill="currentColor" stroke="none" opacity=".22"/>
+    <path d="M42 20 24 29 24 44 42 35Z" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M24 11 42 20 24 29 6 20Z" fill="currentColor" stroke="none" opacity=".05"/>
+    <path d="M24 11 42 20 42 35 24 44 6 35 6 20Z"/>
+    <path d="M24 29v15" stroke-width="1"/>
+    <path d="M24 11V5M24 5 21 3.5M24 5 27 3.5" stroke-width="1"/>
+    <ellipse cx="14.5" cy="30.5" rx="2.4" ry="1.6" fill="currentColor" stroke="none"/>
+    <ellipse cx="33.5" cy="30.5" rx="2.4" ry="1.6" fill="currentColor" stroke="none"/>
+    <path d="M17 37 24 40.5 31 37" stroke-width="1"/>
+  </symbol>
+
+  <!-- person: a constructed bust; shoulders carry a faint iso top plane. -->
+  <symbol id="icon-person" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 44c0-9 7-15 16-15s16 6 16 15Z" fill="currentColor" stroke="none" opacity=".16"/>
+    <circle cx="24" cy="14" r="8" fill="currentColor" stroke="none" opacity=".05"/>
+    <circle cx="24" cy="14" r="8"/>
+    <path d="M8 44c0-9 7-15 16-15s16 6 16 15"/>
+    <path d="M13 33 24 37 35 33" stroke-width="1"/>
+  </symbol>
+
+  <!-- team: two busts offset in iso depth = a group / headcount. -->
+  <symbol id="icon-team" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="33" cy="15" r="6" fill="currentColor" stroke="none" opacity=".05"/>
+    <circle cx="33" cy="15" r="6"/>
+    <path d="M25 34c0-7 5-11 11-11s11 4 11 11" opacity=".85"/>
+    <path d="M6 44c0-9 6.5-14 15-14s15 5 15 14Z" fill="currentColor" stroke="none" opacity=".16"/>
+    <circle cx="21" cy="17" r="8" fill="currentColor" stroke="none" opacity=".05"/>
+    <circle cx="21" cy="17" r="8"/>
+    <path d="M6 44c0-9 6.5-14 15-14s15 5 15 14"/>
+  </symbol>
+
+  <!-- building: a tall iso block with window dots on both faces = an organisation/site. -->
+  <symbol id="icon-building" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 16 24 24 24 44 8 36Z" fill="currentColor" stroke="none" opacity=".22"/>
+    <path d="M40 16 24 24 24 44 40 36Z" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M24 4 40 12 24 20 8 12Z" fill="currentColor" stroke="none" opacity=".05"/>
+    <path d="M24 4 40 12 40 36 24 44 8 36 8 12Z"/>
+    <path d="M24 20v24" stroke-width="1"/>
+    <path d="M13 19.5 18 22M13 25.5 18 28M13 31.5 18 34" stroke-width="1"/>
+    <path d="M30 22 35 19.5M30 28 35 25.5M30 34 35 31.5" stroke-width="1"/>
+  </symbol>
+
+  <!-- ============ COMPUTE & INFRASTRUCTURE ============ -->
+
+  <!-- server: a wide-short iso rack, front face slotted with LEDs = a running host. -->
+  <symbol id="icon-server" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 18 24 28 24 42 4 32Z" fill="currentColor" stroke="none" opacity=".22"/>
+    <path d="M44 18 24 28 24 42 44 32Z" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M24 10 44 18 24 26 4 18Z" fill="currentColor" stroke="none" opacity=".05"/>
+    <path d="M24 10 44 18 44 32 24 42 4 32 4 18Z"/>
+    <path d="M24 26v16" stroke-width="1"/>
+    <path d="M4 22 24 31M24 31 44 22" stroke-width="1"/>
+    <path d="M4 27 24 36M24 36 44 27" stroke-width="1"/>
+    <circle cx="9" cy="23" r="1.4" fill="currentColor" stroke="none"/>
+    <circle cx="9" cy="28" r="1.4" fill="currentColor" stroke="none"/>
+    <circle cx="39" cy="23" r="1.4" fill="currentColor" stroke="none"/>
+    <circle cx="39" cy="28" r="1.4" fill="currentColor" stroke="none"/>
+  </symbol>
+
+  <!-- cloud: a bold constructed puff on a thin iso base = a hosted/off-prem service. -->
+  <symbol id="icon-cloud" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <ellipse cx="24" cy="38" rx="15" ry="4" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M13 33a7 7 0 0 1-1-14 9 9 0 0 1 17-3 6 6 0 0 1 3 11 5 5 0 0 1-2 6Z" fill="currentColor" stroke="none" opacity=".07"/>
+    <path d="M14 33h17a6.5 6.5 0 0 0 1-13 9 9 0 0 0-17-2A7 7 0 0 0 14 33Z"/>
+  </symbol>
+
+  <!-- laptop: an iso base plane (keys) + a raised screen plane = a local/dev machine. -->
+  <symbol id="icon-laptop" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M14 10 40 10 40 24 24 24Z" fill="currentColor" stroke="none" opacity=".05"/>
+    <path d="M14 10 24 24 40 24 40 10Z"/>
+    <path d="M24 24 8 32 32 40 44 32Z" fill="currentColor" stroke="none" opacity=".18"/>
+    <path d="M24 24 8 32 32 40 44 32 40 24" />
+    <path d="M18 14 34 14M18 18 30 18" stroke-width="1"/>
+  </symbol>
+
+  <!-- terminal: an iso screen block, prompt chevron + cursor = a deterministic CLI tool. -->
+  <symbol id="icon-terminal" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M6 16 24 25 24 40 6 31Z" fill="currentColor" stroke="none" opacity=".18"/>
+    <path d="M42 16 24 25 24 40 42 31Z" fill="currentColor" stroke="none" opacity=".1"/>
+    <path d="M24 8 42 16 24 25 6 16Z" fill="currentColor" stroke="none" opacity=".05"/>
+    <path d="M24 8 42 16 42 31 24 40 6 31 6 16Z"/>
+    <path d="M24 25v15" stroke-width="1"/>
+    <path d="M11 22 17 26.5 12 30" stroke-width="1"/>
+    <path d="M19 30 26 33.5" stroke-width="1"/>
+  </symbol>
+
+  <!-- api: an iso socket with two prongs = a crossed service boundary. -->
+  <symbol id="icon-api" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M14 20 24 25 24 37 14 32Z" fill="currentColor" stroke="none" opacity=".22"/>
+    <path d="M34 20 24 25 24 37 34 32Z" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M24 15 34 20 24 25 14 20Z" fill="currentColor" stroke="none" opacity=".05"/>
+    <path d="M24 15 34 20 34 32 24 37 14 32 14 20Z"/>
+    <path d="M20 12 20 17M28 12 28 17" stroke-width="1"/>
+    <path d="M24 37v6" stroke-width="1"/>
+  </symbol>
+
+  <!-- gear: a short iso disc with teeth + hub = a process/mechanism. -->
+  <symbol id="icon-gear" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M9 24v5a15 7.5 0 0 0 30 0v-5" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M9 24v5a15 7.5 0 0 0 30 0v-5"/>
+    <ellipse cx="24" cy="24" rx="15" ry="7.5" fill="currentColor" stroke="none" opacity=".05"/>
+    <ellipse cx="24" cy="24" rx="15" ry="7.5"/>
+    <path d="M24 16.5v-4M11 21 8 19M37 21l3-2M15 28l-3 2.5M33 28l3 2.5" stroke-width="1"/>
+    <ellipse cx="24" cy="24" rx="4.5" ry="2.3"/>
+  </symbol>
+
+  <!-- gate: an iso pipe segment with a valve wheel = a single control on a flow. -->
+  <symbol id="icon-gate" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 24 16 30M32 30 44 24" stroke-width="1.6"/>
+    <path d="M14 24 24 29 24 39 14 34Z" fill="currentColor" stroke="none" opacity=".22"/>
+    <path d="M34 24 24 29 24 39 34 34Z" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M24 19 34 24 24 29 14 24Z" fill="currentColor" stroke="none" opacity=".05"/>
+    <path d="M24 19 34 24 34 34 24 39 14 34 14 24Z"/>
+    <path d="M24 19v-6M20 12h8" stroke-width="1"/>
+  </symbol>
+
+  <!-- ============ VERSION & RELEASE ============ -->
+
+  <!-- branch: three nodes joined on iso lines = a git graph, lines emerging from a trunk. -->
+  <symbol id="icon-branch" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M10 38 10 16M10 22 26 14 38 20M26 14 26 30"/>
+    <circle cx="10" cy="12" r="4" fill="currentColor" stroke="none" opacity=".13"/>
+    <circle cx="10" cy="12" r="4"/>
+    <circle cx="40" cy="19" r="4" fill="currentColor" stroke="none" opacity=".13"/>
+    <circle cx="40" cy="19" r="4"/>
+    <circle cx="26" cy="34" r="4" fill="currentColor" stroke="none" opacity=".13"/>
+    <circle cx="26" cy="34" r="4"/>
+  </symbol>
+
+  <!-- tag: an iso luggage tag with a hole = a release label/version. -->
+  <symbol id="icon-tag" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M6 18 28 6 44 22 32 40 26 40 6 26Z" fill="currentColor" stroke="none" opacity=".1"/>
+    <path d="M8 20 26 8 42 24 30 38 24 38 8 26Z"/>
+    <circle cx="17" cy="19" r="2.6"/>
+    <path d="M22 24 34 30" stroke-width="1"/>
+  </symbol>
+
+  <!-- ============ SIGNALS & OUTCOMES ============ -->
+
+  <!-- search: a bold lens ring on an iso handle = a lookup/retrieval. -->
+  <symbol id="icon-search" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="20" cy="18" r="12" fill="currentColor" stroke="none" opacity=".08"/>
+    <circle cx="20" cy="18" r="12"/>
+    <circle cx="20" cy="18" r="7" stroke-width="1"/>
+    <path d="M29 27 42 40" stroke-width="2.4"/>
+  </symbol>
+
+  <!-- alert: a triangular prism sign with a bar = a warning/risk. -->
+  <symbol id="icon-alert" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M24 8 42 38 24 42 24 8Z" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M24 8 6 38 24 42 42 38Z" fill="currentColor" stroke="none" opacity=".07"/>
+    <path d="M24 8 6 38 42 38Z"/>
+    <path d="M24 8v34" stroke-width="1"/>
+    <path d="M24 22v8" stroke-width="1.6"/>
+    <circle cx="24" cy="34" r="1.3" fill="currentColor" stroke="none"/>
+  </symbol>
+
+  <!-- check: an iso stamp token with a tick on its face = confirmed/done. -->
+  <symbol id="icon-check" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 22v6a16 8 0 0 0 32 0v-6" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M8 22v6a16 8 0 0 0 32 0v-6"/>
+    <ellipse cx="24" cy="22" rx="16" ry="8" fill="currentColor" stroke="none" opacity=".05"/>
+    <ellipse cx="24" cy="22" rx="16" ry="8"/>
+    <path d="M16 22 22 26 33 18" stroke-width="1.6"/>
+  </symbol>
+
+  <!-- shield: a plate with a thin iso edge + tick = prevention/guardrail. -->
+  <symbol id="icon-shield" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M24 5 39 10v11c0 10-7 15-15 18-8-3-15-8-15-18V10Z" fill="currentColor" stroke="none" opacity=".05"/>
+    <path d="M24 5 39 10v11c0 10-7 15-15 18-8-3-15-8-15-18V10Z"/>
+    <path d="M9 10 12 8.5 27 13.5v9c0 8-5 12.5-11 15.5" fill="currentColor" stroke="none" opacity=".18"/>
+    <path d="M16 22 22 27 33 15" stroke-width="1.6"/>
+  </symbol>
+
+  <!-- chart-up: three bars rising on an iso plinth = a measured gain. -->
+  <symbol id="icon-chart-up" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M6 34 24 43 42 34 24 25Z" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M6 34 24 43 42 34 24 25Z"/>
+    <path d="M14 32V26M23 34V20M32 32V14" stroke-width="2.4"/>
+    <path d="M28 12 33 12.5 32.5 17" stroke-width="1"/>
+  </symbol>
+
+  <!-- coin: short iso disc stack + a value slash = money/cost/revenue. -->
+  <symbol id="icon-coin" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 24v5a16 8 0 0 0 32 0v-5" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M8 24v5a16 8 0 0 0 32 0v-5"/>
+    <path d="M8 20a16 8 0 0 0 32 0" stroke-width="1"/>
+    <ellipse cx="24" cy="16" rx="16" ry="8" fill="currentColor" stroke="none" opacity=".05"/>
+    <ellipse cx="24" cy="16" rx="16" ry="8"/>
+    <path d="M24 10v12M20 13.5h6.5a2 2 0 0 1 0 4H21a2 2 0 0 0 0 4h7" stroke-width="1"/>
+  </symbol>
+
+  <!-- clock: an iso disc with hands on its face = time-as-subject. -->
+  <symbol id="icon-clock" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 24v3a16 8 0 0 0 32 0v-3" fill="currentColor" stroke="none" opacity=".13"/>
+    <path d="M8 24v3a16 8 0 0 0 32 0v-3"/>
+    <ellipse cx="24" cy="24" rx="16" ry="8" fill="currentColor" stroke="none" opacity=".05"/>
+    <ellipse cx="24" cy="24" rx="16" ry="8"/>
+    <path d="M24 24 24 18M24 24 31 25.5" stroke-width="1.6"/>
+    <circle cx="24" cy="24" r="1.3" fill="currentColor" stroke="none"/>
+  </symbol>
+
+  <!-- ============ CONNECTION ============ -->
+
+  <!-- link: two interlocked iso chain links = a citation/provenance tie. -->
+  <symbol id="icon-link" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <ellipse cx="17" cy="24" rx="10" ry="6" transform="rotate(-27 17 24)" fill="currentColor" stroke="none" opacity=".1"/>
+    <ellipse cx="17" cy="24" rx="10" ry="6" transform="rotate(-27 17 24)"/>
+    <ellipse cx="31" cy="24" rx="10" ry="6" transform="rotate(-27 31 24)" fill="currentColor" stroke="none" opacity=".1"/>
+    <ellipse cx="31" cy="24" rx="10" ry="6" transform="rotate(-27 31 24)"/>
+  </symbol>
+
+</svg>
+<div class="dg-lead">Eight figures, read in order. The first three are the depot as it runs
+today: what one person assigns by hand every morning, what breaks that assignment before nine,
+and where the dispatcher's own day goes once it breaks. The next three are the numbers: every
+figure the ops manager gave and how firm each one is, where the lost time actually
+concentrates, and what happens when two of the loose ones get multiplied together. The last two
+are what was agreed: the two conditions he set for believing any of it, and today's process
+laid against the pilot he signed up for. One pen per speaker throughout:
+<b style="color:var(--pen-a)">Hollis Grady</b>, whose depot, estimates and conditions these
+are, and <b style="color:var(--pen-b)">Ines Vartanian</b>, whose arithmetic and proposal sit
+opposite them.</div>
+
+<figure class="dg" id="dg-depot-scale">
+  <figcaption>
+    <span class="dg-t">One person assigns thirty-two routes before six in the morning</span>
+    <span class="dg-w">Each figure is a driver on a normal week. Every one of them gets a
+      route built for them by hand, off yesterday's addresses and a spreadsheet, by a single
+      dispatcher. Nothing in the depot assigns a stop to a route today.</span>
+  </figcaption>
+  <svg viewBox="0 0 1000 330" role="img" preserveAspectRatio="xMidYMid meet"
+       style="width:100%;height:auto">
+    <title>One dispatcher, thirty-two drivers, and the per-driver stop count he assigns by hand</title>
+    <desc>Drawn entirely in Hollis Grady's pen, since every figure in it is his own account of
+      his own depot. On the left, one person symbol and a printed sheet stand for the
+      dispatcher and the routes he builds by hand. An arrow fans from him to a block of
+      thirty-two smaller person symbols, one for each driver on a normal week, arranged in a
+      grid rather than a bar because the count is the point and no two drivers differ. Beneath
+      the grid, a bounded track with its own scale of zero to sixty shows the stops each of
+      those drivers runs in a day, filled as a range from the high fifties to sixty rather
+      than a single value, because that is how it was given. A marker past the range records
+      that the northern run is heavier than the rest without claiming a number for it.</desc>
+    <defs>
+      <marker id="mk-dg-depot-scale-a" viewBox="0 0 9 9" refX="8.2" refY="4.5"
+              markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse"
+              orient="auto-start-reverse"><path class="fa" d="M0 0 L9 4.5 L0 9 Z"/></marker>
+    </defs>
+    <use href="#icon-person" x="20" y="36" width="56" height="56" class="oa"/>
+    <use href="#icon-document" x="20" y="104" width="44" height="44" class="oa"/>
+    <text class="n-l" x="20" y="178">one dispatcher</text>
+    <text class="n-n" x="20" y="196">in by five, printing by six</text>
+    <text class="n-n" x="20" y="214">a spreadsheet, no assignment software</text>
+    <text class="n-i" x="192" y="146">1</text>
+    <path class="edge sa" d="M92,64H180V122H272" marker-end="url(#mk-dg-depot-scale-a)"/>
+
+    <text class="g-l" x="300" y="26">drivers on a normal week</text>
+    <g class="oa">
+      <use href="#icon-person" x="300" y="36" width="34" height="34"/><use href="#icon-person" x="342" y="36" width="34" height="34"/><use href="#icon-person" x="384" y="36" width="34" height="34"/><use href="#icon-person" x="426" y="36" width="34" height="34"/><use href="#icon-person" x="468" y="36" width="34" height="34"/><use href="#icon-person" x="510" y="36" width="34" height="34"/><use href="#icon-person" x="552" y="36" width="34" height="34"/><use href="#icon-person" x="594" y="36" width="34" height="34"/>
+      <use href="#icon-person" x="300" y="82" width="34" height="34"/><use href="#icon-person" x="342" y="82" width="34" height="34"/><use href="#icon-person" x="384" y="82" width="34" height="34"/><use href="#icon-person" x="426" y="82" width="34" height="34"/><use href="#icon-person" x="468" y="82" width="34" height="34"/><use href="#icon-person" x="510" y="82" width="34" height="34"/><use href="#icon-person" x="552" y="82" width="34" height="34"/><use href="#icon-person" x="594" y="82" width="34" height="34"/>
+      <use href="#icon-person" x="300" y="128" width="34" height="34"/><use href="#icon-person" x="342" y="128" width="34" height="34"/><use href="#icon-person" x="384" y="128" width="34" height="34"/><use href="#icon-person" x="426" y="128" width="34" height="34"/><use href="#icon-person" x="468" y="128" width="34" height="34"/><use href="#icon-person" x="510" y="128" width="34" height="34"/><use href="#icon-person" x="552" y="128" width="34" height="34"/><use href="#icon-person" x="594" y="128" width="34" height="34"/>
+      <use href="#icon-person" x="300" y="174" width="34" height="34"/><use href="#icon-person" x="342" y="174" width="34" height="34"/><use href="#icon-person" x="384" y="174" width="34" height="34"/><use href="#icon-person" x="426" y="174" width="34" height="34"/><use href="#icon-person" x="468" y="174" width="34" height="34"/><use href="#icon-person" x="510" y="174" width="34" height="34"/><use href="#icon-person" x="552" y="174" width="34" height="34"/><use href="#icon-person" x="594" y="174" width="34" height="34"/>
+    </g>
+    <text class="n-l" x="660" y="60">32 drivers</text>
+    <text class="n-n" x="660" y="78">“thirty-something, maybe</text>
+    <text class="n-n" x="660" y="96">thirty-two on a normal week”</text>
+    <text class="n-n" x="660" y="120">it moves with who is out</text>
+    <text class="n-i" x="968" y="60" text-anchor="end">2</text>
+
+    <text class="n-l" x="20" y="270">stops per driver, per day</text>
+    <text class="n-n" x="20" y="288">its own scale, zero to sixty</text>
+    <rect class="frame" x="300" y="252" width="600" height="24"/>
+    <rect class="bara" x="850" y="252" width="50" height="24"/>
+    <path class="axis" d="M300,246V282M850,246V282M900,246V282"/>
+    <text class="n-n" x="300" y="300">0</text>
+    <text class="n-n" x="850" y="300" text-anchor="middle">high fifties</text>
+    <text class="n-n" x="900" y="300" text-anchor="middle">60</text>
+    <text class="n-i" x="968" y="268">3</text>
+    <text class="n-n" x="300" y="322">the northern run is usually heavier than this, by an amount nobody put a number on</text>
+  </svg>
+  <ol class="dg-key">
+    <li><b>The dispatcher builds the day's routes by hand</b> <span>00:01:05</span></li>
+    <li><b>Thirty-something drivers, maybe thirty-two</b> <span>00:03:10</span></li>
+    <li><b>High fifties, maybe sixty stops each</b> <span>00:04:20</span></li>
+  </ol>
+</figure>
+
+<p class="dg-bridge">That assignment is correct for exactly as long as nothing changes, and
+three ordinary things change it every morning.</p>
+
 <figure class="dg" id="dg-morning-scramble">
   <figcaption>
     <span class="dg-t">Three ways the sheet stops matching reality</span>
@@ -34,57 +446,268 @@ and process are drawn in the first pen, Ines Vartanian's arithmetic and proposal
       changes. Three independent things routinely change it, and each one separately forces
       the same fix: someone re-routes by hand.</span>
   </figcaption>
-  <div class="dg-scroll">
-    <svg viewBox="0 0 880 260" role="img" preserveAspectRatio="xMidYMid meet" style="width:100%;height:auto;min-width:820px">
-      <title>Three causes of a broken route sheet, converging on one fix</title>
-      <desc>Drawn entirely in the pen for Hollis Grady, since the whole figure is his own
-        description of today's process; Ines Vartanian's pen does not appear here. On the left,
-        the dispatcher builds a sheet from yesterday's addresses plus overnight changes. Inside
-        the dashed band marked what breaks the sheet sit three independent causes named on the
-        call: a traffic or gate-code problem, a moved address, and a driver calling in sick.
-        Each has its own downward edge into a shared line, because any one of the three alone is
-        enough to force the same outcome on the right: a driver or the dispatcher re-routes on
-        the fly, by hand, with no system recording the extra time it took.</desc>
-      <defs>
-        <marker id="mk-dg-morning-scramble-a" viewBox="0 0 9 9" refX="8.2" refY="4.5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="fa" d="M0 0 L9 4.5 L0 9 Z"/></marker>
-      </defs>
-      <rect class="frame" x="188" y="24" width="472" height="120"/>
-      <text class="g-l" x="200" y="41">What breaks the sheet</text>
-      <path class="edge sa" d="M156,88 L204,88" marker-end="url(#mk-dg-morning-scramble-a)"/>
-      <path class="edge sa" d="M270,120 L270,152 L440,152" marker-end="none"/>
-      <path class="edge sa" d="M440,120 L440,152"/>
-      <path class="edge sa" d="M610,120 L610,152 L440,152"/>
-      <path class="edge sa" d="M440,152 L440,168 L706,168 L706,152" marker-end="url(#mk-dg-morning-scramble-a)"/>
-      <rect class="box sa" x="16" y="56" width="140" height="64"/>
-      <text class="n-i" x="148" y="72" text-anchor="end">1</text>
-      <text class="n-l" x="27" y="86">Yesterday's addresses</text>
-      <text class="n-n" x="27" y="102">plus overnight changes</text>
-      <rect class="box sa" x="204" y="56" width="132" height="64"/>
-      <text class="n-i" x="328" y="72" text-anchor="end">2</text>
-      <text class="n-l" x="215" y="86">Traffic, gate code</text>
-      <text class="n-n" x="215" y="102">doesn't work as printed</text>
-      <rect class="box sa" x="374" y="56" width="132" height="64"/>
-      <text class="n-i" x="498" y="72" text-anchor="end">3</text>
-      <text class="n-l" x="385" y="86">Address moved</text>
-      <text class="n-n" x="385" y="102">nobody updated it</text>
-      <rect class="box sa" x="544" y="56" width="132" height="64"/>
-      <text class="n-i" x="668" y="72" text-anchor="end">4</text>
-      <text class="n-l" x="555" y="86">Driver calls in sick</text>
-      <text class="n-n" x="555" y="102">after sheets are printed</text>
-      <rect class="box sa" x="706" y="136" width="158" height="64"/>
-      <text class="n-i" x="856" y="152" text-anchor="end">5</text>
-      <text class="n-l" x="717" y="166">Someone re-routes</text>
-      <text class="n-n" x="717" y="182">by hand, time uncounted</text>
-    </svg>
-  </div>
+  <svg viewBox="0 0 1000 300" role="img" preserveAspectRatio="xMidYMid meet" style="width:100%;height:auto">
+    <title>Three causes of a broken route sheet, converging on one fix</title>
+    <desc>Drawn entirely in the pen for Hollis Grady, since the whole figure is his own
+      description of today's process; Ines Vartanian's pen does not appear here. On the left,
+      a printed document stands for the sheet the dispatcher builds from yesterday's addresses
+      plus overnight changes. Inside the dashed band marked what breaks the sheet sit three
+      independent causes named on the call, each with its own object: a fork in the road for
+      traffic and a gate code that does not work, a tag for an address nobody updated, and a
+      person for a driver calling in sick. Each has its own downward edge into a shared line,
+      because any one of the three alone is enough to force the same outcome on the right: a
+      driver or the dispatcher re-routes on the fly, by hand, with no system recording the
+      extra time it took.</desc>
+    <defs>
+      <marker id="mk-dg-morning-scramble-a" viewBox="0 0 9 9" refX="8.2" refY="4.5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="fa" d="M0 0 L9 4.5 L0 9 Z"/></marker>
+    </defs>
+    <rect class="frame" x="212" y="24" width="536" height="136"/>
+    <text class="g-l" x="224" y="44">What breaks the sheet</text>
+    <path class="edge sa" d="M178,96H228" marker-end="url(#mk-dg-morning-scramble-a)"/>
+    <path class="edge sa" d="M304,136V176H500"/>
+    <path class="edge sa" d="M500,136V176"/>
+    <path class="edge sa" d="M694,136V176H500"/>
+    <path class="edge sa" d="M500,176V196H802V176" marker-end="url(#mk-dg-morning-scramble-a)"/>
+    <rect class="box sa" x="16" y="60" width="162" height="72"/>
+    <use href="#icon-document" x="28" y="70" width="30" height="30" class="oa"/>
+    <text class="n-l" x="28" y="114">yesterday's addresses</text>
+    <text class="n-n" x="28" y="128">plus overnight changes</text>
+    <text class="n-i" x="166" y="82" text-anchor="end">1</text>
+    <rect class="box sa" x="228" y="60" width="152" height="76"/>
+    <use href="#icon-fork-in-road" x="240" y="68" width="30" height="30" class="oa"/>
+    <text class="n-l" x="240" y="116">traffic, gate code</text>
+    <text class="n-n" x="240" y="132">does not work as printed</text>
+    <text class="n-i" x="370" y="82" text-anchor="end">2</text>
+    <rect class="box sa" x="424" y="60" width="152" height="76"/>
+    <use href="#icon-tag" x="436" y="68" width="30" height="30" class="oa"/>
+    <text class="n-l" x="436" y="116">address moved</text>
+    <text class="n-n" x="436" y="132">nobody updated it</text>
+    <text class="n-i" x="566" y="82" text-anchor="end">3</text>
+    <rect class="box sa" x="618" y="60" width="152" height="76"/>
+    <use href="#icon-person" x="630" y="68" width="30" height="30" class="oa"/>
+    <text class="n-l" x="630" y="116">driver calls in sick</text>
+    <text class="n-n" x="630" y="132">after sheets are printed</text>
+    <text class="n-i" x="760" y="82" text-anchor="end">4</text>
+    <rect class="box sa" x="802" y="164" width="182" height="76"/>
+    <use href="#icon-person" x="814" y="172" width="30" height="30" class="oa"/>
+    <text class="n-l" x="814" y="220">someone re-routes</text>
+    <text class="n-n" x="814" y="236">by hand, time uncounted</text>
+    <text class="n-i" x="974" y="186" text-anchor="end">5</text>
+    <text class="n-n" x="16" y="270">small stuff the driver eats alone; bigger stuff comes back to dispatch, on the phone</text>
+  </svg>
   <ol class="dg-key">
     <li><b>Dispatcher builds the sheet by hand</b> <span>00:01:05</span></li>
     <li><b>Any one of three things breaks it</b> <span>00:07:10</span></li>
+    <li><b>Traffic or a gate code that does not work</b> <span>00:07:10</span></li>
+    <li><b>A driver calls in sick after the sheets are printed</b> <span>00:07:10</span></li>
     <li><b>Small stuff the driver eats, bigger stuff comes back to dispatch</b> <span>00:08:45</span></li>
   </ol>
 </figure>
-<p class="dg-bridge">Each of those breaks costs time nobody has separately measured; the next
-figure is what happens when the ops manager's own guess at that cost gets multiplied out.</p>
+
+<p class="dg-bridge">Whoever absorbs those breaks pays for them in hours, and on most days the
+same person pays.</p>
+
+<figure class="dg" id="dg-dispatcher-day">
+  <figcaption>
+    <span class="dg-t">Three of the dispatcher's first five hours are spent on the phone</span>
+    <span class="dg-w">The fixed part of his morning ends when the gate finishes loading. What
+      follows is the part nobody can plan: three hours of absorbing whatever fell apart. It is
+      also the only part of the day the pilot has to move, because he named it himself as a
+      condition.</span>
+  </figcaption>
+  <svg viewBox="0 0 1000 336" role="img" preserveAspectRatio="xMidYMid meet"
+       style="width:100%;height:auto">
+    <title>The dispatcher's morning from five o'clock, with the unplannable stretch marked</title>
+    <desc>One time axis runs from five in the morning to eleven, six hours, with position
+      proportional to elapsed time. Above it, three fixed events in Hollis Grady's pen, each
+      with an object: a clock for arriving at five, a document for printing by six, a building
+      for the gate loading from half past six. From seven to ten, a solid band in the same pen
+      is the stretch he described as being on the phone fielding whatever fell apart. A second,
+      much shorter band drawn as a dashed outline sits directly beneath it at the same start,
+      showing the twenty-minute version of the same stretch on a good day; the two share a
+      start and a scale, so the gap between them is the unpredictability he called half the
+      problem. A marker at nine in Ines Vartanian's pen is the hour he later named as the
+      condition he would accept as proof.</desc>
+    <path class="axis" d="M60,150H960"/>
+    <path class="axis" d="M60,146v8M210,146v8M360,146v8M510,146v8M660,146v8M810,146v8M960,146v8"/>
+    <text class="n-n" x="60" y="172" text-anchor="middle">5am</text>
+    <text class="n-n" x="210" y="172" text-anchor="middle">6am</text>
+    <text class="n-n" x="360" y="172" text-anchor="middle">7am</text>
+    <text class="n-n" x="510" y="172" text-anchor="middle">8am</text>
+    <text class="n-n" x="660" y="172" text-anchor="middle">9am</text>
+    <text class="n-n" x="810" y="172" text-anchor="middle">10am</text>
+    <text class="n-n" x="960" y="172" text-anchor="middle">11am</text>
+
+    <use href="#icon-clock" x="44" y="52" width="32" height="32" class="oa"/>
+    <path class="edge sa" d="M60,150V92"/>
+    <text class="n-l" x="60" y="44" text-anchor="middle">in by five</text>
+    <text class="n-i" x="72" y="120">1</text>
+    <use href="#icon-document" x="194" y="52" width="32" height="32" class="oa"/>
+    <path class="edge sa" d="M210,150V92"/>
+    <text class="n-l" x="210" y="44" text-anchor="middle">printing by six</text>
+    <text class="n-i" x="222" y="120">2</text>
+    <use href="#icon-building" x="296" y="64" width="32" height="32" class="oa"/>
+    <path class="edge sa" d="M285,150V100"/>
+    <text class="n-l" x="336" y="82">gate loading by half six</text>
+    <text class="n-i" x="500" y="82">3</text>
+
+    <text class="g-l" x="350" y="236" text-anchor="end">most days — on the phone</text>
+    <rect class="bara" x="360" y="216" width="450" height="26"/>
+    <text class="n-l" x="826" y="236">3 hours</text>
+    <text class="n-i" x="968" y="236" text-anchor="end">4</text>
+    <text class="g-l" x="350" y="274" text-anchor="end">some days</text>
+    <rect class="ghost" x="360" y="254" width="50" height="26"/>
+    <text class="n-n" x="424" y="274">twenty minutes, and nothing says which kind of day it will be</text>
+    <text class="n-i" x="968" y="274" text-anchor="end">5</text>
+
+    <path class="edge sb" d="M660,196V300" stroke-dasharray="5 4"/>
+    <text class="n-n" x="672" y="306" style="fill:var(--pen-b)">off the phone by nine — his own proof condition</text>
+    <text class="n-i" x="640" y="306" text-anchor="end">6</text>
+  </svg>
+  <ol class="dg-key">
+    <li><b>In at five</b> <span>00:18:45</span></li>
+    <li><b>Printing by six</b> <span>00:18:45</span></li>
+    <li><b>Gate loading by half past six</b> <span>00:18:45</span></li>
+    <li><b>On the phone from seven to ten, most days</b> <span>00:18:45</span></li>
+    <li><b>Some days twenty minutes, and you cannot predict which</b> <span>00:21:20</span></li>
+    <li><b>The dispatcher off the phone by nine, as proof</b> <span>00:42:40</span></li>
+  </ol>
+</figure>
+
+<p class="dg-bridge">Three hours a morning is the only figure in this call with a start and an
+end. Every other number he gave arrived with a hedge attached.</p>
+
+<figure class="dg" id="dg-hedges">
+  <figcaption>
+    <span class="dg-t">Every number came with its own hedge, and one was refused outright</span>
+    <span class="dg-w">Five quantities were asked for. Four arrived as ranges or corrections,
+      drawn here as ranges rather than points so the looseness is visible before the label is
+      read. The fifth is an empty track: he would not convert hours into money at all.</span>
+  </figcaption>
+  <svg viewBox="0 0 1000 330" role="img" preserveAspectRatio="xMidYMid meet"
+       style="width:100%;height:auto">
+    <title>The five quantities asked for, each drawn at the firmness it was actually given</title>
+    <desc>Five rows, each a quantity on its own track, drawn in Hollis Grady's pen because all
+      five are his to give. Each is drawn as a band rather than a point, and the width of the
+      band is the width of the hedge he attached. Driver headcount is a narrow band around
+      thirty-two. Stops per driver is a wider band in the high fifties. Weekly re-routing time
+      per driver is drawn with no right-hand end and runs into a much-greater-than sign,
+      because he said it could be a lot more on a bad week: it is unbounded, not a range.
+      Turnover is a single mark at nine with a struck mark at twelve beside it, the figure he
+      corrected mid-sentence. The last row has a track and no band at all: the cost per hour,
+      which he declined to estimate twice, pointing at payroll instead.</desc>
+    <text class="n-l" x="290" y="52" text-anchor="end">drivers</text>
+    <text class="n-n" x="290" y="70" text-anchor="end">a normal week</text>
+    <rect class="frame" x="310" y="36" width="580" height="24"/>
+    <rect class="bara" x="470" y="36" width="80" height="24"/>
+    <text class="n-n" x="566" y="54">“thirty-something, maybe thirty-two”</text>
+    <text class="n-i" x="968" y="54" text-anchor="end">1</text>
+
+    <text class="n-l" x="290" y="112" text-anchor="end">stops per driver</text>
+    <text class="n-n" x="290" y="130" text-anchor="end">on a good day</text>
+    <rect class="frame" x="310" y="96" width="580" height="24"/>
+    <rect class="bara" x="600" y="96" width="150" height="24"/>
+    <text class="n-n" x="766" y="114">“high fifties, maybe sixty, give or take”</text>
+    <text class="n-i" x="968" y="114" text-anchor="end">2</text>
+
+    <text class="n-l" x="290" y="172" text-anchor="end">hours a week, re-routing</text>
+    <text class="n-n" x="290" y="190" text-anchor="end">per driver</text>
+    <rect class="bara" x="310" y="156" width="520" height="24"/>
+    <text x="842" y="178" font-size="24" class="fa">≫</text>
+    <text class="n-n" x="310" y="204">“north of two hours a week, I'd guess” — no upper end; a lot more on a bad week</text>
+    <text class="n-i" x="968" y="174" text-anchor="end">3</text>
+
+    <text class="n-l" x="290" y="240" text-anchor="end">drivers lost last year</text>
+    <text class="n-n" x="290" y="258" text-anchor="end">not all of it routing</text>
+    <rect class="frame" x="310" y="224" width="580" height="24"/>
+    <rect class="bara" x="390" y="224" width="14" height="24"/>
+    <text class="n-n" x="418" y="242">9</text>
+    <rect class="ghost" x="444" y="224" width="14" height="24"/>
+    <path class="edge sa" d="M438,220l26,32"/>
+    <text class="n-n" x="474" y="242">12, said first and corrected mid-sentence</text>
+    <text class="n-i" x="968" y="242" text-anchor="end">4</text>
+
+    <text class="n-l" x="290" y="300" text-anchor="end">cost per hour</text>
+    <text class="n-n" x="290" y="318" text-anchor="end">asked twice</text>
+    <rect class="ghost" x="310" y="284" width="580" height="24"/>
+    <text class="n-n" x="326" y="302">refused — “payroll owns that math, not me”</text>
+    <text class="n-i" x="968" y="302" text-anchor="end">5</text>
+  </svg>
+  <ol class="dg-key">
+    <li><b>Thirty-something drivers, maybe thirty-two</b> <span>00:03:10</span></li>
+    <li><b>High fifties, maybe sixty stops, give or take</b> <span>00:04:20</span></li>
+    <li><b>North of two hours a week, offered as a guess</b> <span>00:10:20</span></li>
+    <li><b>Twelve, corrected to nine, mid-sentence</b> <span>00:24:00</span></li>
+    <li><b>He will not put a per-hour number on it</b> <span>00:33:20</span></li>
+  </ol>
+</figure>
+
+<p class="dg-bridge">A loose number spread evenly would be one problem. He says it is not
+spread evenly at all.</p>
+
+<figure class="dg" id="dg-concentration">
+  <figcaption>
+    <span class="dg-t">The hours he does not mind and the run he does</span>
+    <span class="dg-w">Asked directly whether the two hours a week are spread evenly, he says
+      they concentrate — on the one route with the tightest addresses and the least room to
+      improvise. That route is also the only one whose failures travel upward past him.</span>
+  </figcaption>
+  <svg viewBox="0 0 1000 340" role="img" preserveAspectRatio="xMidYMid meet"
+       style="width:100%;height:auto">
+    <title>Routes as a fleet, the northern run singled out, and the escalation path above it</title>
+    <desc>A row of route symbols stands for the fleet's routes, all drawn alike in the neutral
+      ink except one, the northern run, drawn larger and in Hollis Grady's pen because it is
+      the one he singles out. Three short notes beneath it carry the three properties he gave
+      it: the biggest single account, the tightest addresses, and the least room to improvise.
+      To the right, an escalation path steps upward rather than across: two missed windows in
+      a month, then Hollis, then the person above him, drawn as rising steps so the direction
+      of the consequence is a direction on the page. Height in that step figure encodes who
+      hears about it, not any quantity.</desc>
+    <defs>
+      <marker id="mk-dg-concentration-a" viewBox="0 0 9 9" refX="8.2" refY="4.5"
+              markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse"
+              orient="auto-start-reverse"><path class="fa" d="M0 0 L9 4.5 L0 9 Z"/></marker>
+    </defs>
+    <text class="g-l" x="20" y="30">the rest of the routes</text>
+    <g class="on">
+      <use href="#icon-fork-in-road" x="20" y="44" width="32" height="32"/><use href="#icon-fork-in-road" x="64" y="44" width="32" height="32"/><use href="#icon-fork-in-road" x="108" y="44" width="32" height="32"/><use href="#icon-fork-in-road" x="152" y="44" width="32" height="32"/><use href="#icon-fork-in-road" x="196" y="44" width="32" height="32"/><use href="#icon-fork-in-road" x="240" y="44" width="32" height="32"/>
+      <use href="#icon-fork-in-road" x="20" y="88" width="32" height="32"/><use href="#icon-fork-in-road" x="64" y="88" width="32" height="32"/><use href="#icon-fork-in-road" x="108" y="88" width="32" height="32"/><use href="#icon-fork-in-road" x="152" y="88" width="32" height="32"/><use href="#icon-fork-in-road" x="196" y="88" width="32" height="32"/><use href="#icon-fork-in-road" x="240" y="88" width="32" height="32"/>
+    </g>
+    <text class="n-n" x="20" y="146">time lost here too, but he does not mind it</text>
+    <text class="n-i" x="272" y="30" text-anchor="end">1</text>
+
+    <rect class="box sa" x="330" y="36" width="280" height="120"/>
+    <use href="#icon-fork-in-road" x="346" y="50" width="52" height="52" class="oa"/>
+    <text class="n-l" x="410" y="76">the northern run</text>
+    <text class="n-n" x="410" y="94">the biggest single account</text>
+    <text class="n-n" x="346" y="126">tightest addresses, least room to improvise</text>
+    <text class="n-n" x="346" y="146">when it breaks there, it breaks worse</text>
+    <text class="n-i" x="598" y="58" text-anchor="end">2</text>
+    <text class="n-n" x="330" y="182">this is what keeps him up, not the weekly hours</text>
+    <text class="n-i" x="310" y="182" text-anchor="end">3</text>
+
+    <text class="g-l" x="660" y="30">and the consequence goes up</text>
+    <path class="edge sa" d="M660,266h80V196h80V126h80" marker-end="url(#mk-dg-concentration-a)"/>
+    <circle class="fa" cx="740" cy="266" r="4.5"/>
+    <circle class="fa" cx="820" cy="196" r="4.5"/>
+    <circle class="fa" cx="900" cy="126" r="4.5"/>
+    <text class="n-n" x="660" y="290">two missed windows in a month</text>
+    <text class="n-n" x="748" y="220">Hollis hears about it</text>
+    <text class="n-n" x="828" y="150">someone above him does</text>
+    <text class="n-i" x="968" y="106" text-anchor="end">4</text>
+    <text class="n-n" x="660" y="322">and not from the client — from inside</text>
+  </svg>
+  <ol class="dg-key">
+    <li><b>The weekly hours add up but are not the worry</b> <span>00:12:00</span></li>
+    <li><b>The northern run is the biggest single account</b> <span>00:14:00</span></li>
+    <li><b>The time concentrates there, not evenly across the fleet</b> <span>00:16:20</span></li>
+    <li><b>Two missed windows in a month and it goes above him</b> <span>00:14:00</span></li>
+  </ol>
+</figure>
+
+<p class="dg-bridge">Concentrated or not, the number that reached the business case is the one
+that got multiplied.</p>
+
 <figure class="dg" id="dg-annual-load">
   <figcaption>
     <span class="dg-t">A real number built from two guesses</span>
@@ -93,64 +716,146 @@ figure is what happens when the ops manager's own guess at that cost gets multip
       top of that looseness, drawn as a range rather than a point — and the per-hour cost that
       would turn it into money was refused outright.</span>
   </figcaption>
-  <div class="dg-scroll">
-    <svg viewBox="0 0 880 300" role="img" preserveAspectRatio="xMidYMid meet" style="width:100%;height:auto;min-width:820px">
-      <title>Two loose driver-side estimates, multiplied into an annual range, with the refused cost set apart</title>
-      <desc>Left column, in Hollis Grady's pen: his own two hedged estimates, roughly thirty
-        drivers and roughly two-plus hours a week each of re-routing time. Centre: a fixed,
-        undisputed multiplier of fifty-two weeks a year, drawn in the shared ink since neither
-        speaker contested it. Right, in Ines Vartanian's pen: the annual figure she derives by
-        multiplying those two guesses together, drawn with a hatched fill and an open-ended
-        "plus" rather than a solid bar, because a product of two guesses is not a measurement.
-        Below the main row, set apart and still in Hollis's pen but dashed because it was
-        withheld rather than stated: the per-hour dollar figure he declined to give, connected
-        by a broken line to show it was asked for and refused, not simply absent.</desc>
-      <defs>
-        <marker id="mk-dg-annual-load-a" viewBox="0 0 9 9" refX="8.2" refY="4.5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="fa" d="M0 0 L9 4.5 L0 9 Z"/></marker>
-        <marker id="mk-dg-annual-load-b" viewBox="0 0 9 9" refX="8.2" refY="4.5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="fb" d="M0 0 L9 4.5 L0 9 Z"/></marker>
-        <pattern id="mk-dg-annual-load-hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-          <rect width="8" height="8" class="box"/>
-          <line x1="0" y1="0" x2="0" y2="8" class="sb" stroke-width="1.5"/>
-        </pattern>
-      </defs>
-      <text class="g-l" x="16" y="24">Drivers, Hollis's own count</text>
-      <rect class="box sa" x="16" y="40" width="200" height="64"/>
-      <text class="n-i" x="204" y="56" text-anchor="end">1</text>
-      <text class="n-l" x="27" y="70">~30 drivers</text>
-      <text class="n-n" x="27" y="86">"thirty-something," his words</text>
-      <rect class="box sa" x="16" y="140" width="200" height="64"/>
-      <text class="n-i" x="204" y="156" text-anchor="end">2</text>
-      <text class="n-l" x="27" y="170">~2+ hrs/week, each</text>
-      <text class="n-n" x="27" y="186">"north of two, I'd guess"</text>
-      <text class="g-l" x="356" y="24">Multiplier</text>
-      <rect class="box" x="356" y="90" width="160" height="64"/>
-      <text class="n-l" x="367" y="120">x 52 weeks/year</text>
-      <text class="n-n" x="367" y="136">not in dispute</text>
-      <path class="edge sa" d="M216,72 L300,72 L300,110 L356,110" marker-end="url(#mk-dg-annual-load-a)"/>
-      <path class="edge sa" d="M216,172 L300,172 L300,134 L356,134" marker-end="url(#mk-dg-annual-load-a)"/>
-      <text class="g-l" x="636" y="24">Annual load, derived</text>
-      <rect x="636" y="80" width="228" height="80" class="frame"/>
-      <rect x="644" y="88" width="212" height="64" fill="url(#mk-dg-annual-load-hatch)" stroke="var(--pen-b)" stroke-width="1.2"/>
-      <text class="n-i" x="852" y="104" text-anchor="end">3</text>
-      <text class="n-l" x="655" y="118">≈3,000+ hrs/year</text>
-      <text class="n-n" x="655" y="134">30 x 2 x 52, open-ended</text>
-      <path class="edge sb" d="M516,122 L636,122" marker-end="url(#mk-dg-annual-load-b)"/>
-      <path class="edge sa" d="M750,160 L750,196 L560,196 L560,220" stroke-dasharray="3 4" marker-end="url(#mk-dg-annual-load-a)"/>
-      <rect class="frame sa" x="420" y="220" width="220" height="64"/>
-      <text class="n-i" x="632" y="236" text-anchor="end">4</text>
-      <text class="n-l" x="432" y="250">$/hour — withheld</text>
-      <text class="n-n" x="432" y="266">"not going to put a number on that"</text>
-    </svg>
-  </div>
+  <svg viewBox="0 0 1000 320" role="img" preserveAspectRatio="xMidYMid meet" style="width:100%;height:auto">
+    <title>Two loose driver-side estimates, multiplied into an annual range, with the refused cost set apart</title>
+    <desc>Left column, in Hollis Grady's pen: his own two hedged estimates, roughly thirty
+      drivers and roughly two-plus hours a week each of re-routing time, each led by its own
+      object. Centre: a fixed, undisputed multiplier of fifty-two weeks a year, drawn in the
+      neutral ink with a calendar-like clock since neither speaker contested it. Right, in Ines
+      Vartanian's pen: the annual figure she derives by multiplying those two guesses together,
+      drawn with a hatched fill and an open-ended plus rather than a solid bar, because a
+      product of two guesses is not a measurement. Below the main row, set apart and still in
+      Hollis's pen but dashed because it was withheld rather than absent: the per-hour dollar
+      figure he declined to give, connected by a broken line to show it was asked for and
+      refused.</desc>
+    <defs>
+      <marker id="mk-dg-annual-load-a" viewBox="0 0 9 9" refX="8.2" refY="4.5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="fa" d="M0 0 L9 4.5 L0 9 Z"/></marker>
+      <marker id="mk-dg-annual-load-b" viewBox="0 0 9 9" refX="8.2" refY="4.5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="fb" d="M0 0 L9 4.5 L0 9 Z"/></marker>
+      <pattern id="mk-dg-annual-load-hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+        <rect width="8" height="8" class="box"/>
+        <line x1="0" y1="0" x2="0" y2="8" class="sb" stroke-width="1.5"/>
+      </pattern>
+    </defs>
+    <text class="g-l" x="16" y="26">drivers, his own count</text>
+    <rect class="box sa" x="16" y="40" width="230" height="76"/>
+    <use href="#icon-person" x="28" y="50" width="30" height="30" class="oa"/>
+    <text class="n-l" x="28" y="96">~30 drivers</text>
+    <text class="n-n" x="28" y="112">“thirty-something,” his words</text>
+    <text class="n-i" x="234" y="62" text-anchor="end">1</text>
+    <rect class="box sa" x="16" y="156" width="230" height="76"/>
+    <use href="#icon-clock" x="28" y="166" width="30" height="30" class="oa"/>
+    <text class="n-l" x="28" y="212">~2+ hrs/week, each</text>
+    <text class="n-n" x="28" y="228">“north of two, I'd guess”</text>
+    <text class="n-i" x="234" y="178" text-anchor="end">2</text>
+    <text class="g-l" x="400" y="26">multiplier</text>
+    <rect class="box sn" x="400" y="100" width="180" height="76"/>
+    <use href="#icon-gear" x="412" y="110" width="30" height="30" class="on"/>
+    <text class="n-l" x="412" y="156">× 52 weeks a year</text>
+    <text class="n-n" x="412" y="172">not in dispute</text>
+    <path class="edge sa" d="M246,78H340V124H400" marker-end="url(#mk-dg-annual-load-a)"/>
+    <path class="edge sa" d="M246,194H340V152H400" marker-end="url(#mk-dg-annual-load-a)"/>
+    <text class="g-l" x="720" y="26">annual load, derived</text>
+    <rect x="720" y="90" width="264" height="96" class="frame"/>
+    <rect x="728" y="98" width="248" height="80" fill="url(#mk-dg-annual-load-hatch)" stroke="var(--pen-b)" stroke-width="1.2"/>
+    <use href="#icon-chart-up" x="740" y="108" width="30" height="30" class="ob"/>
+    <text class="n-l" x="740" y="156">≈3,000+ hrs a year</text>
+    <text class="n-n" x="740" y="172">30 × 2 × 52, open-ended</text>
+    <text class="n-i" x="972" y="112" text-anchor="end">3</text>
+    <path class="edge sb" d="M580,138H720" marker-end="url(#mk-dg-annual-load-b)"/>
+    <path class="edge sa" d="M852,186V214H620V240" stroke-dasharray="3 4" marker-end="url(#mk-dg-annual-load-a)"/>
+    <rect class="ghost" x="440" y="240" width="360" height="70"/>
+    <use href="#icon-coin" x="452" y="250" width="30" height="30" class="og"/>
+    <text class="n-l" x="452" y="296">cost per hour — withheld</text>
+    <text class="n-n" x="640" y="296">“not going to put a number on that”</text>
+    <text class="n-i" x="790" y="262" text-anchor="end">4</text>
+  </svg>
   <ol class="dg-key">
-    <li><b>~30 drivers, stated as "thirty-something"</b> <span>00:03:10</span></li>
+    <li><b>~30 drivers, stated as “thirty-something”</b> <span>00:03:10</span></li>
     <li><b>~2+ hrs/week each, offered as a guess</b> <span>00:10:20</span></li>
     <li><b>The annual figure, derived on the call</b> <span>00:35:00</span></li>
     <li><b>The per-hour cost, refused</b> <span>00:33:20</span></li>
   </ol>
 </figure>
-<p class="dg-bridge">An open-ended range is not something either side can act on; the last
-figure is what the ops manager actually agreed to check it against.</p>
+
+<p class="dg-bridge">An open-ended range is not something either side can act on. He did say
+exactly what would change his mind, and what would not.</p>
+
+<figure class="dg" id="dg-proof-conditions">
+  <figcaption>
+    <span class="dg-t">Two conditions he will check, and an approver nobody has named</span>
+    <span class="dg-w">He set both tests himself, and both are things a month of running one
+      route can answer. What comes after them is the empty box: who signs. He would not name
+      anyone until the numbers hold up, so the last gate in the chain has no owner in it.</span>
+  </figcaption>
+  <svg viewBox="0 0 1000 320" role="img" preserveAspectRatio="xMidYMid meet"
+       style="width:100%;height:auto">
+    <title>The pilot, the two proof conditions, and the unnamed approver at the end of the chain</title>
+    <desc>A chain read left to right. It starts with the thirty-day pilot on the northern run,
+      in Ines Vartanian's pen. Two decision diamonds follow, both in Hollis Grady's pen because
+      he set them: a week where the northern run does not blow up, and the dispatcher off the
+      phone by nine rather than ten. Both must be answered before the chain continues, so they
+      are drawn in series rather than side by side. Past them sits what he said he would then
+      believe, and past that the final node is drawn as a dashed grey wireframe with a
+      question mark where a name would be: the approver he declined to identify, reached only
+      after the numbers hold. A separate short note records the one thing he was specific
+      about at the end, that the scope goes to him directly and not to the group inbox.</desc>
+    <defs>
+      <marker id="mk-dg-proof-conditions-a" viewBox="0 0 9 9" refX="8.2" refY="4.5"
+              markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse"
+              orient="auto-start-reverse"><path class="fn" d="M0 0 L9 4.5 L0 9 Z"/></marker>
+    </defs>
+    <rect class="box sb" x="20" y="60" width="176" height="104"/>
+    <use href="#icon-fork-in-road" x="32" y="72" width="34" height="34" class="ob"/>
+    <text class="n-l" x="32" y="132">one run, one month</text>
+    <text class="n-n" x="32" y="150">real drivers, northern run</text>
+    <text class="n-i" x="184" y="86" text-anchor="end">1</text>
+    <path class="edge sn" d="M196,112H222" marker-end="url(#mk-dg-proof-conditions-a)"/>
+
+    <path class="box sa" d="M230,112 L330,70 L430,112 L330,154 Z"/>
+    <text class="n-n" x="330" y="108" text-anchor="middle">a week the northern</text>
+    <text class="n-n" x="330" y="126" text-anchor="middle">run does not blow up</text>
+    <text class="n-i" x="330" y="60" text-anchor="middle">2</text>
+    <path class="edge sn" d="M430,112H456" marker-end="url(#mk-dg-proof-conditions-a)"/>
+
+    <path class="box sa" d="M464,112 L564,70 L664,112 L564,154 Z"/>
+    <text class="n-n" x="564" y="108" text-anchor="middle">dispatcher off the</text>
+    <text class="n-n" x="564" y="126" text-anchor="middle">phone by nine</text>
+    <text class="n-i" x="564" y="60" text-anchor="middle">3</text>
+    <path class="edge sn" d="M664,112H690" marker-end="url(#mk-dg-proof-conditions-a)"/>
+
+    <rect class="box sa" x="698" y="60" width="150" height="104"/>
+    <use href="#icon-check" x="710" y="72" width="34" height="34" class="oa"/>
+    <text class="n-l" x="710" y="132">“I'll believe</text>
+    <text class="n-l" x="710" y="150">the rest”</text>
+    <text class="n-i" x="836" y="86" text-anchor="end">4</text>
+    <path class="edge sn" d="M848,112H874" stroke-dasharray="4 3" marker-end="url(#mk-dg-proof-conditions-a)"/>
+
+    <rect class="ghost" x="882" y="60" width="102" height="104"/>
+    <use href="#icon-person" x="894" y="72" width="34" height="34" class="og"/>
+    <text class="n-n" x="894" y="132">who signs</text>
+    <text class="n-n" x="894" y="150">unnamed</text>
+    <text class="n-i" x="972" y="86" text-anchor="end">5</text>
+    <text class="n-n" x="698" y="196">“let's come back to that” — no name before the numbers hold</text>
+
+    <path class="axis" d="M20,228H980"/>
+    <use href="#icon-inbox" x="20" y="246" width="34" height="34" class="oa"/>
+    <text class="n-l" x="66" y="266">and send it to him directly, not the group inbox</text>
+    <text class="n-n" x="66" y="286">where it would sit for two weeks before anyone opened it</text>
+    <text class="n-i" x="968" y="266" text-anchor="end">6</text>
+  </svg>
+  <ol class="dg-key">
+    <li><b>One run, one month, real drivers — he could take that upstairs</b> <span>00:45:10</span></li>
+    <li><b>Show me a week the northern run does not blow up</b> <span>00:42:40</span></li>
+    <li><b>Show me the dispatcher off the phone by nine</b> <span>00:42:40</span></li>
+    <li><b>Those two things, and I'll believe the rest</b> <span>00:42:40</span></li>
+    <li><b>He will not name an approver until the numbers hold</b> <span>00:40:00</span></li>
+    <li><b>Send it to him directly, not the group inbox</b> <span>00:47:20</span></li>
+  </ol>
+</figure>
+
+<p class="dg-bridge">Those conditions only mean something against what the depot does today,
+dimension by dimension.</p>
+
 <figure class="dg" id="dg-pilot-scope">
   <figcaption>
     <span class="dg-t">What changes in the pilot, dimension by dimension</span>
@@ -158,58 +863,67 @@ figure is what the ops manager actually agreed to check it against.</p>
       the ops manager set the last row himself: two plain conditions he'll believe without a
       dollar figure attached.</span>
   </figcaption>
-  <div class="dg-scroll">
-    <svg viewBox="0 0 880 300" role="img" preserveAspectRatio="xMidYMid meet" style="width:100%;height:auto;min-width:820px">
-      <title>Today's manual process against the northern-run pilot, on three dimensions</title>
-      <desc>A centre line splits the figure. The left column, in Hollis Grady's pen, is today:
-        a route built by hand, a re-routing cost he only ever estimated, and no proof condition
-        because nothing has been measured yet. The right column, in Ines Vartanian's pen, is the
-        thirty-day pilot: routes generated automatically with the dispatcher approving
-        exceptions, the same re-routing cost now actually measured on one route, and the two
-        conditions Hollis himself named for believing the result. Each row's dimension is
-        labelled in the gutter between the columns.</desc>
-      <defs>
-        <marker id="mk-dg-pilot-scope-a" viewBox="0 0 9 9" refX="8.2" refY="4.5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="fa" d="M0 0 L9 4.5 L0 9 Z"/></marker>
-        <marker id="mk-dg-pilot-scope-b" viewBox="0 0 9 9" refX="0.8" refY="4.5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="fb" d="M9 0 L0 4.5 L9 9 Z"/></marker>
-      </defs>
-      <text class="g-l" x="220" y="28" text-anchor="middle">Today</text>
-      <text class="g-l" x="660" y="28" text-anchor="middle">Pilot, northern run, 30 days</text>
-      <rect class="box sa" x="60" y="48" width="240" height="60"/>
-      <text class="n-i" x="292" y="62" text-anchor="end">1</text>
-      <text class="n-l" x="72" y="72">Dispatcher builds by hand</text>
-      <text class="n-n" x="72" y="88">printed sheet, five in the morning</text>
-      <text class="n-i" x="440" y="76" text-anchor="middle">who builds the route</text>
-      <rect class="box sb" x="580" y="48" width="240" height="60"/>
-      <text class="n-l" x="592" y="72">Generated automatically</text>
-      <text class="n-n" x="592" y="88">dispatcher approves exceptions</text>
-      <path class="edge sa" d="M300,78 L360,78" marker-end="url(#mk-dg-pilot-scope-a)"/>
-      <path class="edge sb" d="M580,78 L520,78" marker-end="url(#mk-dg-pilot-scope-b)"/>
-      <rect class="box sa" x="60" y="128" width="240" height="60"/>
-      <text class="n-i" x="292" y="142" text-anchor="end">2</text>
-      <text class="n-l" x="72" y="152">Cost: an estimate</text>
-      <text class="n-n" x="72" y="168">north of two hours, his guess</text>
-      <text class="n-i" x="440" y="156" text-anchor="middle">re-routing cost</text>
-      <rect class="box sb" x="580" y="128" width="240" height="60"/>
-      <text class="n-i" x="812" y="142" text-anchor="end">3</text>
-      <text class="n-l" x="592" y="152">Cost: measured</text>
-      <text class="n-n" x="592" y="168">on the northern run, one month</text>
-      <path class="edge sa" d="M300,158 L360,158" marker-end="url(#mk-dg-pilot-scope-a)"/>
-      <path class="edge sb" d="M580,158 L520,158" marker-end="url(#mk-dg-pilot-scope-b)"/>
-      <rect class="box sa" x="60" y="208" width="240" height="60"/>
-      <text class="n-l" x="72" y="232">No proof condition</text>
-      <text class="n-n" x="72" y="248">nothing has been measured yet</text>
-      <text class="n-i" x="440" y="236" text-anchor="middle">what would prove it</text>
-      <rect class="box sb" x="580" y="208" width="240" height="60"/>
-      <text class="n-i" x="812" y="222" text-anchor="end">4</text>
-      <text class="n-l" x="592" y="232">Two conditions, his own</text>
-      <text class="n-n" x="592" y="248">quiet northern run, dispatcher off early</text>
-      <path class="edge sa" d="M300,238 L360,238" marker-end="url(#mk-dg-pilot-scope-a)"/>
-      <path class="edge sb" d="M580,238 L520,238" marker-end="url(#mk-dg-pilot-scope-b)"/>
-      <path class="axis" d="M440,44 L440,272"/>
-    </svg>
-  </div>
+  <svg viewBox="0 0 1000 320" role="img" preserveAspectRatio="xMidYMid meet" style="width:100%;height:auto">
+    <title>Today's manual process against the northern-run pilot, on three dimensions</title>
+    <desc>A centre line splits the figure, and every row on both sides is led by a drawn
+      object. The left column, in Hollis Grady's pen, is today: a route built by hand, a
+      re-routing cost he only ever estimated, and no proof condition because nothing has been
+      measured yet. The right column, in Ines Vartanian's pen, is the thirty-day pilot: routes
+      generated automatically with the dispatcher approving exceptions, the same re-routing
+      cost now actually measured on one route, and the two conditions Hollis himself named for
+      believing the result. Each row's dimension is labelled in the gutter between the columns,
+      and both arrows on a row point inward to it.</desc>
+    <defs>
+      <marker id="mk-dg-pilot-scope-a" viewBox="0 0 9 9" refX="8.2" refY="4.5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="fa" d="M0 0 L9 4.5 L0 9 Z"/></marker>
+      <marker id="mk-dg-pilot-scope-b" viewBox="0 0 9 9" refX="8.2" refY="4.5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="fb" d="M0 0 L9 4.5 L0 9 Z"/></marker>
+    </defs>
+    <text class="g-l" x="160" y="30" text-anchor="middle">today</text>
+    <text class="g-l" x="840" y="30" text-anchor="middle">pilot, northern run, 30 days</text>
+
+    <rect class="box sa" x="20" y="50" width="280" height="68"/>
+    <use href="#icon-document" x="32" y="62" width="30" height="30" class="oa"/>
+    <text class="n-l" x="72" y="82">built by hand</text>
+    <text class="n-n" x="32" y="108">a printed sheet, five in the morning</text>
+    <text class="n-i" x="288" y="70" text-anchor="end">1</text>
+    <text class="g-l" x="500" y="88" text-anchor="middle">who builds the route</text>
+    <path class="edge sa" d="M300,84H392" marker-end="url(#mk-dg-pilot-scope-a)"/>
+    <path class="edge sb" d="M700,84H608" marker-end="url(#mk-dg-pilot-scope-b)"/>
+    <rect class="box sb" x="700" y="50" width="280" height="68"/>
+    <use href="#icon-gear" x="712" y="62" width="30" height="30" class="ob"/>
+    <text class="n-l" x="752" y="82">generated automatically</text>
+    <text class="n-n" x="712" y="108">dispatcher approves exceptions</text>
+
+    <rect class="box sa" x="20" y="140" width="280" height="68"/>
+    <use href="#icon-clock" x="32" y="152" width="30" height="30" class="oa"/>
+    <text class="n-l" x="72" y="172">cost: an estimate</text>
+    <text class="n-n" x="32" y="198">north of two hours, his guess</text>
+    <text class="n-i" x="288" y="160" text-anchor="end">2</text>
+    <text class="g-l" x="500" y="178" text-anchor="middle">re-routing cost</text>
+    <path class="edge sa" d="M300,174H392" marker-end="url(#mk-dg-pilot-scope-a)"/>
+    <path class="edge sb" d="M700,174H608" marker-end="url(#mk-dg-pilot-scope-b)"/>
+    <rect class="box sb" x="700" y="140" width="280" height="68"/>
+    <use href="#icon-chart-up" x="712" y="152" width="30" height="30" class="ob"/>
+    <text class="n-l" x="752" y="172">cost: measured</text>
+    <text class="n-n" x="712" y="198">on the northern run, one month</text>
+    <text class="n-i" x="968" y="160" text-anchor="end">3</text>
+
+    <rect class="box sa" x="20" y="230" width="280" height="68"/>
+    <use href="#icon-search" x="32" y="242" width="30" height="30" class="og"/>
+    <text class="n-l" x="72" y="262">no proof condition</text>
+    <text class="n-n" x="32" y="288">nothing has been measured yet</text>
+    <text class="g-l" x="500" y="268" text-anchor="middle">what would prove it</text>
+    <path class="edge sa" d="M300,264H392" marker-end="url(#mk-dg-pilot-scope-a)"/>
+    <path class="edge sb" d="M700,264H608" marker-end="url(#mk-dg-pilot-scope-b)"/>
+    <rect class="box sb" x="700" y="230" width="280" height="68"/>
+    <use href="#icon-check" x="712" y="242" width="30" height="30" class="ob"/>
+    <text class="n-l" x="752" y="262">two conditions, his own</text>
+    <text class="n-n" x="712" y="288">a quiet northern run, an early phone</text>
+    <text class="n-i" x="968" y="250" text-anchor="end">4</text>
+    <path class="axis" d="M500,44V304"/>
+  </svg>
   <ol class="dg-key">
     <li><b>Today: built by hand, cost only ever guessed</b> <span>00:01:05</span></li>
+    <li><b>The cost is an estimate he calls a guess</b> <span>00:10:20</span></li>
     <li><b>Pilot: generated, measured on one route</b> <span>00:44:00</span></li>
     <li><b>The two conditions Hollis sets himself</b> <span>00:42:40</span></li>
   </ol>

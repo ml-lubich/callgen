@@ -1,4 +1,5 @@
 import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import { App } from "../App";
 import { deck } from "../lib/deck";
@@ -97,10 +98,22 @@ describe("insights and the appendix", () => {
   it("renders the claim, a timestamped support and the so-what", async () => {
     renderWith({ sections: ["insights"], transcript: "omit" }, { insights: [INSIGHT] });
     expect(await screen.findByText(INSIGHT.claim)).toBeInTheDocument();
+    expect(screen.getByText(/high confidence/i)).toBeInTheDocument();
+    // the card shows the idea; what argues it waits behind the card's own disclosure
+    await userEvent.click(screen.getByRole("button", { name: /why this holds/i }));
     expect(screen.getByText(INSIGHT.supports[0].observation)).toBeInTheDocument();
     expect(screen.getByText(INSIGHT.implication)).toBeInTheDocument();
-    expect(screen.getByText(/high confidence/i)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "00:00:40" })).toBeInTheDocument();
+  });
+
+  it("heads an insight with its title, keeping the claim under it", async () => {
+    renderWith(
+      { sections: ["insights"], transcript: "omit" },
+      { insights: [{ ...INSIGHT, title: "The screen is the wrong filter" }] },
+    );
+    const head = await screen.findByText("The screen is the wrong filter");
+    expect(head).toHaveClass("insight-claim");
+    expect(screen.getByText(INSIGHT.claim)).toHaveClass("insight-idea");
   });
 
   it("drops the appendix section when the analysis had no insights", () => {
@@ -108,7 +121,7 @@ describe("insights and the appendix", () => {
     expect(ids).toEqual(["sec-abstract"]);
   });
 
-  it("marks the appendix boundary with a divider and folds what follows it", async () => {
+  it("opens the record with its tier band where the appendix divider used to be", async () => {
     renderWith({
       sections: ["abstract", "signals"],
       appendix: ["signals"],
@@ -116,14 +129,18 @@ describe("insights and the appendix", () => {
       transcript: "omit",
     });
     expect(await screen.findByRole("button", { name: /show signals/i })).toBeInTheDocument();
-    const divider = document.querySelector(".appendix-divider")!;
-    expect(divider).not.toBeNull();
+    expect(document.querySelector(".appendix-divider")).toBeNull();
+    const band = document.querySelector('.tier-band[data-tier="record"]')!;
+    expect(band).not.toBeNull();
     const signals = document.getElementById("sec-signals")!;
-    expect(divider.compareDocumentPosition(signals) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(band.compareDocumentPosition(signals) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
-  it("has no divider when the mode names no appendix", () => {
-    renderWith({ sections: ["abstract", "signals"], transcript: "omit" }, { insights: [INSIGHT] });
+  it("draws no appendix divider anywhere, whatever the mode names", () => {
+    renderWith(
+      { sections: ["abstract", "signals"], appendix: ["signals"], transcript: "omit" },
+      { insights: [INSIGHT] },
+    );
     expect(document.querySelector(".appendix-divider")).toBeNull();
   });
 });

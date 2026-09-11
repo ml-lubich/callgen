@@ -4,7 +4,9 @@ The figures in ``out/diagrams.html`` are written by an agent, not generated, so
 the things that go wrong are the things a careful hand still gets wrong at two in
 the morning: a hex colour that stops following the page theme, a marker id reused
 between two figures so every arrowhead on the page turns one colour, a figure
-with no accessible name, a timestamp that was never said.
+with no accessible name, a timestamp that was never said, a figure pinned wider
+than the column it has to live in, a set of labelled boxes standing in for a
+drawing.
 
 Nothing here judges whether a diagram is any good — see ``skills/diagrams`` for
 that. These are the mechanical faults that can be caught for free.
@@ -18,7 +20,7 @@ from html.parser import HTMLParser
 
 from .parse import ts_to_seconds
 
-MIN_FONT_PX = 10.0
+MIN_FONT_PX = 11.0
 
 VOID = {
     "area", "base", "br", "col", "embed", "hr", "img", "input",
@@ -38,6 +40,14 @@ _KEY = re.compile(r"""<ol\b[^>]*class\s*=\s*["'][^"']*\bdg-key\b[^"']*["'][^>]*>
                   re.I | re.S)
 _ROLE_IMG = re.compile(r"""\brole\s*=\s*["']img["']""", re.I)
 _TS = re.compile(r"\b\d{1,3}:\d{2}(?::\d{2})?\b")
+_SVG = re.compile(r"<svg\b.*?</svg>", re.I | re.S)
+_TITLE_EL = re.compile(r"<title\b[^>]*>(.*?)</title>", re.I | re.S)
+_DESC_EL = re.compile(r"<desc\b[^>]*>(.*?)</desc>", re.I | re.S)
+_MEDIA = re.compile(r"@media[^{]*", re.I)
+_MIN_WIDTH = re.compile(r"\bmin-width\b", re.I)
+_SCROLL = re.compile(r"""overflow(?:-[xy])?\s*:\s*(?:auto|scroll)|\bdg-scroll\b""", re.I)
+# A figure that draws: anything with a form of its own, as opposed to a box with a word in it.
+_GLYPH = re.compile(r"<(?:use|path|circle|ellipse|polygon|polyline|line)\b", re.I)
 
 
 @dataclass(frozen=True)
@@ -136,18 +146,42 @@ def check_svg_fragment(text: str) -> list[Problem]:
                 f"font-size {raw} is below the {MIN_FONT_PX:g}px floor",
             )))
 
+    for pattern, kind, describe in (
+        (_MIN_WIDTH, "min-width",
+         lambda v: "min-width pins the figure wider than the column; figures scale to it"),
+        (_SCROLL, "scroll-wrapper",
+         lambda v: f"{v} makes the figure scroll sideways; draw it to fit instead"),
+    ):
+        for m in pattern.finditer(_MEDIA.sub(lambda q: " " * len(q.group(0)), scannable)):
+            at = m.start()
+            found.append((at, Problem(kind, _locate(figures, at), describe(m.group(0)))))
+
     owner: dict[str, str] = {}
     for start, body, fig_id, _ in figures:
-        missing = [
-            what for what, present in (
-                ('role="img"', _ROLE_IMG.search(body)),
-                ("<title>", "<title" in body.lower()),
-                ("<desc>", "<desc" in body.lower()),
-            ) if not present
-        ]
-        if missing:
+        svgs = _SVG.findall(body)
+        if not svgs:
+            found.append((start, Problem("missing-a11y", fig_id, "figure draws no <svg>")))
+        for n, svg in enumerate(svgs, 1):
+            which = f"<svg> {n}" if len(svgs) > 1 else "<svg>"
+            title = _TITLE_EL.search(svg)
+            desc = _DESC_EL.search(svg)
+            missing = [
+                what for what, ok in (
+                    ('role="img"', _ROLE_IMG.search(svg)),
+                    ("<title>", title and title.group(1).strip()),
+                    ("<desc>", desc and desc.group(1).strip()),
+                ) if not ok
+            ]
+            if missing:
+                found.append((start, Problem(
+                    "missing-a11y", fig_id,
+                    f"{which} has no {', '.join(missing)} (empty counts as none)",
+                )))
+
+        if not _GLYPH.search(body):
             found.append((start, Problem(
-                "missing-a11y", fig_id, f"figure has no {', '.join(missing)}"
+                "no-glyph", fig_id,
+                "figure is text in boxes; every node needs an icon or a drawn glyph",
             )))
 
         key = _KEY.search(body)

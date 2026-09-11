@@ -9,9 +9,12 @@ import pytest
 from callgen.build import build, template_path
 from callgen.cli import main
 from callgen.modes import (
+    ALL,
     MODES,
     REGISTER_RULES,
     SECTIONS,
+    TIER_OF,
+    TIERS,
     TRANSCRIPT,
     ModeError,
     all_modes,
@@ -24,6 +27,10 @@ from callgen.modes import (
     prose_violations,
     register_violations,
     section_order,
+    tier_order,
+)
+from callgen.modes import (
+    _prose_fields as prose_fields,
 )
 from callgen.parse import metrics, parse_transcript
 
@@ -87,6 +94,67 @@ def test_the_builtin_modes_ship():
     assert list(MODES) == BUILTINS
 
 
+# --- five tiers of rising depth ---------------------------------------------
+# The page is not one flat run of sections. A reader gets the answer first and the
+# record last, and can stop at any boundary.
+
+
+def test_every_section_belongs_to_exactly_one_tier():
+    assert set(TIER_OF) == set(SECTIONS), "a section with no tier renders outside the hierarchy"
+    for section, tier in TIER_OF.items():
+        assert tier in TIERS, f"{section} claims the unknown tier {tier!r}"
+
+
+def test_the_default_order_is_tier_order():
+    by_tier = [s for tier in TIERS for s in ALL if TIER_OF[s] == tier]
+    assert list(ALL) == by_tier
+    assert list(SECTIONS) == by_tier, "the section map reads in tier order too"
+    assert section_order("professional") == [s for s in by_tier if s != "highlights"]
+
+
+def test_the_commitments_come_before_the_record():
+    order = section_order("professional")
+    assert order.index("next") < order.index("evidence")
+    assert order.index("next") < order.index("transcript")
+
+
+def test_tier_order_is_five_tiers_for_professional():
+    tiers = tier_order("professional")
+    assert [t for t, _label, _lede, _sections in tiers] == list(TIERS)
+    for tier, label, lede, sections in tiers:
+        assert (label, lede) == TIERS[tier]
+        assert sections and all(TIER_OF[s] == tier for s in sections)
+    assert [s for _t, _l, _d, sections in tiers for s in sections] == section_order("professional")
+
+
+def test_a_mode_that_drops_a_tier_produces_no_entry_for_it():
+    assert [t for t, *_rest in tier_order("diagrams-only")] == ["overview", "concepts"]
+    assert [t for t, *_rest in tier_order("brief")] == ["overview", "concepts", "actions"]
+    assert [t for t, *_rest in tier_order("summarized")] == ["overview", "concepts"]
+
+
+def test_apply_writes_the_tiers_with_their_labels_and_ledes(content):
+    tiers = apply(content, "professional")["_mode"]["tiers"]
+    assert [t["id"] for t in tiers] == list(TIERS)
+    assert tiers[0] == {
+        "id": "overview",
+        "label": "Overview",
+        "lede": "What the call decided and how it ran.",
+        "sections": ["strip", "abstract"],
+    }
+    assert tiers[-1]["label"] == "The record"
+    assert tiers[-1]["sections"][0] == "evidence"
+
+
+def test_a_mode_keeps_its_own_order_inside_a_tier():
+    """The tier order is the page's order; a mode still says what leads its own tier."""
+    def sections_of(mode: str, want: str) -> list[str]:
+        return [s for tier, _l, _d, s in tier_order(mode) if tier == want][0]
+
+    assert sections_of("casual", "record")[0] == "quotes", "casual leads the record with quotes"
+    assert sections_of("interesting", "discussion")[0] == "threads", "threads lead the discussion"
+
+
 @pytest.mark.parametrize("name", BUILTINS)
 def test_every_builtin_mode_has_a_valid_shape(name):
     m = get(name)
@@ -127,7 +195,7 @@ def test_apply_never_alters_a_fact(content, name):
 def test_apply_carries_the_mode_block(content, name):
     block = apply(content, name)["_mode"]
     m = get(name)
-    appendix = [sec for sec in m.appendix if sec in m.sections]
+    appendix = [sec for sec in m.sections if TIER_OF[sec] == "record"]
     collapsed = list(m.collapsed)
     for sec in appendix:
         if sec != "transcript" and sec not in collapsed:
@@ -140,6 +208,10 @@ def test_apply_carries_the_mode_block(content, name):
         "transcript": m.transcript,
         "collapsed": [sec for sec in collapsed if sec in m.sections],
         "appendix": appendix,
+        "tiers": [
+            {"id": tier, "label": label, "lede": lede, "sections": sections}
+            for tier, label, lede, sections in tier_order(name)
+        ],
     }
 
 
@@ -164,12 +236,11 @@ def test_summarized_is_five_highlights_and_under_four_hundred_words(content):
     assert words(out) < 400
 
 
-def test_diagrams_only_keeps_figures_numbers_and_the_strip_chart(content):
+def test_diagrams_only_keeps_the_figures_and_the_strip_chart(content):
     order = section_order("diagrams-only")
-    assert order == ["strip", "figures", "numbers"]
+    assert order == ["strip", "figures"]
     out = apply(content, "diagrams-only")
-    assert out["numbers"] == content["numbers"]
-    for key in ("acts", "threads", "evidence", "quotes", "abstract", "next_steps"):
+    for key in ("acts", "threads", "evidence", "quotes", "abstract", "next_steps", "numbers"):
         assert key not in out
 
 
@@ -190,7 +261,8 @@ def test_prompt_guidance_carries_register_and_emphasis():
 
 
 def test_section_order_is_the_modes_order():
-    assert section_order("formal").index("evidence") < section_order("formal").index("figures")
+    casual = section_order("casual")
+    assert casual.index("quotes") < casual.index("evidence"), "casual leads the record with quotes"
     assert section_order("professional").index("figures") < section_order("professional").index(
         "evidence"
     )
@@ -228,6 +300,17 @@ def test_malformed_project_mode_is_rejected_with_a_clear_message(tmp_path):
     assert "abstract" in str(e.value), "the message lists the section ids that do exist"
 
 
+def test_a_project_mode_cannot_invent_a_tier(tmp_path, content):
+    """It picks sections, never tiers, so its tier set is always a subset of TIERS."""
+    _write_project_modes(
+        tmp_path, {"board-pack": {"sections": ["strip", "abstract", "numbers", "next"]}}
+    )
+    tiers = [t for t, *_rest in tier_order("board-pack", tmp_path)]
+    assert set(tiers) <= set(TIERS)
+    assert tiers == ["overview", "actions", "record"], "the tiers it does reach stay in order"
+    assert apply(content, "board-pack", tmp_path)["_mode"]["appendix"] == ["numbers", "transcript"]
+
+
 def test_project_modes_that_are_not_json_say_so(tmp_path):
     _write_project_modes(tmp_path, "{not json")
     with pytest.raises(ModeError) as e:
@@ -246,8 +329,8 @@ def test_page_honours_diagrams_only(content):
     out = page(content, "diagrams-only")
     assert 'id="evbody"' not in out
     assert 'id="tlist"' not in out
-    assert 'id="threads"' not in out
-    assert 'id="diagrams"' in out and 'id="numbers"' in out and 'id="chart"' in out
+    assert 'id="threads"' not in out and 'id="numbers"' not in out
+    assert 'id="diagrams"' in out and 'id="chart"' in out
     assert html_errors(out) == []
 
 
@@ -260,9 +343,9 @@ def test_page_honours_summarized(content):
     assert html_errors(out) == []
 
 
-def test_page_reorders_sections_for_formal(content):
-    out = page(content, "formal")
-    assert out.index('id="evbody"') < out.index('id="diagrams"')
+def test_page_orders_the_record_by_the_modes_own_preference(content):
+    out = page(content, "casual")
+    assert out.index('id="quotes"') < out.index('id="evbody"')
     assert html_errors(out) == []
 
 
@@ -598,9 +681,9 @@ def test_verdict_travels_with_abstract_and_lands_with_acts(content):
 def test_professional_collapses_the_text_heavy_sections(content):
     kept = apply(content, "professional")
     collapsed = kept["_mode"]["collapsed"]
-    for sec in ("evidence", "signals", "numbers", "tech", "friction"):
+    for sec in ("evidence", "signals", "numbers", "tech", "friction", "quotes", "fit"):
         assert sec in collapsed, f"{sec} should render collapsed"
-    for sec in ("abstract", "figures", "acts", "quotes"):
+    for sec in ("abstract", "insights", "figures", "acts", "threads", "next"):
         assert sec not in collapsed, f"{sec} must stay open"
     # collapsing never removes facts
     assert kept["evidence"] == content["evidence"]
@@ -638,21 +721,22 @@ def test_page_total_counts_running_prose_not_table_cells():
     assert any(p.startswith("page:") for p in prose_violations(heavy, "professional"))
 
 
-# --- brief: verdict and insights lead, the record folds into an appendix --------
+# --- brief: verdict, insights and the commitments, with no record ---------------
 
 
 def test_brief_leads_with_verdict_then_insights_then_the_figures():
     order = section_order("brief")
     assert order.index("abstract") < order.index("insights") < order.index("figures")
-    assert order.index("insights") < order.index("acts"), "insights come before the acts"
-    assert "quotes" not in order, "brief lifts the best quotes into the insight they support"
+    assert order[-1] == "next", "the commitments close the document"
+    assert not [s for s in order if TIER_OF[s] == "record"], "brief renders no record"
 
 
-def test_brief_folds_the_record_behind_an_appendix_boundary():
-    block = apply({"meta": {}, "abstract": "x", "acts": []}, "brief")["_mode"]
+def test_the_record_tier_is_the_appendix_boundary():
+    block = apply({"meta": {}, "abstract": "x", "acts": []}, "professional")["_mode"]
     assert block["appendix"] == [
-        "evidence", "signals", "numbers", "tech", "friction", "fit", "next", "transcript",
+        "evidence", "signals", "numbers", "tech", "friction", "quotes", "fit", "transcript",
     ]
+    assert block["appendix"] == block["tiers"][-1]["sections"]
     # every appendix section renders folded, except the transcript, which folds through
     # its own flag and must never be double-wrapped
     for sec in block["appendix"]:
@@ -661,16 +745,24 @@ def test_brief_folds_the_record_behind_an_appendix_boundary():
     assert "transcript" not in block["collapsed"]
 
 
-def test_appendix_is_a_subset_of_the_modes_sections():
-    for m in MODES.values():
-        assert set(m.appendix) <= set(m.sections), m.name
+def test_a_mode_with_no_record_tier_has_no_appendix(content):
+    for name in ("brief", "summarized", "diagrams-only"):
+        assert apply(content, name)["_mode"]["appendix"] == []
 
 
-def test_brief_caps_narrative_tight_but_keeps_the_appendix_row_cap():
+@pytest.mark.parametrize("name", BUILTINS)
+def test_appendix_is_the_modes_own_record_sections(name):
+    m = get(name)
+    appendix = apply({"meta": {}}, name)["_mode"]["appendix"]
+    assert set(appendix) <= set(m.sections)
+    assert appendix == [s for s in m.sections if TIER_OF[s] == "record"]
+
+
+def test_brief_caps_narrative_tight_but_keeps_the_list_row_cap():
     brief_caps, pro = caps("brief"), caps("professional")
     assert brief_caps["act_summary"] < pro["act_summary"], "an act is a line in brief"
     assert brief_caps["insight_claim"] < pro["insight_claim"]
-    assert brief_caps["list_item"] == pro["list_item"], "appendix rows keep full detail"
+    assert brief_caps["list_item"] == pro["list_item"], "a support keeps its full detail"
 
 
 def test_insight_fields_are_capped(content):
@@ -704,14 +796,23 @@ def _with_insight_layer(content):
     return c
 
 
-def test_brief_page_leads_with_verdict_and_insights_then_an_appendix_divider(content):
-    out = page(_with_insight_layer(content), "brief")
+def test_the_page_leads_with_verdict_and_insights_then_an_appendix_divider(content):
+    out = page(_with_insight_layer(content), "professional")
     assert 'id="verdict"' in out and 'id="insights"' in out
     assert '<div class="appendix-divider"' in out
     divider = out.index('<div class="appendix-divider"')
     assert out.index('id="insights"') < out.index('id="evbody"'), "insights lead the evidence"
     assert out.index('id="actlist"') < divider, "acts are in the main read"
+    assert out.index('id="next"') < divider, "so are the commitments"
     assert divider < out.index('id="evbody"'), "the record is the appendix"
+    assert html_errors(out) == []
+
+
+def test_brief_page_leads_with_verdict_and_insights_and_draws_no_record(content):
+    out = page(_with_insight_layer(content), "brief")
+    assert 'id="verdict"' in out and 'id="insights"' in out and 'id="next"' in out
+    assert '<div class="appendix-divider"' not in out, "brief renders no record to divide off"
+    assert 'id="evbody"' not in out and 'id="tlist"' not in out
     assert html_errors(out) == []
 
 
@@ -719,14 +820,43 @@ def test_no_appendix_drops_the_record_but_keeps_the_read(content):
     t = parse_transcript((FIXTURES / "bracket_hms.txt").read_text())
     out = build(
         template_path().read_text(),
-        within_budget(_with_insight_layer(content), "brief"),
+        within_budget(_with_insight_layer(content), "professional"),
         t.turns,
         metrics(t),
         diagrams=(FIXTURES / "diagrams.html").read_text(),
-        mode="brief",
+        mode="professional",
         appendix=False,
     )
     assert 'id="insights"' in out, "the main read stays"
     assert '<div class="appendix-divider"' not in out, "the boundary is gone"
     assert 'id="evbody"' not in out and 'id="tlist"' not in out, "the record is gone"
     assert html_errors(out) == []
+
+
+# --- the linter must see the document's opening position -----------------------
+# _prose_fields drove every prose check, but never yielded verdict.* or lands, so
+# the 28-word sentence cap and the register rules never ran on the very first
+# paragraph a reader sees. A review caught six over-long sentences living exactly
+# there. The fields are visible prose; they belong in scope.
+
+def test_prose_fields_covers_the_verdict_and_the_landings():
+    content = {
+        "verdict": {
+            "position": "A " + " ".join(["word"] * 40) + ".",
+            "for": ["short"], "against": ["short"], "decides_it": "short",
+        },
+        "lands": [{"observation": "o", "transfers_to": "B " + " ".join(["word"] * 40) + ".",
+                   "ts": "00:00:05", "s": 5}],
+        "acts": [],
+    }
+    where = {w for w, _t, _k in prose_fields(content)}
+    assert any(w.startswith("verdict.position") for w in where), where
+    assert any(w.startswith("lands[") for w in where), where
+
+    # word budgets live in prose_violations, sentence/filler rules in
+    # register_violations — both iterate _prose_fields, so both were blind here.
+    problems = prose_violations(content, "professional") + register_violations(
+        content, "professional"
+    )
+    assert any("verdict.position" in p and "28-word cap" in p for p in problems), problems
+    assert any("lands[0]" in p and "28-word cap" in p for p in problems), problems

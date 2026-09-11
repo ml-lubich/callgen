@@ -34,28 +34,28 @@ a.ts:hover,button.ts:hover{color:var(--ink);border-bottom-color:currentColor}
 .sk-row{display:grid;grid-template-columns:78px minmax(0,1fr);gap:14px;align-items:start}
 
 /* ---------- plate ---------- */
-.plate{padding:44px 0 30px;border-top:0}
+.plate{padding:24px 0 18px;border-top:0}
 .plate h1{
   font-family:var(--display);
   font-weight:400;
-  font-size:clamp(34px,6.4vw,64px);
-  line-height:1.03;
+  font-size:clamp(32px,5.2vw,54px);
+  line-height:1.04;
   letter-spacing:-.012em;
   max-width:18ch;
 }
-.plate .sub{margin-top:14px;font-size:21px;line-height:1.4;color:var(--ink-soft);max-width:56ch}
+.plate .sub{margin-top:10px;font-size:19px;line-height:1.4;color:var(--ink-soft);max-width:76ch}
 .metastrip{
-  margin-top:26px;
+  margin-top:18px;
   display:flex;
   flex-wrap:wrap;
   border-top:1px solid var(--grid);
   border-bottom:1px solid var(--grid);
 }
-.metastrip .cell{flex:1 1 130px;padding:14px 18px 14px 0;border-right:1px solid var(--grid)}
+.metastrip .cell{flex:1 1 130px;padding:11px 18px 11px 0;border-right:1px solid var(--grid)}
 .metastrip .cell:last-child{border-right:0}
 .metastrip dt{font:400 13px/1 var(--cond);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft)}
-.metastrip dd{margin:7px 0 0;font-size:17px;font-variant-numeric:tabular-nums}
-.plate-top{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:26px}
+.metastrip dd{margin:6px 0 0;font-size:17px;font-variant-numeric:tabular-nums}
+.plate-top{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:20px}
 .rule-word{font:400 13px/1 var(--cond);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft)}
 .tbtn{
   font:400 13px/1 var(--cond);
@@ -94,9 +94,34 @@ a.ts:hover,button.ts:hover{color:var(--ink);border-bottom-color:currentColor}
 .verdict-decides b{display:block;font:400 13px/1 var(--cond);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:6px}
 
 /* ---------- insights ---------- */
-.insights{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:26px}
-.insight{border-left:2px solid var(--ink-soft);padding:2px 0 4px 20px}
-.insight-claim{margin:0;font-size:23px;line-height:1.32;font-weight:600;letter-spacing:-.01em;color:var(--ink);max-width:60ch}
+/* One idea per tile, two across where there is room. The claim and the confidence are
+   all a closed card shows; the argument for it lives behind the card's disclosure, so
+   the tier reads as a set of ideas rather than four essays stacked. */
+.insight-cards{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
+.insight-card{
+  display:flex;flex-direction:column;
+  border:1px solid var(--grid);border-radius:var(--radius);
+  background:var(--paper-2);padding:20px 22px 8px;
+}
+@media (min-width:960px){
+  .insight-cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+  /* the analysis ranked these; the one it put first gets the full measure, and its
+     claim a step up to match. In one column there is nothing to span, so there is no
+     lead either — every card is already the full width of the page. */
+  .insight-lead{grid-column:1/-1}
+  .insight-lead .insight-claim{font-size:24px;line-height:1.28;max-width:52ch}
+}
+.insight-icon{display:block;color:var(--pen-n);margin-bottom:14px}
+.insight-icon svg{display:block}
+.insight-claim{margin:0;font-size:19px;line-height:1.34;font-weight:600;letter-spacing:-.01em;color:var(--ink);max-width:46ch}
+.insight-idea{margin:9px 0 0;font-size:15px;line-height:1.5;color:var(--ink-soft);max-width:60ch}
+/* the confidence is the last thing a closed card says, so it sits on the card's floor
+   whatever length the claim above it ran to */
+.insight-card .insight-confidence{margin-top:auto;padding-top:16px}
+.insight-card .collapse-head{border-bottom:0;margin-top:12px}
+.insight-card .collapse-btn{padding:10px 0;font-size:14px}
+.insight-card .collapse-mark{width:19px;height:19px;font-size:13px}
+.insight-basis{margin:12px 0 10px;font-size:14px;line-height:1.45;color:var(--ink-soft);max-width:60ch}
 .insight-supports{list-style:none;margin:14px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}
 .insight-supports li{display:flex;gap:12px;align-items:baseline;font-size:15px;line-height:1.45;color:var(--ink)}
 .insight-supports .ts{flex:0 0 auto}
@@ -106,12 +131,72 @@ a.ts:hover,button.ts:hover{color:var(--ink);border-bottom-color:currentColor}
 .insight-confidence .conf-dot{width:8px;height:8px;border-radius:50%;background:var(--ink-soft);flex:0 0 auto}
 .conf-high .conf-dot{background:var(--pen-b)}
 .conf-low .conf-dot{background:var(--pen-a)}
-.conf-basis{text-transform:none;letter-spacing:0}
 
-/* ---------- appendix divider ---------- */
-.appendix-divider{border-top:2px solid var(--ink-soft);margin-top:8px;padding:28px 0 4px}
-.appendix-divider span{display:block;font:400 14px/1 var(--cond);letter-spacing:.16em;text-transform:uppercase;color:var(--ink)}
-.appendix-divider p{margin:8px 0 0;font-size:15px;line-height:1.5;color:var(--ink-soft);max-width:60ch}
+/* ---------- tiers ---------- */
+/* The page reads in five bands — overview, concepts, discussion, actions, record — and
+   each opens with one of these rather than running on as a single column of sections.
+   The record band is what the appendix divider used to be. */
+.tier-band{
+  border-top:2px solid var(--ink-soft);
+  background:var(--paper-2);
+  margin-top:10px;
+  scroll-margin-top:46px;
+}
+.tier-band .wrap{
+  padding-top:16px;padding-bottom:15px;
+  display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:18px;align-items:baseline;
+}
+.tier-n{
+  font:400 13px/1 var(--cond);letter-spacing:.16em;color:var(--ink-soft);
+  font-variant-numeric:tabular-nums;
+}
+.tier-label{
+  font-family:var(--display);font-weight:400;
+  font-size:clamp(24px,2.9vw,34px);line-height:1.06;letter-spacing:-.012em;
+  margin:0;
+}
+.tier-lede{grid-column:2;margin:7px 0 0;font-size:16px;line-height:1.5;color:var(--ink-soft);max-width:66ch}
+@media (max-width:600px){
+  .tier-band .wrap{grid-template-columns:minmax(0,1fr)}
+  .tier-lede{grid-column:1}
+}
+
+/* the bar is a convenience on top of the bands, so it is gone where it would crowd the
+   page; the reduced-motion rule at the foot of this file takes its transitions away
+   without taking the links */
+.tier-nav{position:sticky;top:0;z-index:4;background:var(--paper);border-bottom:1px solid var(--grid)}
+.tier-nav .wrap{display:flex;gap:28px;overflow-x:auto}
+.tier-nav a{
+  padding:12px 0;text-decoration:none;white-space:nowrap;
+  font:400 13px/1 var(--cond);letter-spacing:.06em;text-transform:uppercase;
+  color:var(--ink-soft);border-bottom:2px solid transparent;
+  transition:color .2s,border-color .2s;
+}
+.tier-nav a:hover{color:var(--ink)}
+.tier-nav a.on{color:var(--ink);border-bottom-color:var(--pen-a)}
+@media (max-width:760px){.tier-nav{display:none}}
+
+/* ---------- snapshot ---------- */
+/* the whole read, compressed to one screen: the finding, the numbers that size the call,
+   and the two claims it turns on */
+.snapshot{padding:13px 0 2px}
+.snap-position{
+  font-family:var(--display);font-weight:400;
+  font-size:clamp(20px,2.4vw,26px);line-height:1.3;letter-spacing:-.008em;
+  max-width:60ch;margin:0;
+}
+.snap-tiles{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(122px,1fr));
+  gap:1px;margin:16px 0 0;background:var(--grid);
+  border:1px solid var(--grid);border-radius:var(--radius);overflow:hidden;
+}
+.snap-tile{background:var(--paper-2);padding:11px 16px 13px}
+.snap-tile dt{font:400 13px/1 var(--cond);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft)}
+.snap-tile dd{margin:7px 0 0;font-family:var(--display);font-size:25px;line-height:1;font-variant-numeric:tabular-nums}
+.snap-insights{list-style:none;margin:11px 0 0;padding:0;display:grid;gap:5px}
+.snap-insights li{position:relative;padding-left:19px;max-width:74ch;font-size:15px;line-height:1.42}
+.snap-insights li::before{content:"";position:absolute;left:0;top:10px;width:10px;height:1px;background:var(--pen-a)}
+@media (max-width:600px){.snap-tile dd{font-size:22px}}
 
 /* ---------- chart ---------- */
 .chart-sec{padding-top:8px;border-top:0}
@@ -155,8 +240,13 @@ a.ts:hover,button.ts:hover{color:var(--ink);border-bottom-color:currentColor}
   pointer-events:none;
 }
 
-/* ---------- abstract ---------- */
-.abstract p{font-size:19px;line-height:1.62}
+/* ---------- prose ---------- */
+/* Long prose gets an entry point rather than an even grey block: the first sentence a
+   step up, the rest a step down, and never wider than a comfortable measure. */
+/* every prose block on the page already carries its own measure — .narrow, .act .sum,
+   .insight-implication and the rest — so the lead line is all this adds */
+.abstract p{font-size:17px;line-height:1.62}
+.lead{font-size:19px;line-height:1.55}
 
 /* ---------- acts ---------- */
 .timebar{position:relative;height:30px;border:1px solid var(--grid);border-radius:8px;overflow:hidden;background:var(--paper-2);margin-bottom:22px}
@@ -394,10 +484,10 @@ mark{background:var(--hl);color:inherit}
 .actstack .actcard .n{color:var(--pen-a)}
 
 /* ---------- speaker key ---------- */
-.speakers{display:flex;flex-wrap:wrap;gap:0;margin-top:16px;border-bottom:1px solid var(--grid)}
+.speakers{display:flex;flex-wrap:wrap;gap:0;margin-top:12px;border-bottom:1px solid var(--grid)}
 .speaker{
   display:flex;align-items:baseline;gap:9px;
-  padding:9px 20px 9px 0;margin-right:20px;
+  padding:7px 20px 7px 0;margin-right:20px;
   font:400 14px/1.2 var(--body);
 }
 .speaker .swatch{width:14px;height:3px;flex:0 0 auto;position:relative;top:-3px}
@@ -458,6 +548,23 @@ mark{background:var(--hl);color:inherit}
   .sec-body > div > .steps{display:grid;grid-template-columns:1fr 1fr;column-gap:38px}
   .sec-body > div > .rows > li,
   .sec-body > div > .steps > li{border-top:1px solid var(--grid);border-bottom:0}
+  /* Four or more rows of running prose read as a wall in one column, so from here they
+     become a two-column grid of small cards. :has counts the rows — three or fewer stay
+     the ladder they were, which is easier to read than two short columns — and the child
+     chain keeps this off the lists already sharing a row inside .twoup or .fitgrid. */
+  .sec-body > div > .rows:has(> li:nth-child(4)),
+  .sec-body > div > .steps:has(> li:nth-child(4)),
+  .sec-body > div > .bullets:has(> li:nth-child(4)){
+    display:grid;grid-template-columns:1fr 1fr;column-gap:16px;row-gap:16px;
+    max-width:none;
+  }
+  .sec-body > div > .rows:has(> li:nth-child(4)) > li,
+  .sec-body > div > .steps:has(> li:nth-child(4)) > li,
+  .sec-body > div > .bullets:has(> li:nth-child(4)) > li{
+    border:1px solid var(--grid);border-radius:var(--radius);
+    background:var(--paper-2);padding:14px 16px;
+  }
+  .sec-body > div > .bullets:has(> li:nth-child(4)) > li::before{display:none}
   /* the figures and the reader bring their own rails; two side by side is one too many */
   #sec-figures .spread,
   #sec-transcript .spread{grid-template-columns:minmax(0,1fr)}

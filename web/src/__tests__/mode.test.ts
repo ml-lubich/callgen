@@ -108,8 +108,15 @@ describe("the appendix boundary", () => {
     expect(shapeOf({} as never).appendix).toEqual([]);
   });
 
-  it("puts insights into the default reading order, right after the abstract", () => {
+  it("puts insights into the default reading order, ahead of the record", () => {
     const s = shapeOf({});
-    expect(s.sections.indexOf("insights")).toBe(s.sections.indexOf("abstract") + 1);
+    expect(s.sections.indexOf("insights")).toBeGreaterThan(s.sections.indexOf("abstract"));
+    expect(s.sections.indexOf("insights")).toBeLessThan(s.sections.indexOf("evidence"));
+  });
+
+  it("moves the next steps up, ahead of the record they are drawn from", () => {
+    const s = shapeOf({});
+    expect(s.sections.indexOf("next")).toBeLessThan(s.sections.indexOf("evidence"));
+    expect(s.sections.indexOf("next")).toBeGreaterThan(s.sections.indexOf("threads"));
   });
 });

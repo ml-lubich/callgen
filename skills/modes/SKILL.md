@@ -11,7 +11,9 @@ A mode is a named preset over three things:
    through `callgen.modes.prompt_guidance(name)`.
 2. **Shape** — which sections render, in what order, each section's word budget
    and the cap on the figure set. It reaches the page as a `_mode` block inside
-   `content.json`, and the template obeys it.
+   `content.json`, and the template obeys it. The order is not free: sections are
+   grouped into five **tiers** of rising depth, and a mode picks sections, never
+   tiers.
 3. **Emphasis** — what the verdict, the evidence and the figures optimise for.
 
 **A mode changes shape and register. It never changes facts.** Dropping a
@@ -20,28 +22,57 @@ added, softened, reweighted or invented to make a mode fit. If a claim will not
 fit the budget it is cut, not hedged. Every mode still runs through the same
 schema gate, the same diagram lint and the same adversarial verify.
 
+## The five tiers
+
+The page answers first and documents last. Every section belongs to exactly one
+tier, and the tiers always render in this order:
+
+| Tier | Label | What belongs to it |
+|---|---|---|
+| `overview` | Overview | `strip`, `abstract`, `highlights` — what the call decided and how it ran |
+| `concepts` | The main ideas | `insights`, `figures` — the concepts the call turned on, drawn |
+| `discussion` | What was discussed | `acts`, `threads` — how the conversation actually moved |
+| `actions` | What happens next | `next` — the commitments, with owners and times |
+| `record` | The record | `evidence`, `signals`, `numbers`, `tech`, `friction`, `quotes`, `fit`, `transcript` |
+
+A mode chooses sections; the tiers fall out of that choice. A mode that lists its
+sections out of tier order is reordered into it, and a mode that keeps no section
+from a tier simply has no such tier — `brief` stops after the commitments,
+`diagrams-only` after the ideas. Inside a tier a mode still says what leads:
+`casual` opens the record with the quotes, `interesting` opens the discussion
+with the threads.
+
+The **record tier is the appendix**. Wherever it renders, the page draws a
+divider, ends the main read there and folds every section behind it. No fact
+moves: the record is complete, it is just no longer in the reader's first six
+pages. `callgen build --no-appendix` drops those sections from the render
+entirely, for a print where the record is not wanted.
+
+`tier_order(mode)` returns the tiers a mode renders — id, label, lede and the
+sections under it — and `apply` writes the same list into the `_mode` block as
+`tiers`, which is what the page reads to draw the boundaries.
+
 ## The modes
 
 `callgen modes` prints this list with one-line summaries.
 
 **`professional`** *(default)* — the current behaviour. Neutral, unhurried
 register; third person where it reads naturally, first person where quoting;
-contractions fine. Every section renders in template order and the figure set
-runs to 8–12. The verdict states what was decided and then what remains open,
+contractions fine. All five tiers render, every section in tier order, and the
+figure set runs to 8–12. The verdict states what was decided and then what remains open,
 evidence is ranked by strength rather than by order of appearance, and the
 figures cover the whole call rather than its most quotable minute. This is the
 mode to reach for when you do not have a reason to reach for another.
 
 **`brief`** — the mode for a readout someone will actually read. The verdict
-opens the document, the **insights** follow it, and the figures that carry them
-come next; the acts and threads are compressed to a line each. Everything a
-reader checks rather than reads — the evidence table, the signals, the numbers,
-the named tech, the friction, the fit and the transcript — falls behind an
-**appendix** divider, folded, losing no fact and none of the reader's first four
-to six pages. Quotes stop being their own section; the strongest live inside the
-insight they support. The narrative caps are genuinely tight (an act is a line),
-while the appendix rows keep the full-detail list-item cap. Reach for `brief`
-for a briefing; leave `professional` for the complete record.
+opens the document, the **insights** follow it, the four figures that carry them
+come next and the commitments close it. It renders the overview, the ideas and
+the actions, and stops: no acts, no threads, no evidence table, no signals, no
+transcript. Quotes stop being their own section; the strongest live inside the
+insight they support. The narrative caps are genuinely tight, while a support
+keeps the full-detail list-item cap. Reach for `brief` when a reader needs the
+finding; render `professional` alongside it when someone will want to check a
+claim against a timestamp.
 
 **`concise`** — the professional register with every sentence paid for: one
 clause where two were used, every prose budget halved. Threads and signals stop
@@ -53,26 +84,27 @@ that merely corroborates is dropped.
 **`formal`** — third person throughout, no contractions, no quoted slang, no
 rhetorical questions, participants named by role on first mention. The verdict
 is written as numbered findings rather than as a recommendation. The evidence
-table leads the document and the figures follow it, ten at most, each caption
-citing the timestamps it was built from. Findings before interpretation.
+table opens the record and the ten figures each cite the timestamps their
+caption was built from. Findings before interpretation.
 
 **`casual`** — second person, contractions, short sentences, the reader
-addressed directly. The quotes lead and carry the voice of the call; commentary
-between them stays brief. The verdict reads as a note to a friend who asked how
+addressed directly. The quotes open the record and carry the voice of the call;
+commentary between them stays brief. The verdict reads as a note to a friend who asked how
 it went. Evidence is mentioned in passing rather than tabulated at length, and
 the figure set is the lighter six.
 
 **`interesting`** — opens on the three most surprising moments of the call —
 the tensions and the turning points — and says why each was surprising. Every
 thread is reframed as the thing nobody said out loud: what the participants were
-circling, in the words they avoided. The verdict names what *changed* during the
-call rather than what was concluded, and the eight figures are chosen for
+circling, in the words they avoided. The threads open the discussion and the
+friction opens the record. The verdict names what *changed* during the call
+rather than what was concluded, and the eight figures are chosen for
 surprise rather than for completeness, so a figure that confirms the obvious is
 cut. Nothing here licenses manufacturing a tension the transcript does not
 support.
 
-**`summarized`** — abstract, verdict, one composite figure and the numbers.
-Nothing else, under 400 words of prose in total, no transcript. Threads and
+**`summarized`** — abstract, verdict and one composite figure. Nothing else,
+under 400 words of prose in total, no record and no transcript. Threads and
 signals collapse into a `highlights` list of at most five: the things that would
 change a reader's mind. One reader, two minutes, no scrolling.
 
@@ -90,10 +122,10 @@ than a box. The abstract, caption and quote budgets are the generous ones.
 Evidence supports the essay instead of interrupting it, and nothing is
 dramatised past what was said.
 
-**`diagrams-only`** — the figure set with its lead-in and its bridges, the strip
-chart, and the numbers. No acts, threads, evidence, quotes or transcript. The
+**`diagrams-only`** — the figure set with its lead-in and its bridges, and the
+strip chart. No acts, threads, evidence, quotes, numbers or transcript. The
 figures *are* the document, so the bridges between consecutive figures have to
-carry the argument; every claim lives in a figure or in a number.
+carry the argument; every claim lives in a figure.
 
 ## The caps are hard
 
@@ -103,7 +135,7 @@ prose sections, and names every field and rule it fails. Per mode, scaled from
 the professional defaults — `summarized` and `compact` at 0.6, `concise` at
 0.75, `creative` at 1.3. `brief` instead overrides the narrative kinds directly
 (act summary 22, thread 30, paragraph 45, insight claim 24, insight implication
-36) while leaving the list item at 30, because the appendix rows it governs carry
+36) while leaving the list item at 30, because the supports it governs carry
 full detail:
 
 | Cap | Professional | Applies to |
@@ -198,8 +230,8 @@ callgen build --content work/content.json --turns work/turns.json \
 
 `callgen.modes.apply(content, mode)` is what the build calls. It returns a new
 content dict with the dropped sections gone and a `_mode` block added carrying
-the mode name, the section order, the budgets, the figure cap and the transcript
-setting. **Prose over budget is not truncated** — a paragraph cut to a word
+the mode name, the section order, the tiers it renders, the sections behind the
+appendix boundary, the budgets, the figure cap and the transcript setting. **Prose over budget is not truncated** — a paragraph cut to a word
 count is a mutilated paragraph, so the budget goes to the writer, and the page
 records what was asked for. Naming a mode that does not exist fails with the
 list of the ones that do.
@@ -241,12 +273,19 @@ The file is validated on load and every failure names the mode and the field:
 section ids must be known, budgets must be positive whole numbers of words,
 `figures` a whole number, `transcript` one of `open`, `collapsed`, `omit`.
 
-The section ids, in template order:
+The section ids, in tier order:
 
 ```
-strip  abstract  highlights  figures  acts  threads  evidence  signals
-numbers  tech  friction  quotes  fit  next  transcript
+strip  abstract  highlights        (overview)
+insights  figures                  (concepts)
+acts  threads                      (discussion)
+next                               (actions)
+evidence  signals  numbers  tech  friction  quotes  fit  transcript   (record)
 ```
+
+A mode may list them in any order; they are rendered in this one, with a mode's
+own preference kept inside each tier. A mode cannot name a tier and cannot
+invent one.
 
 `strip`, `figures` and `transcript` are drawn from the metrics, the injected
 figure fragment and `turns.json` rather than from `content.json`, so they cannot
