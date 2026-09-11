@@ -616,3 +616,15 @@ mark{background:var(--hl);color:inherit}
   color:var(--ink-soft);
 }
 @media (max-width:600px){.colophon{padding:20px 18px 36px}}
+
+/* ---------- paper ---------- */
+/* Everything the page reveals on scroll is hidden until an observer says otherwise.
+   Paper has no scroll and neither does a full-page capture, so without this the
+   document prints blank below the first screen. The scroll-only furniture — the tier
+   nav and the theme toggle — has nothing to do on paper and comes out. */
+@media print{
+  .rv{opacity:1;animation:none}
+  .tier-nav,.tbtn{display:none}
+  .tier-band{break-inside:avoid}
+  figure,.insight-card{break-inside:avoid}
+}
